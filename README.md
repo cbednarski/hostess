@@ -1,6 +1,6 @@
 # hostess
 
-A command-line utility for managing your /etc/hosts file.
+A command-line utility for managing your `/etc/hosts` file.
 
 ## Usage
 
