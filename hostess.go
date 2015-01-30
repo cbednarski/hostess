@@ -14,20 +14,22 @@ type Hostname struct {
 
 type Hostfile struct {
 	Path  string
-	Hosts map[string]Hostname
+	Hosts map[string]*Hostname
+	data  string
 }
 
 func NewHostfile(path string) *Hostfile {
-	return &Hostfile{path, make(map[string]Hostname)}
+	return &Hostfile{path, make(map[string]*Hostname), ""}
 }
 
-func readHosts(path string) string {
-	data, err := ioutil.ReadFile(path)
+func (h *Hostfile) Read() string {
+	data, err := ioutil.ReadFile(h.Path)
 	if err != nil {
-		fmt.Println("Can't read ", path)
+		fmt.Println("Can't read ", h.Path)
 		os.Exit(1)
 	}
-	return string(data)
+	h.data = string(data)
+	return h.data
 }
 
 func writeHosts(path string, contents string) {
@@ -43,27 +45,26 @@ func parseHosts(hostfile string) []Hostname {
 	return hosts
 }
 
-func listHosts(hosts []Hostname, host Hostname) {
-
-}
-
 func (h *Hostfile) Add(host Hostname) {
-	if h.Hosts == nil {
-		h.Hosts = make(map[string]Hostname)
+	h.Hosts[host.Domain] = &host
+}
+
+func (h *Hostfile) Delete(domain string) {
+	delete(h.Hosts, domain)
+}
+
+func (h *Hostfile) Enable(domain string) {
+	_, ok := h.Hosts[domain]
+	if ok {
+		h.Hosts[domain].Enabled = true
 	}
-	h.Hosts[host.Domain] = host
 }
 
-func (h *Hostfile) Delete(host string) {
-	delete(h.Hosts, host)
-}
-
-func (h *Hostfile) Enable(host string) {
-
-}
-
-func (h *Hostfile) Disable(host string) {
-
+func (h *Hostfile) Disable(domain string) {
+	_, ok := h.Hosts[domain]
+	if ok {
+		h.Hosts[domain].Enabled = false
+	}
 }
 
 func getHostsPath() string {
@@ -80,28 +81,13 @@ func getCommand() string {
 
 func getArgs() []string {
 	return os.Args[2:]
-	// count := len(os.Args[2:])
-	// args := make([]string, count)
-	// if count == 0 {
-	// 	return args
-	// }
-
-	// for i := 0; i < count; i++ {
-	// 	args[i] = append(args, os.Args[i+2])
-	// }
-	// return args
 }
 
 func main() {
-	hostfile := new(Hostfile)
-	hostfile.Path = "/etc/hosts"
-	h := Hostname{"localhost", "127.0.0.1", true}
-	hostfile.Add(h)
-	fmt.Println(hostfile)
-	hostfile.Delete(h.Domain)
-	fmt.Println(hostfile)
+	hostfile := NewHostfile(getHostsPath())
+	hostfile.Read()
+	hostfile.Add(Hostname{"localhost", "127.0.0.1", true})
+	hostfile.Enable("localhost")
 
-	// fmt.Println(getCommand())
-	// fmt.Println(getArgs())
-	// fmt.Println(readHosts(getHostsPath()))
+	fmt.Println(getArgs())
 }
