@@ -22,10 +22,11 @@ const ipv4_fail = `
 
 const ipv6 = ``
 
+const domain = "localhost"
+const ip = "127.0.0.1"
+const enabled = true
+
 func TestHostname(t *testing.T) {
-	const domain = "localhost"
-	const ip = "127.0.0.1"
-	const enabled = true
 
 	h := Hostname{}
 	h.Domain = domain
@@ -33,13 +34,13 @@ func TestHostname(t *testing.T) {
 	h.Enabled = enabled
 
 	if h.Domain != domain {
-		t.Error("Domain should match " + domain)
+		t.Errorf("Domain should be %s", domain)
 	}
 	if h.Ip != ip {
-		t.Error("Domain should match " + ip)
+		t.Errorf("Domain should be %s", ip)
 	}
 	if h.Enabled != enabled {
-		t.Error("Enabled should be " + ip)
+		t.Errorf("Enabled should be %s", enabled)
 	}
 }
 
@@ -53,5 +54,24 @@ func TestGetHostsPath(t *testing.T) {
 
 func TestHostfile(t *testing.T) {
 	hostfile := NewHostfile(GetHostsPath())
-	hostfile.Add(Hostname{"localhost", "127.0.0.1", true})
+	hostfile.Add(Hostname{domain, ip, true})
+	if hostfile.Hosts[domain].Ip != ip {
+		t.Errorf("Hostsfile should have %s pointing to %s", domain, ip)
+	}
+
+	hostfile.Disable(domain)
+	if hostfile.Hosts[domain].Enabled != false {
+		t.Errorf("%s should be disabled", domain)
+	}
+
+	hostfile.Enable(domain)
+	if hostfile.Hosts[domain].Enabled != true {
+		t.Errorf("%s should be enabled", domain)
+	}
+
+	hostfile.Delete(domain)
+	if hostfile.Hosts[domain] != nil {
+		t.Errorf("Did not expect to find %s", domain)
+	}
+
 }
