@@ -95,6 +95,17 @@ func (h *Hostfile) Read(hostfile string) []Hostname {
 	return hosts
 }
 
+func getSortedMapKeys(m map[string][]string) []string {
+	keys := make([]string, len(m))
+	i := 0
+	for k := range m {
+		keys[i] = k
+		i += 1
+	}
+	keys = sort.StringSlice(keys)
+	return keys
+}
+
 // Dump takes the current list of Hostnames in this Hostfile and turns it into
 // a string suitable for use as an /etc/hosts file.
 // Sorting uses the following logic:
@@ -103,7 +114,7 @@ func (h *Hostfile) Read(hostfile string) []Hostname {
 // 3. 127.* appears at the top of the list (so boot resolvers don't break)
 // 4. When present, localhost will always appear first in the domain list
 func (h *Hostfile) Format() string {
-	localhost := "127.0.0.1 localhost"
+	// localhost := "127.0.0.1 localhost"
 
 	localhosts := make(map[string][]string)
 	ips := make(map[string][]string)
@@ -119,19 +130,59 @@ func (h *Hostfile) Format() string {
 		}
 	}
 
+	localhosts_keys := getSortedMapKeys(localhosts)
+	ips_keys := getSortedMapKeys(ips)
 	out := make([]string, 0)
-	for _, hostname := range h.Hosts {
-		if hostname.Enabled && hostname.Ip == "127.0.0.1" {
-			if hostname.Domain != "localhost" {
-				localhost += " " + hostname.Domain
-			}
-		} else {
-			out = append(out, hostname.Format())
-		}
 
+	for _, ip := range localhosts_keys {
+		enabled := ip
+		enabled_b := false
+		disabled := "# " + ip
+		disabled_b := false
+		for _, hostname := range h.Hosts {
+			if hostname.Ip == ip {
+				if hostname.Enabled {
+					enabled += " " + hostname.Domain
+					enabled_b = true
+				} else {
+					disabled += " " + hostname.Domain
+					disabled_b = true
+				}
+			}
+		}
+		if enabled_b {
+			out = append(out, enabled)
+		}
+		if disabled_b {
+			out = append(out, disabled)
+		}
 	}
-	sort.Sort(sort.StringSlice(out))
-	return localhost + "\n" + strings.Join(out, "\n")
+
+	for _, ip := range ips_keys {
+		enabled := ip
+		enabled_b := false
+		disabled := "# " + ip
+		disabled_b := false
+		for _, hostname := range h.Hosts {
+			if hostname.Ip == ip {
+				if hostname.Enabled {
+					enabled += " " + hostname.Domain
+					enabled_b = true
+				} else {
+					disabled += " " + hostname.Domain
+					disabled_b = true
+				}
+			}
+		}
+		if enabled_b {
+			out = append(out, enabled)
+		}
+		if disabled_b {
+			out = append(out, disabled)
+		}
+	}
+
+	return strings.Join(out, "\n")
 }
 
 func (h *Hostfile) Save() error {
