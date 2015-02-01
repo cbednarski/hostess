@@ -89,7 +89,7 @@ func Read(hostfile string) []Hostname {
 	return hosts
 }
 
-func ReadFile(path string) {
+func (h *Hostfile) ReadFile(path string) {
 
 }
 
@@ -125,7 +125,5 @@ func GetHostsPath() string {
 
 func Hostess() {
 	hostfile := NewHostfile(GetHostsPath())
-	hostfile.Read()
-	hostfile.Add(Hostname{"localhost", "127.0.0.1", true})
-	hostfile.Enable("localhost")
+	hostfile.ReadFile(hostfile.Path)
 }

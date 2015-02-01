@@ -1,7 +1,8 @@
 package main
 
 import (
-	"github.com/cbednarski/hostess"
+	// "github.com/cbednarski/hostess"
+	"os"
 )
 
 func getCommand() string {
@@ -13,5 +14,5 @@ func getArgs() []string {
 }
 
 func main() {
-	hostess.Hostess()
+
 }
