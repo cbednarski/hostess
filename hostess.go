@@ -61,17 +61,22 @@ func (h *Hostfile) Read() string {
 	return h.data
 }
 
-func coalesce(hostnames []Hostname) string {
+func Dump(hostnames []Hostname) string {
 	return ""
 }
 
-func writeHosts(path, contents string) {
+func DumpToFile(path string) {
 
 }
 
 var line_parser = regexp.MustCompile(``)
 
 func parseLine(line string) (Hostname, error) {
+	// 1. Split on # to discard comments.
+	// 2. Split on first space to find the IP
+	// 3. Split remainder of line on whitespace to find
+	//    domain names
+	// 4. Validate the IP (maybe -- could be ipv4 or ipv6)
 	hostname := Hostname{}
 	if false {
 		return hostname, errors.New("Can't parse hostname")
@@ -79,9 +84,13 @@ func parseLine(line string) (Hostname, error) {
 	return hostname, nil
 }
 
-func parseHosts(hostfile string) []Hostname {
+func Read(hostfile string) []Hostname {
 	var hosts = make([]Hostname, 0)
 	return hosts
+}
+
+func ReadFile(path string) {
+
 }
 
 func (h *Hostfile) Add(host Hostname) {
@@ -114,19 +123,9 @@ func GetHostsPath() string {
 	return path
 }
 
-func getCommand() string {
-	return os.Args[1]
-}
-
-func getArgs() []string {
-	return os.Args[2:]
-}
-
 func Hostess() {
 	hostfile := NewHostfile(GetHostsPath())
 	hostfile.Read()
 	hostfile.Add(Hostname{"localhost", "127.0.0.1", true})
 	hostfile.Enable("localhost")
-
-	fmt.Println(getArgs())
 }
