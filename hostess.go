@@ -1,9 +1,11 @@
-package main
+package hostess
 
 import (
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"os"
+	"regexp"
 )
 
 const default_osx = `
@@ -59,12 +61,22 @@ func (h *Hostfile) Read() string {
 	return h.data
 }
 
-func writeHosts(path string, contents string) {
+func coalesce(hostnames []Hostname) string {
+	return ""
+}
+
+func writeHosts(path, contents string) {
 
 }
 
-func parseLine(line string) {
-	// return (Hostname, err)
+var line_parser = regexp.MustCompile(``)
+
+func parseLine(line string) (Hostname, error) {
+	hostname := Hostname{}
+	if false {
+		return hostname, errors.New("Can't parse hostname")
+	}
+	return hostname, nil
 }
 
 func parseHosts(hostfile string) []Hostname {
@@ -94,7 +106,7 @@ func (h *Hostfile) Disable(domain string) {
 	}
 }
 
-func getHostsPath() string {
+func GetHostsPath() string {
 	path := os.Getenv("HOSTESS_FILE")
 	if path == "" {
 		path = "/etc/hosts"
@@ -110,8 +122,8 @@ func getArgs() []string {
 	return os.Args[2:]
 }
 
-func main() {
-	hostfile := NewHostfile(getHostsPath())
+func Hostess() {
+	hostfile := NewHostfile(GetHostsPath())
 	hostfile.Read()
 	hostfile.Add(Hostname{"localhost", "127.0.0.1", true})
 	hostfile.Enable("localhost")
