@@ -175,7 +175,8 @@ func (h *Hostfile) Format() string {
 		enabled_b := false
 		disabled := "# " + ip
 		disabled_b := false
-		for _, hostname := range h.Hosts {
+		for _, domain := range h.ListDomainsByIp(ip) {
+			hostname := *h.Hosts[domain]
 			if hostname.Ip == ip {
 				if hostname.Enabled {
 					enabled += " " + hostname.Domain
@@ -199,7 +200,8 @@ func (h *Hostfile) Format() string {
 		enabled_b := false
 		disabled := "# " + ip
 		disabled_b := false
-		for _, hostname := range h.Hosts {
+		for _, domain := range h.ListDomainsByIp(ip) {
+			hostname := *h.Hosts[domain]
 			if hostname.Ip == ip {
 				if hostname.Enabled {
 					enabled += " " + hostname.Domain
