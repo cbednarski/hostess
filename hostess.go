@@ -60,6 +60,10 @@ type Hostfile struct {
 	data  string
 }
 
+func TrimWS(s string) string {
+	return strings.Trim(s, " \n\t")
+}
+
 // NewHostFile creates a new Hostfile object from the specified file.
 func NewHostfile(path string) *Hostfile {
 	return &Hostfile{path, make(map[string]*Hostname), ""}
@@ -102,12 +106,34 @@ func getSortedMapKeys(m map[string][]string) []string {
 		keys[i] = k
 		i += 1
 	}
-	keys = sort.StringSlice(keys)
+	sort.Strings(keys)
 	return keys
 }
 
-// Dump takes the current list of Hostnames in this Hostfile and turns it into
-// a string suitable for use as an /etc/hosts file.
+func (h *Hostfile) ListDomainsByIp(ip string) []string {
+	names := make([]string, 0)
+	for _, v := range h.Hosts {
+		if v.Ip == ip {
+			names = append(names, v.Domain)
+		}
+	}
+	sort.Strings(names)
+
+	// Magic for localhost only, to make sure it's the first domain on its line
+	if ip == "127.0.0.1" {
+		for k, v := range names {
+			if v == "localhost" {
+				names = append(names[:k], names[k+1:]...)
+			}
+		}
+		names = append([]string{"localhost"}, names...)
+	}
+
+	return names
+}
+
+// Format takes the current list of Hostnames in this Hostfile and turns it
+// into a string suitable for use as an /etc/hosts file.
 // Sorting uses the following logic:
 // 1. List is sorted by IP address
 // 2. Commented items are left in place
