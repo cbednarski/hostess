@@ -110,6 +110,21 @@ func getSortedMapKeys(m map[string][]string) []string {
 	return keys
 }
 
+// MoveToFront looks for string in a slice of strings and if it finds it, moves
+// it to the front of the slice.
+// Note: this could probably be made faster using pointers to switch the values
+// instead of copying a bunch of crap, but it works and speed is not a problem.
+func MoveToFront(list []string, search string) []string {
+	for k, v := range list {
+		if v == search {
+			list = append(list[:k], list[k+1:]...)
+		}
+	}
+	return append([]string{search}, list...)
+}
+
+// ListDomainsByIp will look through Hostfile to find domains that match the
+// specified Ip and return them in a sorted slice.
 func (h *Hostfile) ListDomainsByIp(ip string) []string {
 	names := make([]string, 0)
 	for _, v := range h.Hosts {
@@ -121,12 +136,7 @@ func (h *Hostfile) ListDomainsByIp(ip string) []string {
 
 	// Magic for localhost only, to make sure it's the first domain on its line
 	if ip == "127.0.0.1" {
-		for k, v := range names {
-			if v == "localhost" {
-				names = append(names[:k], names[k+1:]...)
-			}
-		}
-		names = append([]string{"localhost"}, names...)
+		names = MoveToFront(names, "localhost")
 	}
 
 	return names
