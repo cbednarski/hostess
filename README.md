@@ -1,10 +1,11 @@
 # hostess
 
-A command-line utility for managing your `/etc/hosts` file.
+An idempotent command-line utility for managing your `/etc/hosts` file.
 
 ## Usage
 
     hostess add domain ip   # Add or change a hosts entry for this domain pointing to this IP
+    hostess add -off domain ip  # Add in a disabled state (if it already exists, disable it)
     hostess del domain      # Remove a domain from your hosts file
     hostess has domain      # exit code 0 or 1 depending on whether the domain is in your hosts file
     hostess off domain      # Disable a domain (but don't remove it completely)
