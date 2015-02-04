@@ -57,7 +57,7 @@ func LooksLikeIpv6(ip string) bool {
 }
 
 func parseLine(line string) []Hostname {
-	hostnames := make([]Hostname, 0)
+	var hostnames []Hostname
 
 	// Parse leading # for disabled lines
 	enabled := true
@@ -191,7 +191,7 @@ func MoveToFront(list []string, search string) []string {
 // ListDomainsByIp will look through Hostfile to find domains that match the
 // specified Ip and return them in a sorted slice.
 func (h *Hostfile) ListDomainsByIp(ip string) []string {
-	names := make([]string, 0)
+	var names []string
 	for _, v := range h.Hosts {
 		if v.Ip == ip {
 			names = append(names, v.Domain)
@@ -233,7 +233,7 @@ func (h *Hostfile) Format() string {
 
 	localhosts_keys := getSortedMapKeys(localhosts)
 	ips_keys := getSortedMapKeys(ips)
-	out := make([]string, 0)
+	var out []string
 
 	for _, ip := range localhosts_keys {
 		enabled := ip
