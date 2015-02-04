@@ -63,7 +63,7 @@ func parseLine(line string) []Hostname {
 	enabled := true
 	if line[0:1] == "#" {
 		enabled = false
-		line = line[1:]
+		line = TrimWS(line[1:])
 	}
 
 	// Parse other comment for actual comments
