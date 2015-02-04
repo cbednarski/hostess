@@ -174,8 +174,14 @@ func TestListDomainsByIp(t *testing.T) {
 func TestParseLine(t *testing.T) {
 	var hosts = []Hostname{}
 
-	// Commented stuff
+	// Comment
 	hosts = parseLine("# The following lines are desirable for IPv6 capable hosts")
+	if len(hosts) > 0 {
+		t.Error("Expected to find zero hostnames")
+	}
+
+	// Single word comment
+	hosts = parseLine("#blah")
 	if len(hosts) > 0 {
 		t.Error("Expected to find zero hostnames")
 	}

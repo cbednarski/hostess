@@ -41,9 +41,36 @@ func TrimWS(s string) string {
 	return strings.Trim(s, " \n\t")
 }
 
-var line_parser = regexp.MustCompile(``)
-
 func parseLine(line string) []Hostname {
+	hostnames := make([]Hostname, 0)
+
+	// Parse leading comment for disabled lines
+	enabled := true
+	if line[0:1] == "#" {
+		enabled = false
+		line = line[1:]
+	}
+
+	// Parse other comment for actual comments
+	line = strings.Split(line, "#")[0]
+
+	// Replace tabs and multispaces with single spaces throughout
+	line = strings.Replace(line, "\t", " ", -1)
+	line = strings.Replace(line, "  ", " ", -1)
+
+	// Break line into words
+	words := strings.Split(line, " ")
+
+	// Separate the first bit (the ip) from the other bits (the domains)
+	ip := words[0]
+	domains := words[1:]
+
+	if LooksLikeIpv4(ip) || LooksLikeIpv6(ip) {
+		for _, v := range domains {
+			hostnames = append(hostnames, Hostname{v, ip, enabled})
+		}
+	}
+
 	// 1. Split on # to discard comments.
 	//    - What if it's a legit line but commented out?
 	//    - Disabled lines should have # at the beginning of the line
@@ -54,14 +81,17 @@ func parseLine(line string) []Hostname {
 	// 3. Split remainder of line on whitespace to find
 	//    domain names
 	//    - Watch out for comments.
-	hostnames := make([]Hostname, 0)
 
 	return hostnames
 }
 
+var ipv4_pattern = regexp.MustCompile(`^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$`)
+
 func LooksLikeIpv4(ip string) bool {
 	return false
 }
+
+var ipv6_pattern = regexp.MustCompile(``)
 
 func LooksLikeIpv6(ip string) bool {
 	return false
