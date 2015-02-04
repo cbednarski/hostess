@@ -11,6 +11,10 @@ An idempotent command-line utility for managing your `/etc/hosts` file.
     hostess off domain      # Disable a domain (but don't remove it completely)
     hostess on domain       # Re-enable a domain that was disabled
     hostess ls              # List domains, target ips, and on/off status
+    hostess fix             # Read your hosts file and spew warnings if needed
+    hostess fix -f          # Rewrite your hosts file (things may get deleted)
+    hostess dump            # Dump your hosts file as json
+    hostess apply           # Add entries from a json file
 
 hostess may mangle your hosts file. In general it will probably look like this, with domains pointing at the same IP grouped together and disabled domains commented out.
 

@@ -18,5 +18,5 @@ func main() {
 	hostfile := hostess.NewHostfile(hostess.GetHostsPath())
 	hostfile.Load()
 	hostfile.Parse()
-	fmt.Println(hostfile)
+	fmt.Println(hostfile.Format())
 }
