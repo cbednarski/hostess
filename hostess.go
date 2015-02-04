@@ -59,6 +59,10 @@ func LooksLikeIpv6(ip string) bool {
 func parseLine(line string) []Hostname {
 	var hostnames []Hostname
 
+	if len(line) == 0 {
+		return hostnames
+	}
+
 	// Parse leading # for disabled lines
 	enabled := true
 	if line[0:1] == "#" {
