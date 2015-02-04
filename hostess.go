@@ -37,6 +37,63 @@ ff02::2 ip6-allrouters
 ff02::3 ip6-allhosts
 `
 
+func TrimWS(s string) string {
+	return strings.Trim(s, " \n\t")
+}
+
+var line_parser = regexp.MustCompile(``)
+
+func parseLine(line string) []Hostname {
+	// 1. Split on # to discard comments.
+	//    - What if it's a legit line but commented out?
+	//    - Disabled lines should have # at the beginning of the line
+	// 2. Split on first space to find the IP
+	//    - Pass to LooksLikeIpv4 or LooksLikeIpv6 to check
+	//    - If it doesn't look like either of these then it's probably a random
+	//      comment.
+	// 3. Split remainder of line on whitespace to find
+	//    domain names
+	//    - Watch out for comments.
+	hostnames := make([]Hostname, 0)
+
+	return hostnames
+}
+
+func LooksLikeIpv4(ip string) bool {
+	return false
+}
+
+func LooksLikeIpv6(ip string) bool {
+	return false
+}
+
+func ContainsHostname(hostnames []Hostname, hostname Hostname) bool {
+	for _, v := range hostnames {
+		if v.Ip == hostname.Ip && v.Domain == hostname.Domain {
+			return true
+		}
+	}
+	return false
+}
+
+func ContainsDomain(hostnames []Hostname, domain string) bool {
+	for _, v := range hostnames {
+		if v.Domain == domain {
+			return true
+		}
+	}
+	return false
+}
+
+func ContainsIp(hostnames []Hostname, ip string) bool {
+	for _, v := range hostnames {
+		if v.Ip == ip {
+			return true
+		}
+	}
+	return false
+}
+
 type Hostname struct {
 	Domain  string
 	Ip      string
@@ -60,16 +117,12 @@ type Hostfile struct {
 	data  string
 }
 
-func TrimWS(s string) string {
-	return strings.Trim(s, " \n\t")
-}
-
 // NewHostFile creates a new Hostfile object from the specified file.
 func NewHostfile(path string) *Hostfile {
 	return &Hostfile{path, make(map[string]*Hostname), ""}
 }
 
-func (h *Hostfile) ReadFile(path string) string {
+func (h *Hostfile) Load() string {
 	data, err := ioutil.ReadFile(h.Path)
 	if err != nil {
 		fmt.Println("Can't read ", h.Path)
@@ -79,24 +132,10 @@ func (h *Hostfile) ReadFile(path string) string {
 	return h.data
 }
 
-var line_parser = regexp.MustCompile(``)
-
-func parseLine(line string) (Hostname, error) {
-	// 1. Split on # to discard comments.
-	// 2. Split on first space to find the IP
-	// 3. Split remainder of line on whitespace to find
-	//    domain names
-	// 4. Validate the IP (maybe -- could be ipv4 or ipv6)
-	hostname := Hostname{}
-	if false {
-		return hostname, errors.New("Can't parse hostname")
+func (h *Hostfile) Parse() {
+	for _, v := range strings.Split(h.data, "\n") {
+		fmt.Println(v)
 	}
-	return hostname, nil
-}
-
-func (h *Hostfile) Read(hostfile string) []Hostname {
-	var hosts = make([]Hostname, 0)
-	return hosts
 }
 
 func getSortedMapKeys(m map[string][]string) []string {
@@ -268,9 +307,4 @@ func GetHostsPath() string {
 		path = "/etc/hosts"
 	}
 	return path
-}
-
-func Hostess() {
-	hostfile := NewHostfile(GetHostsPath())
-	hostfile.ReadFile(hostfile.Path)
 }

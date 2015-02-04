@@ -1,7 +1,8 @@
 package main
 
 import (
-	// "github.com/cbednarski/hostess"
+	// "fmt"
+	"github.com/cbednarski/hostess"
 	"os"
 )
 
@@ -14,5 +15,7 @@ func getArgs() []string {
 }
 
 func main() {
-
+	hostfile := hostess.NewHostfile(hostess.GetHostsPath())
+	hostfile.Load()
+	hostfile.Parse()
 }

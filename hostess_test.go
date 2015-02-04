@@ -168,3 +168,43 @@ func TestListDomainsByIp(t *testing.T) {
 		t.Errorf("Expected localhost and devsite. Got %s", names2)
 	}
 }
+
+func TestParseLine(t *testing.T) {
+	var hosts = []Hostname{}
+
+	// Commented stuff
+	hosts = parseLine("# The following lines are desirable for IPv6 capable hosts")
+	if len(hosts) > 0 {
+		t.Error("Expected to find zero hostnames")
+	}
+
+	hosts = parseLine("#66.33.99.11              test.domain.com")
+	if !ContainsHostname(hosts, Hostname{"test.domain.com", "66.33.99.11", false}) {
+		t.Error("Expected to find test.domain.com (disabled)")
+	}
+
+	hosts = parseLine("#  66.33.99.11	test.domain.com	domain.com")
+	if !ContainsHostname(hosts, Hostname{"test.domain.com", "66.33.99.11", false}) ||
+		!ContainsHostname(hosts, Hostname{"domain.com", "66.33.99.11", false}) {
+		t.Error("Expected to find domain.com and test.domain.com (disabled)")
+	}
+
+	// Not Commented stuff
+	hosts = parseLine("255.255.255.255 broadcasthost test.domain.com	domain.com")
+	if !ContainsHostname(hosts, Hostname{"broadcasthost", "255.255.255.255", true}) ||
+		!ContainsHostname(hosts, Hostname{"test.domain.com", "255.255.255.255", true}) ||
+		!ContainsHostname(hosts, Hostname{"domain.com", "255.255.255.255", true}) {
+		t.Error("Expected to find broadcasthost, domain.com, and test.domain.com (enabled)")
+	}
+
+	// Ipv6 stuff
+	hosts = parseLine("::1             localhost")
+	if !ContainsHostname(hosts, Hostname{"localhost", "::1", true}) {
+		t.Error("Expected to find localhost ipv6 (enabled)")
+	}
+
+	hosts = parseLine("ff02::1 ip6-allnodes")
+	if !ContainsHostname(hosts, Hostname{"ip6-allnodes", "ff02::1", true}) {
+		t.Error("Expected to find ip6-allnodes ipv6 (enabled)")
+	}
+}
