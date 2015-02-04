@@ -59,14 +59,14 @@ func LooksLikeIpv6(ip string) bool {
 func parseLine(line string) []Hostname {
 	hostnames := make([]Hostname, 0)
 
-	// Parse leading comment for disabled lines
+	// Parse leading # for disabled lines
 	enabled := true
 	if line[0:1] == "#" {
 		enabled = false
 		line = TrimWS(line[1:])
 	}
 
-	// Parse other comment for actual comments
+	// Parse other #s for actual comments
 	line = strings.Split(line, "#")[0]
 
 	// Replace tabs and multispaces with single spaces throughout
