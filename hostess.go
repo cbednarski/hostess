@@ -41,6 +41,18 @@ func TrimWS(s string) string {
 	return strings.Trim(s, " \n\t")
 }
 
+var ipv4_pattern = regexp.MustCompile(`^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$`)
+
+func LooksLikeIpv4(ip string) bool {
+	return false
+}
+
+var ipv6_pattern = regexp.MustCompile(``)
+
+func LooksLikeIpv6(ip string) bool {
+	return false
+}
+
 func parseLine(line string) []Hostname {
 	hostnames := make([]Hostname, 0)
 
@@ -83,18 +95,6 @@ func parseLine(line string) []Hostname {
 	//    - Watch out for comments.
 
 	return hostnames
-}
-
-var ipv4_pattern = regexp.MustCompile(`^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$`)
-
-func LooksLikeIpv4(ip string) bool {
-	return false
-}
-
-var ipv6_pattern = regexp.MustCompile(``)
-
-func LooksLikeIpv6(ip string) bool {
-	return false
 }
 
 func ContainsHostname(hostnames []Hostname, hostname Hostname) bool {
