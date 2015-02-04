@@ -97,6 +97,8 @@ func TestHostFileDuplicates(t *testing.T) {
 		t.Errorf(asserts, exp_conflict, err2)
 	}
 
+	// @TODO Add an additional test case here: Adding a domain twice with one
+	// enabled and one disabled should just add the domain once enabled.
 }
 
 func TestFormatHostname(t *testing.T) {
