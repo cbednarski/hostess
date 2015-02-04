@@ -77,12 +77,12 @@ func parseLine(line string) []Hostname {
 	words := strings.Split(line, " ")
 
 	// Separate the first bit (the ip) from the other bits (the domains)
-	ip := TrimWS(words[0])
+	ip := words[0]
 	domains := words[1:]
 
 	if LooksLikeIpv4(ip) || LooksLikeIpv6(ip) {
 		for _, v := range domains {
-			v = TrimWS(v)
+			v = v
 			hostnames = append(hostnames, Hostname{v, ip, enabled})
 		}
 	}
@@ -168,7 +168,9 @@ func (h *Hostfile) Load() string {
 
 func (h *Hostfile) Parse() {
 	for _, v := range strings.Split(h.data, "\n") {
-		fmt.Println(v)
+		for _, hostname := range parseLine(v) {
+			h.Add(hostname)
+		}
 	}
 }
 
