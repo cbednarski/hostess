@@ -195,6 +195,7 @@ func TestParseLine(t *testing.T) {
 	if !ContainsHostname(hosts, Hostname{"test.domain.com", "66.33.99.11", false}) ||
 		!ContainsHostname(hosts, Hostname{"domain.com", "66.33.99.11", false}) {
 		t.Error("Expected to find domain.com and test.domain.com (disabled)")
+		t.Errorf("Found %s", hosts)
 	}
 
 	// Not Commented stuff

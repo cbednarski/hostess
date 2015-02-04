@@ -44,13 +44,16 @@ func TrimWS(s string) string {
 var ipv4_pattern = regexp.MustCompile(`^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$`)
 
 func LooksLikeIpv4(ip string) bool {
-	return false
+	return ipv4_pattern.MatchString(ip)
 }
 
-var ipv6_pattern = regexp.MustCompile(``)
+var ipv6_pattern = regexp.MustCompile(`^[a-z0-9:]+$`)
 
 func LooksLikeIpv6(ip string) bool {
-	return false
+	if !strings.Contains(ip, ":") {
+		return false
+	}
+	return ipv6_pattern.MatchString(ip)
 }
 
 func parseLine(line string) []Hostname {
@@ -74,11 +77,12 @@ func parseLine(line string) []Hostname {
 	words := strings.Split(line, " ")
 
 	// Separate the first bit (the ip) from the other bits (the domains)
-	ip := words[0]
+	ip := TrimWS(words[0])
 	domains := words[1:]
 
 	if LooksLikeIpv4(ip) || LooksLikeIpv6(ip) {
 		for _, v := range domains {
+			v = TrimWS(v)
 			hostnames = append(hostnames, Hostname{v, ip, enabled})
 		}
 	}
