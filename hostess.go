@@ -71,7 +71,9 @@ func parseLine(line string) []Hostname {
 
 	// Replace tabs and multispaces with single spaces throughout
 	line = strings.Replace(line, "\t", " ", -1)
-	line = strings.Replace(line, "  ", " ", -1)
+	for strings.Contains(line, "  ") {
+		line = strings.Replace(line, "  ", " ", -1)
+	}
 
 	// Break line into words
 	words := strings.Split(line, " ")
@@ -82,7 +84,6 @@ func parseLine(line string) []Hostname {
 
 	if LooksLikeIpv4(ip) || LooksLikeIpv6(ip) {
 		for _, v := range domains {
-			v = v
 			hostnames = append(hostnames, Hostname{v, ip, enabled})
 		}
 	}

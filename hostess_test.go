@@ -187,13 +187,15 @@ func TestParseLine(t *testing.T) {
 	}
 
 	hosts = parseLine("#66.33.99.11              test.domain.com")
-	if !ContainsHostname(hosts, Hostname{"test.domain.com", "66.33.99.11", false}) {
+	if !ContainsHostname(hosts, Hostname{"test.domain.com", "66.33.99.11", false}) ||
+		len(hosts) != 1 {
 		t.Error("Expected to find test.domain.com (disabled)")
 	}
 
 	hosts = parseLine("#  66.33.99.11	test.domain.com	domain.com")
 	if !ContainsHostname(hosts, Hostname{"test.domain.com", "66.33.99.11", false}) ||
-		!ContainsHostname(hosts, Hostname{"domain.com", "66.33.99.11", false}) {
+		!ContainsHostname(hosts, Hostname{"domain.com", "66.33.99.11", false}) ||
+		len(hosts) != 2 {
 		t.Error("Expected to find domain.com and test.domain.com (disabled)")
 		t.Errorf("Found %s", hosts)
 	}
@@ -202,18 +204,21 @@ func TestParseLine(t *testing.T) {
 	hosts = parseLine("255.255.255.255 broadcasthost test.domain.com	domain.com")
 	if !ContainsHostname(hosts, Hostname{"broadcasthost", "255.255.255.255", true}) ||
 		!ContainsHostname(hosts, Hostname{"test.domain.com", "255.255.255.255", true}) ||
-		!ContainsHostname(hosts, Hostname{"domain.com", "255.255.255.255", true}) {
+		!ContainsHostname(hosts, Hostname{"domain.com", "255.255.255.255", true}) ||
+		len(hosts) != 3 {
 		t.Error("Expected to find broadcasthost, domain.com, and test.domain.com (enabled)")
 	}
 
 	// Ipv6 stuff
 	hosts = parseLine("::1             localhost")
-	if !ContainsHostname(hosts, Hostname{"localhost", "::1", true}) {
+	if !ContainsHostname(hosts, Hostname{"localhost", "::1", true}) ||
+		len(hosts) != 1 {
 		t.Error("Expected to find localhost ipv6 (enabled)")
 	}
 
 	hosts = parseLine("ff02::1 ip6-allnodes")
-	if !ContainsHostname(hosts, Hostname{"ip6-allnodes", "ff02::1", true}) {
+	if !ContainsHostname(hosts, Hostname{"ip6-allnodes", "ff02::1", true}) ||
+		len(hosts) != 1 {
 		t.Error("Expected to find ip6-allnodes ipv6 (enabled)")
 	}
 }
