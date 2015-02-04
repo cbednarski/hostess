@@ -88,17 +88,6 @@ func parseLine(line string) []Hostname {
 		}
 	}
 
-	// 1. Split on # to discard comments.
-	//    - What if it's a legit line but commented out?
-	//    - Disabled lines should have # at the beginning of the line
-	// 2. Split on first space to find the IP
-	//    - Pass to LooksLikeIpv4 or LooksLikeIpv6 to check
-	//    - If it doesn't look like either of these then it's probably a random
-	//      comment.
-	// 3. Split remainder of line on whitespace to find
-	//    domain names
-	//    - Watch out for comments.
-
 	return hostnames
 }
 
