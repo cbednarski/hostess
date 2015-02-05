@@ -1,3 +1,5 @@
+all: build test
+
 build:
 	go build hostess.go
 	go build cmd/main.go
