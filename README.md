@@ -1,4 +1,4 @@
-# hostess
+# hostess [![](https://travis-ci.org/cbednarski/hostess.svg)](https://travis-ci.org/cbednarski/hostess)
 
 An idempotent command-line utility for managing your `/etc/hosts` file.
 
