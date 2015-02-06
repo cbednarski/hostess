@@ -7,14 +7,18 @@ An idempotent command-line utility for managing your `/etc/hosts` file.
     hostess add domain ip   # Add or change a hosts entry for this domain pointing to this IP
     hostess add -off domain ip  # Add in a disabled state (if it already exists, disable it)
     hostess del domain      # Remove a domain from your hosts file
-    hostess has domain      # exit code 0 or 1 depending on whether the domain is in your hosts file
+    hostess has domain      # exit code 0 or 1 if the domain is in your hostfile
     hostess off domain      # Disable a domain (but don't remove it completely)
     hostess on domain       # Re-enable a domain that was disabled
     hostess ls              # List domains, target ips, and on/off status
-    hostess fix             # Read your hosts file and spew warnings if needed
-    hostess fix -f          # Rewrite your hosts file (things may get deleted)
-    hostess dump            # Dump your hosts file as json
+    hostess fix             # Read your hosts file and show warnings if there are bumps
+    hostess dump            # Dump your hostfile as json
     hostess apply           # Add entries from a json file
+
+    Flags
+
+    -n   # Dry run. Show what will happen but don't do it; output to stdout
+    -f   # Forcibly rewrite the hostfile, even if there are errors or conflicts
 
 hostess may mangle your hosts file. In general it will probably look like this, with domains pointing at the same IP grouped together and disabled domains commented out.
 
@@ -24,7 +28,7 @@ hostess may mangle your hosts file. In general it will probably look like this, 
 
 ## Installation
 
-Grab a [release](https://github.com/cbednarski/hostess/releases) or download the code and run `make && make install` (building probably requires go 1.4).
+Grab a [release](https://github.com/cbednarski/hostess/releases) or download the code and run `make install` (building probably requires go 1.4).
 
 ## Configuration
 
@@ -32,4 +36,4 @@ By default, hostess will read / write to `/etc/hosts`. You can use the `HOSTESS_
 
 ## Disclaimer
 
-hostess reserves the right to sort, parse, and validate as it sees fit (or not at all) and may be ruthlessly hostile towards comments, whitespace, and other things that robots don't care for. hostess may include different default entries depending on OS. hostess uses readme-driven-development and may not actually do any of the things listed above. You have been warned.
+hostess uses readme-driven-development and may not actually do any of the things listed above. When in doubt, pass the `-n` flag to try hostess without changing your system.

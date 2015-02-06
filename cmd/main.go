@@ -1,6 +1,7 @@
 package main
 
 import (
+	// "flag"
 	"fmt"
 	"github.com/cbednarski/hostess"
 	"os"
@@ -18,5 +19,7 @@ func main() {
 	hostfile := hostess.NewHostfile(hostess.GetHostsPath())
 	hostfile.Load()
 	hostfile.Parse()
+
+	// if flag
 	fmt.Println(hostfile.Format())
 }

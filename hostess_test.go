@@ -1,6 +1,7 @@
 package hostess
 
 import (
+	"strings"
 	"testing"
 )
 
@@ -226,5 +227,55 @@ func TestParseLine(t *testing.T) {
 	if !ContainsHostname(hosts, Hostname{"ip6-allnodes", "ff02::1", true}) ||
 		len(hosts) != 1 {
 		t.Error("Expected to find ip6-allnodes ipv6 (enabled)")
+	}
+}
+
+func TestContainsDomainIp(t *testing.T) {
+	hosts := []Hostname{
+		Hostname{domain, ip, false},
+		Hostname{"google.com", "8.8.8.8", true},
+	}
+
+	if !ContainsDomain(hosts, domain) {
+		t.Errorf("Expected to find %s", domain)
+	}
+
+	const extra_domain = "yahoo.com"
+	if ContainsDomain(hosts, extra_domain) {
+		t.Errorf("Did not expect to find %s", extra_domain)
+	}
+
+	if !ContainsIp(hosts, ip) {
+		t.Errorf("Expected to find %s", ip)
+	}
+
+	const extra_ip = "1.2.3.4"
+	if ContainsIp(hosts, extra_ip) {
+		t.Errorf("Did not expect to find %s", extra_ip)
+	}
+
+	hostname := Hostname{domain, ip, true}
+	if !ContainsHostname(hosts, hostname) {
+		t.Errorf("Expected to find %s", hostname)
+	}
+
+	extra_hostname := Hostname{"yahoo.com", "4.3.2.1", false}
+	if ContainsHostname(hosts, extra_hostname) {
+		t.Errorf("Did not expect to find %s", extra_hostname)
+	}
+}
+
+func TestLoadHostfile(t *testing.T) {
+	hostfile := NewHostfile(GetHostsPath())
+	data := hostfile.Load()
+	if !strings.Contains(data, domain) {
+		t.Errorf("Expected to find %s", domain)
+	}
+
+	hostfile.Parse()
+	hostname := Hostname{domain, ip, enabled}
+	_, found := hostfile.Hosts[hostname.Domain]
+	if !found {
+		t.Errorf("Expected to find %s", hostname)
 	}
 }
