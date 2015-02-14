@@ -150,6 +150,13 @@ func NewHostfile(path string) *Hostfile {
 	return &Hostfile{path, make(map[string]*Hostname), ""}
 }
 
+func LoadHostFile() (*Hostfile, []error) {
+	hostfile := NewHostfile(GetHostsPath())
+	hostfile.Load()
+	errs := hostfile.Parse()
+	return hostfile, errs
+}
+
 func (h *Hostfile) Load() string {
 	data, err := ioutil.ReadFile(h.Path)
 	if err != nil {
@@ -160,12 +167,17 @@ func (h *Hostfile) Load() string {
 	return h.data
 }
 
-func (h *Hostfile) Parse() {
+func (h *Hostfile) Parse() []error {
+	var errs []error
 	for _, v := range strings.Split(h.data, "\n") {
 		for _, hostname := range parseLine(v) {
-			h.Add(hostname)
+			err := h.Add(hostname)
+			if err != nil {
+				errs = append(errs, err)
+			}
 		}
 	}
+	return errs
 }
 
 func getSortedMapKeys(m map[string][]string) []string {
