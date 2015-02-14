@@ -1,7 +1,7 @@
 package main
 
 import (
-	// "flag"
+	"flag"
 	"fmt"
 	"github.com/cbednarski/hostess"
 	"os"
@@ -20,6 +20,48 @@ func main() {
 	hostfile.Load()
 	hostfile.Parse()
 
-	// if flag
-	fmt.Println(hostfile.Format())
+	flags := make(map[string]*bool)
+
+	flags["force"] = flag.Bool("f", false, "Forcibly apply changes, even if there are errors or conflicts")
+	flags["noop"] = flag.Bool("n", false, "No-op. Show changes but don't write them.")
+	flags["quiet"] = flag.Bool("q", false, "Suppress error and conflict messages.")
+	flags["silent"] = flag.Bool("qq", false, "Suppress all output. Check exit codes for success / failure.")
+
+	flag.Parse()
+
+	args := flag.Args()[1:]
+
+	var err error = nil
+
+	switch flag.Arg(0) {
+	case "add":
+		err = hostess.Add(args, flags)
+	case "del":
+		err = hostess.Del(args, flags)
+	case "has":
+		err = hostess.Has(args, flags)
+	case "off":
+		err = hostess.Fix(args, flags)
+	case "on":
+		err = hostess.Fix(args, flags)
+	case "ls":
+		err = hostess.Fix(args, flags)
+	case "fix":
+		err = hostess.Fix(args, flags)
+	case "dump":
+		err = hostess.Fix(args, flags)
+	case "apply":
+		err = hostess.Fix(args, flags)
+
+	default:
+		fmt.Println("I don't understand that command")
+		os.Exit(1)
+	}
+
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+
+	os.Exit(0)
 }
