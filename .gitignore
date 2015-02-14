@@ -1,4 +1,4 @@
 hostess
-main
+hostess_*
 coverage.out
 coverage.html
