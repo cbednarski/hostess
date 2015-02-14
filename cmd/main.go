@@ -39,8 +39,8 @@ Options:
 
    -f   Force write to the hostfile even if there are errors or conflicts
    -n   No-op. Show changes but don't write them.
-   -q   Supress errors
-   -s   Silent
+   -q   Supress error messages
+   -s   Supress success messages (implies -q)
    -h   Show help for a command
 
 Note: You can specify the HOSTESS_FILE environment variable to operate on a
