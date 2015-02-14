@@ -1,6 +1,9 @@
 all: build test
 
-build:
+deps:
+	go get github.com/codegangsta/cli
+
+build: deps
 	go build hostess.go
 	go build cmd/main.go
 
