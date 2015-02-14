@@ -91,6 +91,12 @@ func main() {
 			Action: hostess.Fix,
 			Flags:  app.Flags,
 		},
+		{
+			Name: "ls",
+			// Usage: "add a task to the list",
+			Action: hostess.Ls,
+			Flags:  app.Flags,
+		},
 	}
 
 	// switch flag.Arg(0) {

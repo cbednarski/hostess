@@ -1,10 +1,10 @@
 package hostess
 
 import (
-	// "errors"
 	"fmt"
 	"github.com/codegangsta/cli"
 	"os"
+	"strings"
 )
 
 func MaybeErrorln(c *cli.Context, message string) {
@@ -35,12 +35,20 @@ func MaybeLoadHostFile(c *cli.Context) *Hostfile {
 	return hostsfile
 }
 
-func SprintEnabled(on bool) string {
+func ShowEnabled(on bool) string {
 	if on {
 		return "(On)"
 	} else {
 		return "(Off)"
 	}
+}
+
+func ShowHostname(hostname Hostname) string {
+	return fmt.Sprintf("%s -> %s %s", hostname.Domain, hostname.Ip, ShowEnabled(hostname.Enabled))
+}
+
+func StrPadRight(s string, l int) string {
+	return s + strings.Repeat(" ", l-len(s))
 }
 
 func Add(c *cli.Context) {
@@ -55,7 +63,7 @@ func Add(c *cli.Context) {
 		if c.Bool("n") {
 			fmt.Println(hostsfile.Format())
 		} else {
-			MaybePrintln(c, fmt.Sprintf("Added %s -> %s %s", hostname.Domain, hostname.Ip, SprintEnabled(hostname.Enabled)))
+			MaybePrintln(c, fmt.Sprintf("Added %s", ShowHostname(hostname)))
 			hostsfile.Save()
 		}
 	} else {
@@ -79,8 +87,28 @@ func On(c *cli.Context) error {
 	return nil
 }
 
-func Ls(c *cli.Context) error {
-	return nil
+func Ls(c *cli.Context) {
+	hostfile := MaybeLoadHostFile(c)
+	maxdomain := 0
+	maxip := 0
+	for _, hostname := range hostfile.Hosts {
+		dlen := len(hostname.Domain)
+		if dlen > maxdomain {
+			maxdomain = dlen
+		}
+		ilen := len(hostname.Ip)
+		if ilen > maxip {
+			maxip = ilen
+		}
+	}
+
+	for _, domain := range hostfile.ListDomains() {
+		hostname := hostfile.Hosts[domain]
+		fmt.Printf("%s -> %s %s\n",
+			StrPadRight(hostname.Domain, maxdomain),
+			StrPadRight(hostname.Ip, maxip),
+			ShowEnabled(hostname.Enabled))
+	}
 }
 
 const fix_help = `Programmatically rewrite your hostsfile.

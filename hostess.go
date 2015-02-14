@@ -223,6 +223,16 @@ func (h *Hostfile) ListDomainsByIp(ip string) []string {
 	return names
 }
 
+// ListDomains will return a list of domains in alphabetical order.
+func (h *Hostfile) ListDomains() []string {
+	var names []string
+	for _, v := range h.Hosts {
+		names = append(names, v.Domain)
+	}
+	sort.Strings(names)
+	return names
+}
+
 // Format takes the current list of Hostnames in this Hostfile and turns it
 // into a string suitable for use as an /etc/hosts file.
 // Sorting uses the following logic:
