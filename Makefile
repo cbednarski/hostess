@@ -5,7 +5,7 @@ deps:
 
 build: deps
 	go build hostess.go
-	go build cmd/main.go
+	go build cmd/hostess.go
 
 test: build
 	go test -coverprofile=coverage.out
