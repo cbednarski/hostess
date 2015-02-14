@@ -22,6 +22,8 @@ bash and make scripting. Add -h to any command to learn more about it.
 
 WARNING: This program is BETA and not all commands are implemented.
 
+Commands:
+
    add     Add (or update) a hosts entry
    del     Delete a hosts entry
    has     Exit 0 if entry exists, 1 if not
@@ -32,6 +34,14 @@ WARNING: This program is BETA and not all commands are implemented.
    fix     Reformat the hosts file based on hostess' rules
    dump    Dump the hosts file as JSON
    apply   Apply a JSON hosts dict to your hosts file
+
+Options:
+
+   -f   Force write to the hostfile even if there are errors or conflicts
+   -n   No-op. Show changes but don't write them.
+   -q   Supress errors
+   -s   Silent
+   -h   Show help for a command
 
 Note: You can specify the HOSTESS_FILE environment variable to operate on a
 file other than /etc/hosts
@@ -49,7 +59,7 @@ func main() {
 	flags["force"] = flag.Bool("f", false, "Forcibly apply changes, even if there are errors or conflicts")
 	flags["noop"] = flag.Bool("n", false, "No-op. Show changes but don't write them.")
 	flags["quiet"] = flag.Bool("q", false, "Suppress error and conflict messages.")
-	flags["silent"] = flag.Bool("qq", false, "Suppress all output. Check exit codes for success / failure.")
+	flags["silent"] = flag.Bool("s", false, "Suppress all output. Check exit codes for success / failure.")
 	flags["help"] = flag.Bool("h", false, "Help")
 
 	flag.Parse()
