@@ -7,22 +7,22 @@ import (
 	"strings"
 )
 
-// MaybeErrorln will print an error message unless -q is passed
+// MaybeErrorln will print an error message unless -s is passed
 func MaybeErrorln(c *cli.Context, message string) {
-	if !c.Bool("q") && !c.Bool("s") {
+	if !c.Bool("s") {
 		os.Stderr.WriteString(fmt.Sprintf("%s: %s\n", c.Command.Name, message))
 	}
 }
 
-// MaybeError will print an error message unless -q is passed and then exit
+// MaybeError will print an error message unless -s is passed and then exit
 func MaybeError(c *cli.Context, message string) {
 	MaybeErrorln(c, message)
 	os.Exit(1)
 }
 
-// MaybePrintln will print a message unless -s is passed
+// MaybePrintln will print a message unless -q or -s is passed
 func MaybePrintln(c *cli.Context, message string) {
-	if !c.Bool("s") {
+	if !c.Bool("q") && !c.Bool("s") {
 		fmt.Println(message)
 	}
 }
