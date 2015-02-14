@@ -137,6 +137,13 @@ func (h *Hostname) Format() string {
 	return r
 }
 
+func (a *Hostname) Equals(b Hostname) bool {
+	if a.Domain == b.Domain && a.Ip == b.Ip {
+		return true
+	}
+	return false
+}
+
 // Hostfile represents /etc/hosts (or a similar file, depending on OS), and
 // includes a list of Hostnames. Hostfile includes
 type Hostfile struct {
@@ -317,6 +324,24 @@ func (h *Hostfile) Format() string {
 func (h *Hostfile) Save() error {
 	// h.Format(h.Path)
 	return nil
+}
+
+func (h *Hostfile) Contains(b Hostname) bool {
+	for _, a := range h.Hosts {
+		if a.Equals(b) {
+			return true
+		}
+	}
+	return false
+}
+
+func (h *Hostfile) ContainsDomain(search string) bool {
+	for _, hostname := range h.Hosts {
+		if hostname.Domain == search {
+			return true
+		}
+	}
+	return false
 }
 
 func (h *Hostfile) Add(host Hostname) error {

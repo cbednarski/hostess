@@ -86,15 +86,51 @@ func main() {
 			Flags:  app.Flags,
 		},
 		{
-			Name: "fix",
+			Name: "del",
 			// Usage: "add a task to the list",
-			Action: hostess.Fix,
+			Action: hostess.Del,
+			Flags:  app.Flags,
+		},
+		{
+			Name: "has",
+			// Usage: "add a task to the list",
+			Action: hostess.Has,
+			Flags:  app.Flags,
+		},
+		{
+			Name: "off",
+			// Usage: "add a task to the list",
+			Action: hostess.Off,
+			Flags:  app.Flags,
+		},
+		{
+			Name: "on",
+			// Usage: "add a task to the list",
+			Action: hostess.On,
 			Flags:  app.Flags,
 		},
 		{
 			Name: "ls",
 			// Usage: "add a task to the list",
 			Action: hostess.Ls,
+			Flags:  app.Flags,
+		},
+		{
+			Name: "fix",
+			// Usage: "add a task to the list",
+			Action: hostess.Fix,
+			Flags:  app.Flags,
+		},
+		{
+			Name: "dump",
+			// Usage: "add a task to the list",
+			Action: hostess.Dump,
+			Flags:  app.Flags,
+		},
+		{
+			Name: "apply",
+			// Usage: "add a task to the list",
+			Action: hostess.Apply,
 			Flags:  app.Flags,
 		},
 	}
