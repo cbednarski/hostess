@@ -9,7 +9,7 @@ import (
 
 // MaybeErrorln will print an error message unless -q is passed
 func MaybeErrorln(c *cli.Context, message string) {
-	if !c.Bool("q") {
+	if !c.Bool("q") && !c.Bool("s") {
 		os.Stderr.WriteString(fmt.Sprintf("%s: %s\n", c.Command.Name, message))
 	}
 }

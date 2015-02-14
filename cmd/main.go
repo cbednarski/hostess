@@ -14,41 +14,19 @@ func getArgs() []string {
 	return os.Args[2:]
 }
 
-const help = `Hostess: an idempotent tool for managing /etc/hosts
+const help = `an idempotent tool for managing /etc/hosts
 
-Commands will exit 0 or 1 in a sensible way so you can use the exit code for
-bash and make scripting. Add -h to any command to learn more about it.
+ * Commands will exit 0 or 1 in a sensible way so you can use the exit code for
+   bash and make scripting. Add -h to any command to learn more about it.
 
-To preview a hostess-managed hostsfile run ` + "`" + `hostess fix -n` + "`" + `
+ * To preview a hostess-managed hostsfile run ` + "`" + `hostess fix -n` + "`" + `
 
-WARNING: This program is BETA and not all commands are implemented.
+ * You can specify the HOSTESS_FILE environment variable to operate on a
+   file other than /etc/hosts
 
-Commands:
+ * WARNING: This program is BETA and not all commands are implemented.
 
-   add     Add (or update) a hosts entry
-   del     Delete a hosts entry
-   has     Exit 0 if entry exists, 1 if not
-   off     Disable a hosts entry (don't delete it)
-   on      Enable a hosts entry (if if exists)
-   ls      List entries in the hosts file
-   list    Alias for ls
-   fix     Reformat the hosts file based on hostess' rules
-   dump    Dump the hosts file as JSON
-   apply   Apply a JSON hosts dict to your hosts file
-
-Options:
-
-   -f   Force write to the hostsfile even if there are errors or conflicts
-   -n   No-op. Show changes but don't write them.
-   -q   Supress error messages
-   -s   Supress success messages (implies -q)
-   -h   Show help for a command
-
-Note: You can specify the HOSTESS_FILE environment variable to operate on a
-file other than /etc/hosts
-
-Report bugs at https://github.com/cbednarski/hostess
-`
+ * Report bugs at https://github.com/cbednarski/hostess`
 
 func main() {
 	app := cli.NewApp()
@@ -59,74 +37,74 @@ func main() {
 	app.Flags = []cli.Flag{
 		cli.BoolFlag{
 			Name:  "f",
-			Usage: "Force",
+			Usage: "Force write to the hostsfile even if there are errors or conflicts",
 		},
 		cli.BoolFlag{
 			Name:  "n",
-			Usage: "Noop",
+			Usage: "No-op. Show changes but don't write them.",
 		},
 		cli.BoolFlag{
 			Name:  "q",
-			Usage: "Quiet",
+			Usage: "Quiet. Supress error messages",
 		},
 		cli.BoolFlag{
 			Name:  "s",
-			Usage: "Silent",
+			Usage: "Silent. Supress success messages (implies -q)",
 		},
 	}
 
 	app.Commands = []cli.Command{
 		{
-			Name: "add",
-			// Usage: "add a task to the list",
+			Name:   "add",
+			Usage:  "Add (or update) a hosts entry",
 			Action: hostess.Add,
 			Flags:  app.Flags,
 		},
 		{
-			Name: "del",
-			// Usage: "add a task to the list",
+			Name:   "del",
+			Usage:  "Delete a hosts entry",
 			Action: hostess.Del,
 			Flags:  app.Flags,
 		},
 		{
-			Name: "has",
-			// Usage: "add a task to the list",
+			Name:   "has",
+			Usage:  "Exit 0 if entry exists, 1 if not",
 			Action: hostess.Has,
 			Flags:  app.Flags,
 		},
 		{
-			Name: "off",
-			// Usage: "add a task to the list",
+			Name:   "off",
+			Usage:  "Disable a hosts entry (don't delete it)",
 			Action: hostess.Off,
 			Flags:  app.Flags,
 		},
 		{
-			Name: "on",
-			// Usage: "add a task to the list",
+			Name:   "on",
+			Usage:  "Enable a hosts entry (if if exists)",
 			Action: hostess.On,
 			Flags:  app.Flags,
 		},
 		{
-			Name: "ls",
-			// Usage: "add a task to the list",
+			Name:   "ls, list",
+			Usage:  "List entries in the hosts file",
 			Action: hostess.Ls,
 			Flags:  app.Flags,
 		},
 		{
-			Name: "fix",
-			// Usage: "add a task to the list",
+			Name:   "fix",
+			Usage:  "Reformat the hosts file based on hostess' rules",
 			Action: hostess.Fix,
 			Flags:  app.Flags,
 		},
 		{
-			Name: "dump",
-			// Usage: "add a task to the list",
+			Name:   "dump",
+			Usage:  "Dump the hosts file as JSON",
 			Action: hostess.Dump,
 			Flags:  app.Flags,
 		},
 		{
-			Name: "apply",
-			// Usage: "add a task to the list",
+			Name:   "apply",
+			Usage:  "Apply a JSON hosts dict to your hosts file",
 			Action: hostess.Apply,
 			Flags:  app.Flags,
 		},
