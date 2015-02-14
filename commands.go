@@ -9,14 +9,12 @@ import (
 
 func MaybeErrorln(c *cli.Context, message string) {
 	if !c.Bool("q") {
-		fmt.Printf("%s: %s\n", c.Command.Name, message)
+		os.Stderr.WriteString(fmt.Sprintf("%s: %s\n", c.Command.Name, message))
 	}
 }
 
 func MaybeError(c *cli.Context, message string) {
-	if !c.Bool("q") {
-		fmt.Printf("%s: %s\n", c.Command.Name, message)
-	}
+	MaybeErrorln(c, message)
 	os.Exit(1)
 }
 
