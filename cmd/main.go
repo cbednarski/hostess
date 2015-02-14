@@ -16,17 +16,17 @@ func getArgs() []string {
 
 const help = `an idempotent tool for managing /etc/hosts
 
+ * WARNING: This program is BETA and not all commands are implemented.
+
  * Commands will exit 0 or 1 in a sensible way so you can use the exit code for
    bash and make scripting. Add -h to any command to learn more about it.
-
- * To preview a hostess-managed hostsfile run ` + "`" + `hostess fix -n` + "`" + `
 
  * You can specify the HOSTESS_FILE environment variable to operate on a
    file other than /etc/hosts
 
- * WARNING: This program is BETA and not all commands are implemented.
+ * To preview a hostess-managed hostsfile run ` + "`" + `hostess fix -n` + "`" + `
 
- * Report bugs at https://github.com/cbednarski/hostess`
+ * Report bugs and feedback at https://github.com/cbednarski/hostess`
 
 func main() {
 	app := cli.NewApp()
