@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"github.com/cbednarski/hostess"
 	"github.com/codegangsta/cli"
 	"os"
@@ -56,8 +55,6 @@ func main() {
 	app.Name = "hostess"
 	app.Usage = help
 	app.Version = "0.1.0"
-
-	var err error = nil
 
 	app.Flags = []cli.Flag{
 		cli.BoolFlag{
@@ -135,36 +132,6 @@ func main() {
 		},
 	}
 
-	// switch flag.Arg(0) {
-	// case "add":
-	// 	err = hostess.Add(args, flags)
-	// case "del":
-	// 	err = hostess.Del(args, flags)
-	// case "has":
-	// 	err = hostess.Has(args, flags)
-	// case "off":
-	// 	err = hostess.Off(args, flags)
-	// case "on":
-	// 	err = hostess.On(args, flags)
-	// case "ls":
-	// 	err = hostess.Ls(args, flags)
-	// case "fix":
-	// 	err = hostess.Fix(args, flags)
-	// case "dump":
-	// 	err = hostess.Dump(args, flags)
-	// case "apply":
-	// 	err = hostess.Apply(args, flags)
-
-	// default:
-	// 	fmt.Print(help)
-	// }
-
-	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
-	}
-
 	app.Run(os.Args)
-
 	os.Exit(0)
 }
