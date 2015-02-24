@@ -21,3 +21,7 @@ build-all: test
 
 install: build test
 	cp hostess /usr/sbin/hostess
+
+clean:
+	rm ./hostess
+	rm ./hostess_*
