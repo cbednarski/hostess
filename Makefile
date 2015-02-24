@@ -8,8 +8,8 @@ build: deps
 	go build
 
 test: build
-	@cd lib && go test -coverprofile=../coverage.out
-	@cd lib && go tool cover -html=../coverage.out -o ../coverage.html
+	@go test -coverprofile=../coverage.out
+	@go tool cover -html=../coverage.out -o ../coverage.html
 
 gox:
 	go get github.com/mitchellh/gox

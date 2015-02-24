@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/cbednarski/hostess/lib"
+	"github.com/cbednarski/hostess"
 	"github.com/codegangsta/cli"
 	"os"
 )
