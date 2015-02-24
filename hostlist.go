@@ -1,15 +1,19 @@
 package hostess
 
-func ContainsHostname(hostnames []Hostname, hostname Hostname) bool {
+import (
+	"net"
+)
+
+func ContainsHostname(hostnames []*Hostname, hostname *Hostname) bool {
 	for _, v := range hostnames {
-		if v.Ip == hostname.Ip && v.Domain == hostname.Domain {
+		if v.Ip.Equal(hostname.Ip) && v.Domain == hostname.Domain {
 			return true
 		}
 	}
 	return false
 }
 
-func ContainsDomain(hostnames []Hostname, domain string) bool {
+func ContainsDomain(hostnames []*Hostname, domain string) bool {
 	for _, v := range hostnames {
 		if v.Domain == domain {
 			return true
@@ -18,9 +22,9 @@ func ContainsDomain(hostnames []Hostname, domain string) bool {
 	return false
 }
 
-func ContainsIp(hostnames []Hostname, ip string) bool {
+func ContainsIp(hostnames []*Hostname, ip net.IP) bool {
 	for _, v := range hostnames {
-		if v.Ip == ip {
+		if v.Ip.Equal(ip) {
 			return true
 		}
 	}

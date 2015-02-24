@@ -15,8 +15,8 @@ func TestHostname(t *testing.T) {
 	if h.Domain != domain {
 		t.Errorf("Domain should be %s", domain)
 	}
-	if h.Ip != ip {
-		t.Errorf("Domain should be %s", ip)
+	if !h.Ip.Equal(ip) {
+		t.Errorf("Ip should be %s", ip)
 	}
 	if h.Enabled != enabled {
 		t.Errorf("Enabled should be %s", enabled)
@@ -24,7 +24,7 @@ func TestHostname(t *testing.T) {
 }
 
 func TestFormatHostname(t *testing.T) {
-	hostname := hostess.Hostname{domain, ip, enabled}
+	hostname := &hostess.Hostname{domain, ip, enabled, false}
 
 	const exp_enabled = "127.0.0.1 localhost"
 	if hostname.Format() != exp_enabled {

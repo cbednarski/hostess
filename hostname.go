@@ -2,17 +2,17 @@ package hostess
 
 import (
 	"fmt"
+	"net"
 	"regexp"
 	"strings"
 )
 
 var ipv4_pattern = regexp.MustCompile(`^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$`)
+var ipv6_pattern = regexp.MustCompile(`^[a-z0-9:]+$`)
 
 func LooksLikeIpv4(ip string) bool {
 	return ipv4_pattern.MatchString(ip)
 }
-
-var ipv6_pattern = regexp.MustCompile(`^[a-z0-9:]+$`)
 
 func LooksLikeIpv6(ip string) bool {
 	if !strings.Contains(ip, ":") {
@@ -23,13 +23,21 @@ func LooksLikeIpv6(ip string) bool {
 
 type Hostname struct {
 	Domain  string
-	Ip      string
+	Ip      net.IP
 	Enabled bool
-	// Ipv6    bool
+	Ipv6    bool
+}
+
+func NewHostname(domain, ip string, enabled bool) (hostname *Hostname, err error) {
+	IP := net.ParseIP(ip)
+	if IP != nil {
+		hostname = &Hostname{domain, IP, enabled, LooksLikeIpv6(ip)}
+	}
+	return
 }
 
 func (h *Hostname) Format() string {
-	r := fmt.Sprintf("%s %s", h.Ip, h.Domain)
+	r := fmt.Sprintf("%s %s", h.Ip.String(), h.Domain)
 	if !h.Enabled {
 		r = "# " + r
 	}
@@ -37,7 +45,7 @@ func (h *Hostname) Format() string {
 }
 
 func (a *Hostname) Equals(b Hostname) bool {
-	if a.Domain == b.Domain && a.Ip == b.Ip {
+	if a.Domain == b.Domain && a.Ip.Equal(b.Ip) {
 		return true
 	}
 	return false

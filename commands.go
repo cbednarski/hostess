@@ -66,8 +66,11 @@ func Add(c *cli.Context) {
 	}
 
 	hostsfile := MaybeLoadHostFile(c)
-	hostname := Hostname{c.Args()[0], c.Args()[1], true}
-	var err error
+	hostname, err := NewHostname(c.Args()[0], c.Args()[1], true)
+	if err != nil {
+		MaybeError(c, fmt.Sprintf("%s is not a valid ip address", c.Args()[1]))
+	}
+
 	if !hostsfile.Contains(hostname) {
 		err = hostsfile.Add(hostname)
 	}
@@ -76,7 +79,7 @@ func Add(c *cli.Context) {
 		if c.Bool("n") {
 			fmt.Println(hostsfile.Format())
 		} else {
-			MaybePrintln(c, fmt.Sprintf("Added %s", ShowHostname(hostname)))
+			MaybePrintln(c, fmt.Sprintf("Added %s", ShowHostname(*hostname)))
 			hostsfile.Save()
 		}
 	} else {
@@ -153,7 +156,7 @@ func Ls(c *cli.Context) {
 		hostname := hostsfile.Hosts[domain]
 		fmt.Printf("%s -> %s %s\n",
 			StrPadRight(hostname.Domain, maxdomain),
-			StrPadRight(hostname.Ip, maxip),
+			StrPadRight(hostname.Ip.String(), maxip),
 			ShowEnabled(hostname.Enabled))
 	}
 }
