@@ -34,24 +34,6 @@ const domain = "localhost"
 const ip = "127.0.0.1"
 const enabled = true
 
-func TestHostname(t *testing.T) {
-
-	h := hostess.Hostname{}
-	h.Domain = domain
-	h.Ip = ip
-	h.Enabled = enabled
-
-	if h.Domain != domain {
-		t.Errorf("Domain should be %s", domain)
-	}
-	if h.Ip != ip {
-		t.Errorf("Domain should be %s", ip)
-	}
-	if h.Enabled != enabled {
-		t.Errorf("Enabled should be %s", enabled)
-	}
-}
-
 func TestGetHostsPath(t *testing.T) {
 	path := hostess.GetHostsPath()
 	const expected = "/etc/hosts"
