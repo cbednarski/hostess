@@ -1,4 +1,3 @@
-hostess
-hostess_*
-coverage.out
-coverage.html
+/hostess
+/coverage.out
+/coverage.html
