@@ -5,9 +5,9 @@ deps:
 	go get github.com/codegangsta/cli
 
 build: deps
-	go build
+	go build -o hostess cmd/hostess/main.go
 
-test: build
+test:
 	@go test -coverprofile=../coverage.out
 	@go tool cover -html=../coverage.out -o ../coverage.html
 
@@ -17,7 +17,7 @@ gox:
 
 build-all: test
 	@which gox || make gox
-	gox -arch="amd64" -os="darwin" -os="linux"
+	gox -arch="amd64" -os="darwin" -os="linux" github.com/cbednarski/hostess/cmd/hostess
 
 install: build test
-	cp main /usr/sbin/hostess
+	cp hostess /usr/sbin/hostess
