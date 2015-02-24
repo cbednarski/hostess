@@ -103,21 +103,6 @@ func TestHostFileDuplicates(t *testing.T) {
 	// enabled and one disabled should just add the domain once enabled.
 }
 
-func TestFormatHostname(t *testing.T) {
-	hostname := hostess.Hostname{domain, ip, enabled}
-
-	const exp_enabled = "127.0.0.1 localhost"
-	if hostname.Format() != exp_enabled {
-		t.Errorf(asserts, hostname.Format(), exp_enabled)
-	}
-
-	hostname.Enabled = false
-	const exp_disabled = "# 127.0.0.1 localhost"
-	if hostname.Format() != exp_disabled {
-		t.Errorf(asserts, hostname.Format(), exp_disabled)
-	}
-}
-
 func TestFormatHostfile(t *testing.T) {
 	// The sort order here is a bit weird.
 	// 1. We want localhost entries at the top
@@ -228,41 +213,6 @@ func TestParseLine(t *testing.T) {
 	if !hostess.ContainsHostname(hosts, hostess.Hostname{"ip6-allnodes", "ff02::1", true}) ||
 		len(hosts) != 1 {
 		t.Error("Expected to find ip6-allnodes ipv6 (enabled)")
-	}
-}
-
-func TestContainsDomainIp(t *testing.T) {
-	hosts := []hostess.Hostname{
-		hostess.Hostname{domain, ip, false},
-		hostess.Hostname{"google.com", "8.8.8.8", true},
-	}
-
-	if !hostess.ContainsDomain(hosts, domain) {
-		t.Errorf("Expected to find %s", domain)
-	}
-
-	const extra_domain = "yahoo.com"
-	if hostess.ContainsDomain(hosts, extra_domain) {
-		t.Errorf("Did not expect to find %s", extra_domain)
-	}
-
-	if !hostess.ContainsIp(hosts, ip) {
-		t.Errorf("Expected to find %s", ip)
-	}
-
-	const extra_ip = "1.2.3.4"
-	if hostess.ContainsIp(hosts, extra_ip) {
-		t.Errorf("Did not expect to find %s", extra_ip)
-	}
-
-	hostname := hostess.Hostname{domain, ip, true}
-	if !hostess.ContainsHostname(hosts, hostname) {
-		t.Errorf("Expected to find %s", hostname)
-	}
-
-	extra_hostname := hostess.Hostname{"yahoo.com", "4.3.2.1", false}
-	if hostess.ContainsHostname(hosts, extra_hostname) {
-		t.Errorf("Did not expect to find %s", extra_hostname)
 	}
 }
 
