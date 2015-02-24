@@ -6,10 +6,6 @@ import (
 	"strings"
 )
 
-func TrimWS(s string) string {
-	return strings.Trim(s, " \n\t")
-}
-
 var ipv4_pattern = regexp.MustCompile(`^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$`)
 
 func LooksLikeIpv4(ip string) bool {

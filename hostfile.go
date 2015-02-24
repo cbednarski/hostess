@@ -79,6 +79,10 @@ func LoadHostFile() (*Hostfile, []error) {
 	return hostfile, errs
 }
 
+func TrimWS(s string) string {
+	return strings.Trim(s, " \n\t")
+}
+
 func ParseLine(line string) []Hostname {
 	var hostnames []Hostname
 
