@@ -1,6 +1,7 @@
-package hostess
+package hostess_test
 
 import (
+	"github.com/cbednarski/hostess"
 	"strings"
 	"testing"
 )
@@ -35,7 +36,7 @@ const enabled = true
 
 func TestHostname(t *testing.T) {
 
-	h := Hostname{}
+	h := hostess.Hostname{}
 	h.Domain = domain
 	h.Ip = ip
 	h.Enabled = enabled
@@ -52,7 +53,7 @@ func TestHostname(t *testing.T) {
 }
 
 func TestGetHostsPath(t *testing.T) {
-	path := GetHostsPath()
+	path := hostess.GetHostsPath()
 	const expected = "/etc/hosts"
 	if path != expected {
 		t.Error("Hosts path should be " + expected)
@@ -60,8 +61,8 @@ func TestGetHostsPath(t *testing.T) {
 }
 
 func TestHostfile(t *testing.T) {
-	hostfile := NewHostfile("./hosts")
-	hostfile.Add(Hostname{domain, ip, true})
+	hostfile := hostess.NewHostfile("./hosts")
+	hostfile.Add(hostess.Hostname{domain, ip, true})
 	if hostfile.Hosts[domain].Ip != ip {
 		t.Errorf("Hostsfile should have %s pointing to %s", domain, ip)
 	}
@@ -83,17 +84,17 @@ func TestHostfile(t *testing.T) {
 }
 
 func TestHostFileDuplicates(t *testing.T) {
-	hostfile := NewHostfile("./hosts")
+	hostfile := hostess.NewHostfile("./hosts")
 
 	const exp_duplicate = "Duplicate hostname entry for localhost -> 127.0.0.1"
-	hostfile.Add(Hostname{domain, ip, true})
-	err := hostfile.Add(Hostname{domain, ip, true})
+	hostfile.Add(hostess.Hostname{domain, ip, true})
+	err := hostfile.Add(hostess.Hostname{domain, ip, true})
 	if err.Error() != exp_duplicate {
 		t.Errorf(asserts, exp_duplicate, err)
 	}
 
 	const exp_conflict = "Conflicting hostname entries for localhost -> 127.0.1.1 and -> 127.0.0.1"
-	err2 := hostfile.Add(Hostname{domain, "127.0.1.1", true})
+	err2 := hostfile.Add(hostess.Hostname{domain, "127.0.1.1", true})
 	if err2.Error() != exp_conflict {
 		t.Errorf(asserts, exp_conflict, err2)
 	}
@@ -103,7 +104,7 @@ func TestHostFileDuplicates(t *testing.T) {
 }
 
 func TestFormatHostname(t *testing.T) {
-	hostname := Hostname{domain, ip, enabled}
+	hostname := hostess.Hostname{domain, ip, enabled}
 
 	const exp_enabled = "127.0.0.1 localhost"
 	if hostname.Format() != exp_enabled {
@@ -127,13 +128,13 @@ func TestFormatHostfile(t *testing.T) {
 10.37.12.18 devsite.com m.devsite.com
 # 8.8.8.8 google.com`
 
-	hostfile := NewHostfile("./hosts")
-	hostfile.Add(Hostname{"localhost", "127.0.0.1", true})
-	hostfile.Add(Hostname{"ip-10-37-12-18", "127.0.1.1", true})
-	hostfile.Add(Hostname{"devsite", "127.0.0.1", true})
-	hostfile.Add(Hostname{"google.com", "8.8.8.8", false})
-	hostfile.Add(Hostname{"devsite.com", "10.37.12.18", true})
-	hostfile.Add(Hostname{"m.devsite.com", "10.37.12.18", true})
+	hostfile := hostess.NewHostfile("./hosts")
+	hostfile.Add(hostess.Hostname{"localhost", "127.0.0.1", true})
+	hostfile.Add(hostess.Hostname{"ip-10-37-12-18", "127.0.1.1", true})
+	hostfile.Add(hostess.Hostname{"devsite", "127.0.0.1", true})
+	hostfile.Add(hostess.Hostname{"google.com", "8.8.8.8", false})
+	hostfile.Add(hostess.Hostname{"devsite.com", "10.37.12.18", true})
+	hostfile.Add(hostess.Hostname{"m.devsite.com", "10.37.12.18", true})
 	f := hostfile.Format()
 	if f != expected {
 		t.Errorf(asserts, expected, f)
@@ -144,27 +145,27 @@ func TestTrimWS(t *testing.T) {
 	const expected = `  candy
 
 	`
-	got := TrimWS(expected)
+	got := hostess.TrimWS(expected)
 	if got != "candy" {
 		t.Errorf(asserts, expected, got)
 	}
 }
 
 func TestListDomainsByIp(t *testing.T) {
-	hostfile := NewHostfile("./hosts")
-	hostfile.Add(Hostname{"devsite.com", "10.37.12.18", true})
-	hostfile.Add(Hostname{"m.devsite.com", "10.37.12.18", true})
-	hostfile.Add(Hostname{"google.com", "8.8.8.8", false})
+	hostfile := hostess.NewHostfile("./hosts")
+	hostfile.Add(hostess.Hostname{"devsite.com", "10.37.12.18", true})
+	hostfile.Add(hostess.Hostname{"m.devsite.com", "10.37.12.18", true})
+	hostfile.Add(hostess.Hostname{"google.com", "8.8.8.8", false})
 
 	names := hostfile.ListDomainsByIp("10.37.12.18")
 	if !(names[0] == "devsite.com" && names[1] == "m.devsite.com") {
 		t.Errorf("Expected devsite.com and m.devsite.com. Got %s", names)
 	}
 
-	hostfile2 := NewHostfile("./hosts")
-	hostfile2.Add(Hostname{"localhost", "127.0.0.1", true})
-	hostfile2.Add(Hostname{"ip-10-37-12-18", "127.0.1.1", true})
-	hostfile2.Add(Hostname{"devsite", "127.0.0.1", true})
+	hostfile2 := hostess.NewHostfile("./hosts")
+	hostfile2.Add(hostess.Hostname{"localhost", "127.0.0.1", true})
+	hostfile2.Add(hostess.Hostname{"ip-10-37-12-18", "127.0.1.1", true})
+	hostfile2.Add(hostess.Hostname{"devsite", "127.0.0.1", true})
 
 	names2 := hostfile2.ListDomainsByIp("127.0.0.1")
 	if !(names2[0] == "localhost" && names2[1] == "devsite") {
@@ -173,107 +174,107 @@ func TestListDomainsByIp(t *testing.T) {
 }
 
 func TestParseLine(t *testing.T) {
-	var hosts = []Hostname{}
+	var hosts = []hostess.Hostname{}
 
 	// Blank line
-	hosts = parseLine("")
+	hosts = hostess.ParseLine("")
 	if len(hosts) > 0 {
 		t.Error("Expected to find zero hostnames")
 	}
 
 	// Comment
-	hosts = parseLine("# The following lines are desirable for IPv6 capable hosts")
+	hosts = hostess.ParseLine("# The following lines are desirable for IPv6 capable hosts")
 	if len(hosts) > 0 {
 		t.Error("Expected to find zero hostnames")
 	}
 
 	// Single word comment
-	hosts = parseLine("#blah")
+	hosts = hostess.ParseLine("#blah")
 	if len(hosts) > 0 {
 		t.Error("Expected to find zero hostnames")
 	}
 
-	hosts = parseLine("#66.33.99.11              test.domain.com")
-	if !ContainsHostname(hosts, Hostname{"test.domain.com", "66.33.99.11", false}) ||
+	hosts = hostess.ParseLine("#66.33.99.11              test.domain.com")
+	if !hostess.ContainsHostname(hosts, hostess.Hostname{"test.domain.com", "66.33.99.11", false}) ||
 		len(hosts) != 1 {
 		t.Error("Expected to find test.domain.com (disabled)")
 	}
 
-	hosts = parseLine("#  66.33.99.11	test.domain.com	domain.com")
-	if !ContainsHostname(hosts, Hostname{"test.domain.com", "66.33.99.11", false}) ||
-		!ContainsHostname(hosts, Hostname{"domain.com", "66.33.99.11", false}) ||
+	hosts = hostess.ParseLine("#  66.33.99.11	test.domain.com	domain.com")
+	if !hostess.ContainsHostname(hosts, hostess.Hostname{"test.domain.com", "66.33.99.11", false}) ||
+		!hostess.ContainsHostname(hosts, hostess.Hostname{"domain.com", "66.33.99.11", false}) ||
 		len(hosts) != 2 {
 		t.Error("Expected to find domain.com and test.domain.com (disabled)")
 		t.Errorf("Found %s", hosts)
 	}
 
 	// Not Commented stuff
-	hosts = parseLine("255.255.255.255 broadcasthost test.domain.com	domain.com")
-	if !ContainsHostname(hosts, Hostname{"broadcasthost", "255.255.255.255", true}) ||
-		!ContainsHostname(hosts, Hostname{"test.domain.com", "255.255.255.255", true}) ||
-		!ContainsHostname(hosts, Hostname{"domain.com", "255.255.255.255", true}) ||
+	hosts = hostess.ParseLine("255.255.255.255 broadcasthost test.domain.com	domain.com")
+	if !hostess.ContainsHostname(hosts, hostess.Hostname{"broadcasthost", "255.255.255.255", true}) ||
+		!hostess.ContainsHostname(hosts, hostess.Hostname{"test.domain.com", "255.255.255.255", true}) ||
+		!hostess.ContainsHostname(hosts, hostess.Hostname{"domain.com", "255.255.255.255", true}) ||
 		len(hosts) != 3 {
 		t.Error("Expected to find broadcasthost, domain.com, and test.domain.com (enabled)")
 	}
 
 	// Ipv6 stuff
-	hosts = parseLine("::1             localhost")
-	if !ContainsHostname(hosts, Hostname{"localhost", "::1", true}) ||
+	hosts = hostess.ParseLine("::1             localhost")
+	if !hostess.ContainsHostname(hosts, hostess.Hostname{"localhost", "::1", true}) ||
 		len(hosts) != 1 {
 		t.Error("Expected to find localhost ipv6 (enabled)")
 	}
 
-	hosts = parseLine("ff02::1 ip6-allnodes")
-	if !ContainsHostname(hosts, Hostname{"ip6-allnodes", "ff02::1", true}) ||
+	hosts = hostess.ParseLine("ff02::1 ip6-allnodes")
+	if !hostess.ContainsHostname(hosts, hostess.Hostname{"ip6-allnodes", "ff02::1", true}) ||
 		len(hosts) != 1 {
 		t.Error("Expected to find ip6-allnodes ipv6 (enabled)")
 	}
 }
 
 func TestContainsDomainIp(t *testing.T) {
-	hosts := []Hostname{
-		Hostname{domain, ip, false},
-		Hostname{"google.com", "8.8.8.8", true},
+	hosts := []hostess.Hostname{
+		hostess.Hostname{domain, ip, false},
+		hostess.Hostname{"google.com", "8.8.8.8", true},
 	}
 
-	if !ContainsDomain(hosts, domain) {
+	if !hostess.ContainsDomain(hosts, domain) {
 		t.Errorf("Expected to find %s", domain)
 	}
 
 	const extra_domain = "yahoo.com"
-	if ContainsDomain(hosts, extra_domain) {
+	if hostess.ContainsDomain(hosts, extra_domain) {
 		t.Errorf("Did not expect to find %s", extra_domain)
 	}
 
-	if !ContainsIp(hosts, ip) {
+	if !hostess.ContainsIp(hosts, ip) {
 		t.Errorf("Expected to find %s", ip)
 	}
 
 	const extra_ip = "1.2.3.4"
-	if ContainsIp(hosts, extra_ip) {
+	if hostess.ContainsIp(hosts, extra_ip) {
 		t.Errorf("Did not expect to find %s", extra_ip)
 	}
 
-	hostname := Hostname{domain, ip, true}
-	if !ContainsHostname(hosts, hostname) {
+	hostname := hostess.Hostname{domain, ip, true}
+	if !hostess.ContainsHostname(hosts, hostname) {
 		t.Errorf("Expected to find %s", hostname)
 	}
 
-	extra_hostname := Hostname{"yahoo.com", "4.3.2.1", false}
-	if ContainsHostname(hosts, extra_hostname) {
+	extra_hostname := hostess.Hostname{"yahoo.com", "4.3.2.1", false}
+	if hostess.ContainsHostname(hosts, extra_hostname) {
 		t.Errorf("Did not expect to find %s", extra_hostname)
 	}
 }
 
 func TestLoadHostfile(t *testing.T) {
-	hostfile := NewHostfile(GetHostsPath())
+	hostfile := hostess.NewHostfile(hostess.GetHostsPath())
 	data := hostfile.Load()
 	if !strings.Contains(data, domain) {
 		t.Errorf("Expected to find %s", domain)
 	}
 
 	hostfile.Parse()
-	hostname := Hostname{domain, ip, enabled}
+	hostname := hostess.Hostname{domain, ip, enabled}
 	_, found := hostfile.Hosts[hostname.Domain]
 	if !found {
 		t.Errorf("Expected to find %s", hostname)

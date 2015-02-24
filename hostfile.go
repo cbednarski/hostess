@@ -62,7 +62,7 @@ func (h *Hostfile) Load() string {
 func (h *Hostfile) Parse() []error {
 	var errs []error
 	for _, v := range strings.Split(h.data, "\n") {
-		for _, hostname := range parseLine(v) {
+		for _, hostname := range ParseLine(v) {
 			err := h.Add(hostname)
 			if err != nil {
 				errs = append(errs, err)
@@ -79,7 +79,7 @@ func LoadHostFile() (*Hostfile, []error) {
 	return hostfile, errs
 }
 
-func parseLine(line string) []Hostname {
+func ParseLine(line string) []Hostname {
 	var hostnames []Hostname
 
 	if len(line) == 0 {
