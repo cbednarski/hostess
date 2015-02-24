@@ -1,6 +1,7 @@
 all: build test
 
 deps:
+	go get golang.org/x/tools/cmd/cover
 	go get github.com/codegangsta/cli
 
 build: deps
