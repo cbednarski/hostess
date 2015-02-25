@@ -34,6 +34,18 @@ func NewHostname(domain, ip string, enabled bool) (hostname *Hostname) {
 	return
 }
 
+func (h *Hostname) Equal(n *Hostname) bool {
+	return h.Ip.Equal(n.Ip) && h.Domain == n.Domain
+}
+
+func (h *Hostname) EqualIp(ip net.IP) bool {
+	return h.Ip.Equal(ip)
+}
+
+func (h *Hostname) IsValid() bool {
+	return h.Domain != "" && h.Ip != nil
+}
+
 func (h *Hostname) Format() string {
 	r := fmt.Sprintf("%s %s", h.Ip.String(), h.Domain)
 	if !h.Enabled {
