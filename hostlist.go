@@ -4,9 +4,15 @@ import (
 	"net"
 )
 
-func ContainsHostname(hostnames []*Hostname, hostname *Hostname) bool {
-	for _, v := range hostnames {
-		if v.Ip.Equal(hostname.Ip) && v.Domain == hostname.Domain {
+// TODO:
+// Add
+// Remove
+// Sort
+// Other things that maybe implemented in hostfile
+
+func ContainsHostname(hostnames []*Hostname, b *Hostname) bool {
+	for _, a := range hostnames {
+		if a.Equal(b) {
 			return true
 		}
 	}
@@ -14,8 +20,8 @@ func ContainsHostname(hostnames []*Hostname, hostname *Hostname) bool {
 }
 
 func ContainsDomain(hostnames []*Hostname, domain string) bool {
-	for _, v := range hostnames {
-		if v.Domain == domain {
+	for _, hostname := range hostnames {
+		if hostname.Domain == domain {
 			return true
 		}
 	}
@@ -23,8 +29,8 @@ func ContainsDomain(hostnames []*Hostname, domain string) bool {
 }
 
 func ContainsIp(hostnames []*Hostname, ip net.IP) bool {
-	for _, v := range hostnames {
-		if v.Ip.Equal(ip) {
+	for _, hostname := range hostnames {
+		if hostname.EqualIp(ip) {
 			return true
 		}
 	}
