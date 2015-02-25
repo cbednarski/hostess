@@ -66,11 +66,9 @@ func Add(c *cli.Context) {
 	}
 
 	hostsfile := MaybeLoadHostFile(c)
-	hostname, err := NewHostname(c.Args()[0], c.Args()[1], true)
-	if err != nil {
-		MaybeError(c, fmt.Sprintf("%s is not a valid ip address", c.Args()[1]))
-	}
+	hostname := NewHostname(c.Args()[0], c.Args()[1], true)
 
+	var err error
 	if !hostsfile.Contains(hostname) {
 		err = hostsfile.Add(hostname)
 	}

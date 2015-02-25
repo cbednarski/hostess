@@ -28,11 +28,9 @@ type Hostname struct {
 	Ipv6    bool
 }
 
-func NewHostname(domain, ip string, enabled bool) (hostname *Hostname, err error) {
+func NewHostname(domain, ip string, enabled bool) (hostname *Hostname) {
 	IP := net.ParseIP(ip)
-	if IP != nil {
-		hostname = &Hostname{domain, IP, enabled, LooksLikeIpv6(ip)}
-	}
+	hostname = &Hostname{domain, IP, enabled, LooksLikeIpv6(ip)}
 	return
 }
 

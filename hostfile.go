@@ -116,10 +116,8 @@ func ParseLine(line string) []*Hostname {
 
 	if LooksLikeIpv4(ip) || LooksLikeIpv6(ip) {
 		for _, v := range domains {
-			hostname, err := NewHostname(v, ip, enabled)
-			if err == nil {
-				hostnames = append(hostnames, hostname)
-			}
+			hostname := NewHostname(v, ip, enabled)
+			hostnames = append(hostnames, hostname)
 		}
 	}
 
