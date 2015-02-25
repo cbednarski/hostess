@@ -19,12 +19,18 @@ An idempotent command-line utility for managing your `/etc/hosts` file.
 
     -n   # Dry run. Show what will happen but don't do it; output to stdout
     -f   # Forcibly rewrite the hostfile, even if there are errors or conflicts
+    -4   # Limit operation to ipv4 entries
+    -6   # Limit operation to ipv6 entries
 
 hostess may mangle your hosts file. In general it will probably look like this, with domains pointing at the same IP grouped together and disabled domains commented out.
 
     127.0.0.1 localhost hostname2 hostname3
     127.0.1.1 machine.name
     # 10.10.20.30 some.host
+
+## IPv4 and IPv6
+
+Your hosts file *can* contain overlapping entries where the same hostname points to both an IPv4 and IPv6 ip. In this case, hostess commands will apply to both entries. Typically this is not the case and the default behavior is OK. However, if you need to be more granular you can pass -4 or -6 to limit operations to hostnames associated with that type of ip.
 
 ## Installation
 
