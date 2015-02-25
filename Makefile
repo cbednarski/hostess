@@ -6,12 +6,12 @@ deps:
 	@go get github.com/codegangsta/cli
 
 build: deps
-	@go build -o hostess cmd/hostess/main.go
+	go build -o hostess cmd/hostess/main.go
 
 test:
-	@go vet
-	@go test -coverprofile=../coverage.out
-	@go tool cover -html=../coverage.out -o ../coverage.html
+	go test -coverprofile=../coverage.out
+	go tool cover -html=../coverage.out -o ../coverage.html
+	go vet
 
 gox:
 	@go get github.com/mitchellh/gox
