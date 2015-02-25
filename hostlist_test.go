@@ -7,36 +7,52 @@ import (
 )
 
 func TestContainsDomainIp(t *testing.T) {
-	hosts := []*hostess.Hostname{
-		&hostess.Hostname{domain, ip, false, false},
-		&hostess.Hostname{"google.com", net.ParseIP("8.8.8.8"), true, false},
-	}
+	hosts := hostess.NewHostlist()
+	hosts.Add(hostess.NewHostname(domain, ip, false))
+	hosts.Add(hostess.NewHostname("google.com", "8.8.8.8", true))
 
-	if !hostess.ContainsDomain(hosts, domain) {
+	if !hosts.ContainsDomain(domain) {
 		t.Errorf("Expected to find %s", domain)
 	}
 
 	const extra_domain = "yahoo.com"
-	if hostess.ContainsDomain(hosts, extra_domain) {
+	if hosts.ContainsDomain(extra_domain) {
 		t.Errorf("Did not expect to find %s", extra_domain)
 	}
 
-	if !hostess.ContainsIp(hosts, ip) {
+	var first_ip = net.ParseIP(ip)
+	if !hosts.ContainsIp(first_ip) {
 		t.Errorf("Expected to find %s", ip)
 	}
 
 	var extra_ip = net.ParseIP("1.2.3.4")
-	if hostess.ContainsIp(hosts, extra_ip) {
+	if hosts.ContainsIp(extra_ip) {
 		t.Errorf("Did not expect to find %s", extra_ip)
 	}
 
-	hostname := &hostess.Hostname{domain, ip, true, false}
-	if !hostess.ContainsHostname(hosts, hostname) {
+	hostname := hostess.NewHostname(domain, ip, true)
+	if !hosts.ContainsHostname(hostname) {
 		t.Errorf("Expected to find %s", hostname)
 	}
 
-	extra_hostname := &hostess.Hostname{"yahoo.com", net.ParseIP("4.3.2.1"), false, false}
-	if hostess.ContainsHostname(hosts, extra_hostname) {
+	extra_hostname := hostess.NewHostname("yahoo.com", "4.3.2.1", false)
+	if hosts.ContainsHostname(extra_hostname) {
 		t.Errorf("Did not expect to find %s", extra_hostname)
+	}
+}
+
+func TestRemove(t *testing.T) {
+	hosts := hostess.NewHostlist()
+	hosts.Add(hostess.NewHostname(domain, ip, false))
+	hosts.Add(hostess.NewHostname("google.com", "8.8.8.8", true))
+
+	hosts.Remove(hosts.IndexOfDomainIpv4("google.com"))
+
+	// if len(hosts) > 1 {
+	// 	t.Errorf("Expected hostlist to have one item, found %s", len(hosts))
+	// }
+
+	if hosts.ContainsDomain("google.com") {
+		t.Errorf("Expected not to find google.com in %s", hosts)
 	}
 }

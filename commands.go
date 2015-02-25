@@ -150,13 +150,13 @@ func Ls(c *cli.Context) {
 		}
 	}
 
-	for _, domain := range hostsfile.ListDomains() {
-		hostname := hostsfile.Hosts[domain]
-		fmt.Printf("%s -> %s %s\n",
-			StrPadRight(hostname.Domain, maxdomain),
-			StrPadRight(hostname.Ip.String(), maxip),
-			ShowEnabled(hostname.Enabled))
-	}
+	// for _, domain := range hostsfile.ListDomains() {
+	// 	hostname := hostsfile.Hosts[domain]
+	// 	fmt.Printf("%s -> %s %s\n",
+	// 		StrPadRight(hostname.Domain, maxdomain),
+	// 		StrPadRight(hostname.Ip.String(), maxip),
+	// 		ShowEnabled(hostname.Enabled))
+	// }
 }
 
 const fix_help = `Programmatically rewrite your hostsfile.

@@ -1,7 +1,7 @@
 package hostess
 
 import (
-	"errors"
+	// "errors"
 	"fmt"
 	"io/ioutil"
 	"net"
@@ -41,13 +41,13 @@ ff02::3 ip6-allhosts
 // includes a list of Hostnames. Hostfile includes
 type Hostfile struct {
 	Path  string
-	Hosts map[string]*Hostname
+	Hosts Hostlist
 	data  string
 }
 
 // NewHostFile creates a new Hostfile object from the specified file.
 func NewHostfile(path string) *Hostfile {
-	return &Hostfile{path, make(map[string]*Hostname), ""}
+	return &Hostfile{path, Hostlist{}, ""}
 }
 
 func (h *Hostfile) Load() string {
@@ -84,8 +84,8 @@ func TrimWS(s string) string {
 	return strings.Trim(s, " \n\t")
 }
 
-func ParseLine(line string) []*Hostname {
-	var hostnames []*Hostname
+func ParseLine(line string) Hostlist {
+	var hostnames Hostlist
 
 	if len(line) == 0 {
 		return hostnames
@@ -201,61 +201,61 @@ func (h *Hostfile) Format() string {
 		}
 	}
 
-	localhosts_keys := getSortedMapKeys(localhosts)
-	ips_keys := getSortedMapKeys(ips)
+	// localhosts_keys := getSortedMapKeys(localhosts)
+	// ips_keys := getSortedMapKeys(ips)
 	var out []string
 
-	for _, ip := range localhosts_keys {
-		enabled := ip
-		enabled_b := false
-		disabled := "# " + ip
-		disabled_b := false
-		IP := net.ParseIP(ip)
-		for _, domain := range h.ListDomainsByIp(IP) {
-			hostname := *h.Hosts[domain]
-			if hostname.Ip.Equal(IP) {
-				if hostname.Enabled {
-					enabled += " " + hostname.Domain
-					enabled_b = true
-				} else {
-					disabled += " " + hostname.Domain
-					disabled_b = true
-				}
-			}
-		}
-		if enabled_b {
-			out = append(out, enabled)
-		}
-		if disabled_b {
-			out = append(out, disabled)
-		}
-	}
+	// for _, ip := range localhosts_keys {
+	// 	enabled := ip
+	// 	enabled_b := false
+	// 	disabled := "# " + ip
+	// 	disabled_b := false
+	// 	IP := net.ParseIP(ip)
+	// 	for _, domain := range h.ListDomainsByIp(IP) {
+	// 		hostname := *h.Hosts[domain]
+	// 		if hostname.Ip.Equal(IP) {
+	// 			if hostname.Enabled {
+	// 				enabled += " " + hostname.Domain
+	// 				enabled_b = true
+	// 			} else {
+	// 				disabled += " " + hostname.Domain
+	// 				disabled_b = true
+	// 			}
+	// 		}
+	// 	}
+	// 	if enabled_b {
+	// 		out = append(out, enabled)
+	// 	}
+	// 	if disabled_b {
+	// 		out = append(out, disabled)
+	// 	}
+	// }
 
-	for _, ip := range ips_keys {
-		enabled := ip
-		enabled_b := false
-		disabled := "# " + ip
-		disabled_b := false
-		IP := net.ParseIP(ip)
-		for _, domain := range h.ListDomainsByIp(IP) {
-			hostname := *h.Hosts[domain]
-			if hostname.Ip.Equal(IP) {
-				if hostname.Enabled {
-					enabled += " " + hostname.Domain
-					enabled_b = true
-				} else {
-					disabled += " " + hostname.Domain
-					disabled_b = true
-				}
-			}
-		}
-		if enabled_b {
-			out = append(out, enabled)
-		}
-		if disabled_b {
-			out = append(out, disabled)
-		}
-	}
+	// for _, ip := range ips_keys {
+	// 	enabled := ip
+	// 	enabled_b := false
+	// 	disabled := "# " + ip
+	// 	disabled_b := false
+	// 	IP := net.ParseIP(ip)
+	// 	for _, domain := range h.ListDomainsByIp(IP) {
+	// 		hostname := *h.Hosts[domain]
+	// 		if hostname.Ip.Equal(IP) {
+	// 			if hostname.Enabled {
+	// 				enabled += " " + hostname.Domain
+	// 				enabled_b = true
+	// 			} else {
+	// 				disabled += " " + hostname.Domain
+	// 				disabled_b = true
+	// 			}
+	// 		}
+	// 	}
+	// 	if enabled_b {
+	// 		out = append(out, enabled)
+	// 	}
+	// 	if disabled_b {
+	// 		out = append(out, disabled)
+	// 	}
+	// }
 
 	return strings.Join(out, "\n")
 }
@@ -284,37 +284,37 @@ func (h *Hostfile) ContainsDomain(search string) bool {
 }
 
 func (h *Hostfile) Add(host *Hostname) error {
-	host_f, found := h.Hosts[host.Domain]
-	if found {
-		if host_f.Ip.Equal(host.Ip) {
-			return errors.New(fmt.Sprintf("Duplicate hostname entry for %s -> %s",
-				host.Domain, host.Ip))
-		} else {
-			return errors.New(fmt.Sprintf("Conflicting hostname entries for %s -> %s and -> %s",
-				host.Domain, host.Ip, host_f.Ip))
-		}
-	} else {
-		h.Hosts[host.Domain] = host
-	}
+	// host_f, found := h.Hosts[host.Domain]
+	// if found {
+	// 	if host_f.Ip.Equal(host.Ip) {
+	// 		return errors.New(fmt.Sprintf("Duplicate hostname entry for %s -> %s",
+	// 			host.Domain, host.Ip))
+	// 	} else {
+	// 		return errors.New(fmt.Sprintf("Conflicting hostname entries for %s -> %s and -> %s",
+	// 			host.Domain, host.Ip, host_f.Ip))
+	// 	}
+	// } else {
+	// 	h.Hosts[host.Domain] = host
+	// }
 	return nil
 }
 
 func (h *Hostfile) Delete(domain string) {
-	delete(h.Hosts, domain)
+	// delete(h.Hosts, domain)
 }
 
 func (h *Hostfile) Enable(domain string) {
-	_, ok := h.Hosts[domain]
-	if ok {
-		h.Hosts[domain].Enabled = true
-	}
+	// _, ok := h.Hosts[domain]
+	// if ok {
+	// 	h.Hosts[domain].Enabled = true
+	// }
 }
 
 func (h *Hostfile) Disable(domain string) {
-	_, ok := h.Hosts[domain]
-	if ok {
-		h.Hosts[domain].Enabled = false
-	}
+	// _, ok := h.Hosts[domain]
+	// if ok {
+	// 	h.Hosts[domain].Enabled = false
+	// }
 }
 
 func GetHostsPath() string {
