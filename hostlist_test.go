@@ -53,6 +53,6 @@ func TestRemove(t *testing.T) {
 	// }
 
 	if hosts.ContainsDomain("google.com") {
-		t.Errorf("Expected not to find google.com in %s", hosts)
+		t.Errorf("Expected not to find google.com")
 	}
 }

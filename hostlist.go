@@ -55,6 +55,7 @@ func (h *Hostlist) Add(host *Hostname) error {
 				host.Domain, host.Ip, found.Ip))
 		}
 	}
+	*h = append(*h, host)
 	return nil
 }
 
