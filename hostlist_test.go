@@ -69,7 +69,7 @@ func TestRemove(t *testing.T) {
 	}
 }
 
-func RemoveIpv4Domain(t *testing.T) {
+func RemoveIpvXDomain(t *testing.T) {
 	hosts := hostess.NewHostlist()
 	h1 := hostess.NewHostname("google.com", "127.0.0.1", false)
 	h2 := hostess.NewHostname("google.com", "::1", true)
