@@ -69,14 +69,14 @@ func TestRemove(t *testing.T) {
 	}
 }
 
-func RemoveIpvXDomain(t *testing.T) {
+func TestRemoveDomain(t *testing.T) {
 	hosts := hostess.NewHostlist()
 	h1 := hostess.NewHostname("google.com", "127.0.0.1", false)
 	h2 := hostess.NewHostname("google.com", "::1", true)
 	hosts.Add(h1)
 	hosts.Add(h2)
 
-	hosts.RemoveIpv4Domain("google.com")
+	hosts.RemoveDomainV("google.com", 4)
 	if hosts.ContainsHostname(h1) {
 		t.Error("Should not contain ipv4 hostname")
 	}
@@ -84,7 +84,7 @@ func RemoveIpvXDomain(t *testing.T) {
 		t.Error("Should still contain ipv6 hostname")
 	}
 
-	hosts.RemoveIpv6Domain("google.com")
+	hosts.RemoveDomainV("google.com", 6)
 	if len(*hosts) != 0 {
 		t.Error("Should no longer contain any hostnames")
 	}

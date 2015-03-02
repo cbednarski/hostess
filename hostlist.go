@@ -12,6 +12,8 @@ import (
 // Sort
 // Other things that maybe implemented in hostfile
 
+var InvalidVersionArgumentError = errors.New("Version argument must be 4 or 6")
+
 type Hostlist []*Hostname
 
 func NewHostlist() *Hostlist {
@@ -77,18 +79,9 @@ func (h *Hostlist) IndexOf(host *Hostname) int {
 	return -1
 }
 
-func (h *Hostlist) IndexOfDomainIpv4(domain string) int {
-	for index, found := range *h {
-		if found.Domain == domain && found.Ipv6 == false {
-			return index
-		}
-	}
-	return -1
-}
-
-func (h *Hostlist) IndexOfDomainIpv6(domain string) int {
-	for index, found := range *h {
-		if found.Domain == domain && found.Ipv6 == true {
+func (h *Hostlist) IndexOfDomainV(domain string, version int) int {
+	for index, hostname := range *h {
+		if hostname.Domain == domain && hostname.Ipv6 == (version == 6) {
 			return index
 		}
 	}
@@ -96,15 +89,21 @@ func (h *Hostlist) IndexOfDomainIpv6(domain string) int {
 }
 
 func (h *Hostlist) Remove(index int) {
-	*h = append((*h)[:index], (*h)[index+1:]...)
+	if index > -1 && index < len(*h) {
+		*h = append((*h)[:index], (*h)[index+1:]...)
+	}
 }
 
-func (h *Hostlist) RemoveIpv4Domain(domain string) {
-	h.Remove(h.IndexOfDomainIpv4(domain))
+func (h *Hostlist) RemoveDomain(domain string) {
+	h.Remove(h.IndexOfDomainV(domain, 4))
+	h.Remove(h.IndexOfDomainV(domain, 6))
 }
 
-func (h *Hostlist) RemoveIpv6Domain(domain string) {
-	h.Remove(h.IndexOfDomainIpv6(domain))
+func (h *Hostlist) RemoveDomainV(domain string, version int) {
+	if version != 4 && version != 6 {
+		panic(InvalidVersionArgumentError)
+	}
+	h.Remove(h.IndexOfDomainV(domain, version))
 }
 
 func (h *Hostlist) Enable(domain string) {
@@ -115,9 +114,25 @@ func (h *Hostlist) Enable(domain string) {
 	}
 }
 
+func (h *Hostlist) EnableV(domain string, version int) {
+	for _, hostname := range *h {
+		if hostname.Domain == domain && hostname.Ipv6 == (version == 6) {
+			hostname.Enabled = true
+		}
+	}
+}
+
 func (h *Hostlist) Disable(domain string) {
 	for _, hostname := range *h {
 		if hostname.Domain == domain {
+			hostname.Enabled = false
+		}
+	}
+}
+
+func (h *Hostlist) DisableV(domain string, version int) {
+	for _, hostname := range *h {
+		if hostname.Domain == domain && hostname.Ipv6 == (version == 6) {
 			hostname.Enabled = false
 		}
 	}

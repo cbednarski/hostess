@@ -3,15 +3,17 @@ all: build test
 deps:
 	@go get golang.org/x/tools/cmd/cover
 	@go get golang.org/x/tools/cmd/vet
+	@go get github.com/golang/lint/golint
 	@go get github.com/codegangsta/cli
 
 build: deps
 	go build
 
 test:
-	go test -coverprofile=../coverage.out
-	go tool cover -html=../coverage.out -o ../coverage.html
+	go test -coverprofile=coverage.out
+	go tool cover -html=coverage.out -o coverage.html
 	go vet
+	golint
 
 gox:
 	@go get github.com/mitchellh/gox
@@ -25,5 +27,6 @@ install: build test
 	cp hostess /usr/sbin/hostess
 
 clean:
-	rm ./hostess
-	rm ./hostess_*
+	rm -f ./hostess
+	rm -f ./hostess_*
+	rm -f ./coverage.*
