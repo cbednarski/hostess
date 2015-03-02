@@ -48,11 +48,13 @@ func (h Hostlist) Less(i, j int) bool {
 	}
 
 	// Compare the the IP addresses (byte array)
-	for c := range h[i].IP {
-		if h[i].IP[c] < h[j].IP[c] {
-			return true
-		} else if h[i].IP[c] > h[j].IP[c] {
-			return false
+	if !h[i].IP.Equal(h[j].IP) {
+		for c := range h[i].IP {
+			if h[i].IP[c] < h[j].IP[c] {
+				return true
+			} else if h[i].IP[c] > h[j].IP[c] {
+				return false
+			}
 		}
 	}
 
