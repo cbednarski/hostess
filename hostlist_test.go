@@ -1,6 +1,7 @@
 package hostess_test
 
 import (
+	"fmt"
 	"github.com/cbednarski/hostess"
 	"net"
 	"testing"
@@ -138,4 +139,15 @@ func TestSort(t *testing.T) {
 		t.Error("Expected google3 to be eigth")
 		t.Error(hosts.Format())
 	}
+}
+
+func ExampleHostlist_1() {
+	hosts := hostess.NewHostlist()
+	hosts.Add(hostess.NewHostname("google.com", "127.0.0.1", false))
+	hosts.Add(hostess.NewHostname("google.com", "::1", true))
+
+	fmt.Println(hosts.Format())
+	// Output:
+	// # 127.0.0.1 google.com
+	// ::1 google.com
 }

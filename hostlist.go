@@ -13,9 +13,11 @@ var ErrInvalidVersionArg = errors.New("Version argument must be 4 or 6")
 
 // Hostlist is a collection of Hostnames. When in a Hostlist, Hostnames must
 // follow some rules:
-// - Hostlist may contain IPv4 AND IPv6 (collectively, "IP version") Hostnames.
-// - Names are only allowed to overlap if IP version is different.
-// - Adding a Hostname for an existing name will replace the old one.
+//
+// 	- Hostlist may contain IPv4 AND IPv6 (collectively, "IP version") Hostnames.
+// 	- Names are only allowed to overlap if IP version is different.
+// 	- Adding a Hostname for an existing name will replace the old one.
+//
 // See docs for the Sort and Add for more details.
 type Hostlist []*Hostname
 
@@ -97,10 +99,11 @@ func (h Hostlist) Swap(i, j int) {
 }
 
 // Sort this list of Hostnames, according to Hostlist sorting rules:
-// 1. localhost comes first
-// 2. IPv4 comes first
-// 3. IPs are sorted in numerical order
-// 4. domains are sorted in alphabetical
+//
+// 	1. localhost comes before other domains
+// 	2. IPv4 comes before IPv6
+// 	3. IPs are sorted in numerical order
+// 	4. domains are sorted in alphabetical
 func (h *Hostlist) Sort() {
 	sort.Sort(*h)
 }
@@ -168,6 +171,7 @@ func (h *Hostlist) IndexOf(host *Hostname) int {
 
 // IndexOfDomainV will indicate the index of a Hostname in Hostlist that has
 // the same domain and IP version, or -1 if it is not found.
+//
 // This function will panic if IP version is not 4 or 6.
 func (h *Hostlist) IndexOfDomainV(domain string, version int) int {
 	if version != 4 && version != 6 {
@@ -196,6 +200,7 @@ func (h *Hostlist) RemoveDomain(domain string) {
 }
 
 // RemoveDomainV removes a Hostname entry matching the domain and IP version.
+//
 // This function will panic if IP version is not 4 or 6.
 func (h *Hostlist) RemoveDomainV(domain string, version int) {
 	if version != 4 && version != 6 {
@@ -214,6 +219,7 @@ func (h *Hostlist) Enable(domain string) {
 }
 
 // EnableV will change a Hostname matching domain and IP version to be enabled.
+//
 // This function will panic if IP version is not 4 or 6.
 func (h *Hostlist) EnableV(domain string, version int) {
 	if version != 4 && version != 6 {
@@ -236,6 +242,7 @@ func (h *Hostlist) Disable(domain string) {
 }
 
 // DisableV will change any Hostnames matching domain and IP version to be disabled.
+//
 // This function will panic if IP version is not 4 or 6.
 func (h *Hostlist) DisableV(domain string, version int) {
 	if version != 4 && version != 6 {
@@ -251,6 +258,7 @@ func (h *Hostlist) DisableV(domain string, version int) {
 // Format takes the current list of Hostnames in this Hostfile and turns it
 // into a string suitable for use as an /etc/hosts file.
 // Sorting uses the following logic:
+//
 // 1. List is sorted by IP address
 // 2. Commented items are sorted displayed
 // 3. 127.* appears at the top of the list (so boot resolvers don't break)
