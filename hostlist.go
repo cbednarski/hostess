@@ -11,11 +11,11 @@ import (
 // passed a value not 4 or 6.
 var ErrInvalidVersionArg = errors.New("Version argument must be 4 or 6")
 
-// Hostlist is a collection of Hostnames. When in a Hostlist, hostnames must
+// Hostlist is a collection of Hostnames. When in a Hostlist, Hostnames must
 // follow some rules:
-// - Hostlist may contain IPv4 AND IPv6 (collectively, "IP version") hostnames.
+// - Hostlist may contain IPv4 AND IPv6 (collectively, "IP version") Hostnames.
 // - Names are only allowed to overlap if IP version is different.
-// - Adding a hostname for an existing name will replace the old one.
+// - Adding a Hostname for an existing name will replace the old one.
 // See docs for the Sort and Add for more details.
 type Hostlist []*Hostname
 
@@ -24,12 +24,12 @@ func NewHostlist() *Hostlist {
 	return &Hostlist{}
 }
 
-// Len returns the number of hostnames in the list, part of sort.Interface
+// Len returns the number of Hostnames in the list, part of sort.Interface
 func (h Hostlist) Len() int {
 	return len(h)
 }
 
-// Less determines the sort order of two hostnames, part of sort.Interface
+// Less determines the sort order of two Hostnames, part of sort.Interface
 func (h Hostlist) Less(i, j int) bool {
 	// Sort 127.0.0.1, 127.0.1.1 and "localhost" at the top
 	if h[i].Domain == "localhost" {
@@ -40,18 +40,18 @@ func (h Hostlist) Less(i, j int) bool {
 	}
 
 	// Sort IPv4 before IPv6
-	if h[i].Ipv6 && !h[j].Ipv6 {
+	if h[i].IPv6 && !h[j].IPv6 {
 		return false
 	}
-	if !h[i].Ipv6 && h[j].Ipv6 {
+	if !h[i].IPv6 && h[j].IPv6 {
 		return true
 	}
 
 	// Compare the the IP addresses (byte array)
-	for c := range h[i].Ip {
-		if h[i].Ip[c] < h[j].Ip[c] {
+	for c := range h[i].IP {
+		if h[i].IP[c] < h[j].IP[c] {
 			return true
-		} else if h[i].Ip[c] > h[j].Ip[c] {
+		} else if h[i].IP[c] > h[j].IP[c] {
 			return false
 		}
 	}
@@ -88,7 +88,7 @@ func (h Hostlist) Less(i, j int) bool {
 	return false
 }
 
-// Swap changes the position of two hostnames, part of sort.Interface
+// Swap changes the position of two Hostnames, part of sort.Interface
 func (h Hostlist) Swap(i, j int) {
 	h[i], h[j] = h[j], h[i]
 }
@@ -125,7 +125,7 @@ func (h *Hostlist) ContainsDomain(domain string) bool {
 // ContainsIP returns true if a Hostname in this Hostlist matches IP
 func (h *Hostlist) ContainsIP(IP net.IP) bool {
 	for _, hostname := range *h {
-		if hostname.EqualIp(IP) {
+		if hostname.EqualIP(IP) {
 			return true
 		}
 	}
@@ -142,10 +142,10 @@ func (h *Hostlist) Add(host *Hostname) error {
 	for _, found := range *h {
 		if found.Equal(host) {
 			return fmt.Errorf("Duplicate hostname entry for %s -> %s",
-				host.Domain, host.Ip)
-		} else if found.Domain == host.Domain && found.Ipv6 == host.Ipv6 {
+				host.Domain, host.IP)
+		} else if found.Domain == host.Domain && found.IPv6 == host.IPv6 {
 			return fmt.Errorf("Conflicting hostname entries for %s -> %s and -> %s",
-				host.Domain, host.Ip, found.Ip)
+				host.Domain, host.IP, found.IP)
 		}
 	}
 	*h = append(*h, host)
@@ -171,7 +171,7 @@ func (h *Hostlist) IndexOfDomainV(domain string, version int) int {
 		panic(ErrInvalidVersionArg)
 	}
 	for index, hostname := range *h {
-		if hostname.Domain == domain && hostname.Ipv6 == (version == 6) {
+		if hostname.Domain == domain && hostname.IPv6 == (version == 6) {
 			return index
 		}
 	}
@@ -186,7 +186,7 @@ func (h *Hostlist) Remove(index int) {
 	}
 }
 
-// RemoveDomain removes both Ipv4 and Ipv6 Hostname entries matching domain.
+// RemoveDomain removes both IPv4 and IPv6 Hostname entries matching domain.
 func (h *Hostlist) RemoveDomain(domain string) {
 	h.Remove(h.IndexOfDomainV(domain, 4))
 	h.Remove(h.IndexOfDomainV(domain, 6))
@@ -217,7 +217,7 @@ func (h *Hostlist) EnableV(domain string, version int) {
 		panic(ErrInvalidVersionArg)
 	}
 	for _, hostname := range *h {
-		if hostname.Domain == domain && hostname.Ipv6 == (version == 6) {
+		if hostname.Domain == domain && hostname.IPv6 == (version == 6) {
 			hostname.Enabled = true
 		}
 	}
@@ -239,7 +239,7 @@ func (h *Hostlist) DisableV(domain string, version int) {
 		panic(ErrInvalidVersionArg)
 	}
 	for _, hostname := range *h {
-		if hostname.Domain == domain && hostname.Ipv6 == (version == 6) {
+		if hostname.Domain == domain && hostname.IPv6 == (version == 6) {
 			hostname.Enabled = false
 		}
 	}
@@ -249,9 +249,9 @@ func (h *Hostlist) DisableV(domain string, version int) {
 // into a string suitable for use as an /etc/hosts file.
 // Sorting uses the following logic:
 // 1. List is sorted by IP address
-// 2. Commented items are left in place
+// 2. Commented items are sorted displayed
 // 3. 127.* appears at the top of the list (so boot resolvers don't break)
-// 4. When present, localhost will always appear first in the domain list
+// 4. When present, "localhost" will always appear first in the domain list
 func (h *Hostlist) Format() string {
 	h.Sort()
 	out := ""

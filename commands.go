@@ -40,19 +40,6 @@ func MaybeLoadHostFile(c *cli.Context) *Hostfile {
 	return hostsfile
 }
 
-// ShowEnabled turns a boolean into a string (On) or (Off)
-func ShowEnabled(on bool) string {
-	if on {
-		return "(On)"
-	}
-	return "(Off)"
-}
-
-// ShowHostname turns a Hostname into a string for display
-func ShowHostname(hostname Hostname) string {
-	return fmt.Sprintf("%s -> %s %s", hostname.Domain, hostname.Ip, ShowEnabled(hostname.Enabled))
-}
-
 // StrPadRight adds spaces to the right of a string until it reaches l length.
 // If the input string is already that long, do nothing.
 func StrPadRight(s string, l int) string {
@@ -78,7 +65,7 @@ func Add(c *cli.Context) {
 		if c.Bool("n") {
 			fmt.Println(hostsfile.Format())
 		} else {
-			MaybePrintln(c, fmt.Sprintf("Added %s", ShowHostname(*hostname)))
+			MaybePrintln(c, fmt.Sprintf("Added %s", hostname.FormatHuman()))
 			hostsfile.Save()
 		}
 	} else {
@@ -150,7 +137,7 @@ func Ls(c *cli.Context) {
 		if dlen > maxdomain {
 			maxdomain = dlen
 		}
-		ilen := len(hostname.Ip)
+		ilen := len(hostname.IP)
 		if ilen > maxip {
 			maxip = ilen
 		}
