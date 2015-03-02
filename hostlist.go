@@ -250,6 +250,5 @@ func (h *Hostlist) Format() string {
 	for _, hostname := range *h {
 		out += hostname.Format() + "\n"
 	}
-	fmt.Println(h)
 	return out
 }
