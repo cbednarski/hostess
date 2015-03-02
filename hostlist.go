@@ -96,19 +96,15 @@ func (h *Hostlist) IndexOfDomainIpv6(domain string) int {
 }
 
 func (h *Hostlist) Remove(index int) {
-	// var a *Hostlist
-	// copy(a, h[0:index])
-	// a = append(a, *h[index:])
-	// *h[index] = nil
-	// // return a
+	*h = append((*h)[:index], (*h)[index+1:]...)
 }
 
-func (h *Hostlist) RemoveIpv4(domain string) {
-
+func (h *Hostlist) RemoveIpv4Domain(domain string) {
+	h.Remove(h.IndexOfDomainIpv4(domain))
 }
 
-func (h *Hostlist) RemoveIpv6() {
-
+func (h *Hostlist) RemoveIpv6Domain(domain string) {
+	h.Remove(h.IndexOfDomainIpv6(domain))
 }
 
 func (h *Hostlist) Enable(domain string) {
@@ -131,4 +127,23 @@ func (h *Hostlist) Copy() *Hostlist {
 	var n *Hostlist
 	copy(*h, *n)
 	return n
+}
+
+func (h *Hostlist) Sort() {
+
+}
+
+// Format takes the current list of Hostnames in this Hostfile and turns it
+// into a string suitable for use as an /etc/hosts file.
+// Sorting uses the following logic:
+// 1. List is sorted by IP address
+// 2. Commented items are left in place
+// 3. 127.* appears at the top of the list (so boot resolvers don't break)
+// 4. When present, localhost will always appear first in the domain list
+func (h *Hostlist) Format() string {
+	out := ""
+	for _, hostname := range *h {
+		out += hostname.Format() + "\n"
+	}
+	return out
 }
