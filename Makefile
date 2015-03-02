@@ -6,7 +6,7 @@ deps:
 	@go get github.com/codegangsta/cli
 
 build: deps
-	go build -o hostess cmd/hostess/main.go
+	go build
 
 test:
 	go test -coverprofile=../coverage.out
