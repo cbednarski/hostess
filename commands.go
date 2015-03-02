@@ -44,9 +44,8 @@ func MaybeLoadHostFile(c *cli.Context) *Hostfile {
 func ShowEnabled(on bool) string {
 	if on {
 		return "(On)"
-	} else {
-		return "(Off)"
 	}
+	return "(Off)"
 }
 
 // ShowHostname turns a Hostname into a string for display
@@ -60,6 +59,8 @@ func StrPadRight(s string, l int) string {
 	return s + strings.Repeat(" ", l-len(s))
 }
 
+// Add command parses <hostname> <ip> and adds or updates a hostname in the
+// hosts file
 func Add(c *cli.Context) {
 	if len(c.Args()) != 2 {
 		MaybeError(c, "expected <hostname> <ip>")
@@ -85,6 +86,7 @@ func Add(c *cli.Context) {
 	}
 }
 
+// Del command removes any hostname(s) matching <domain> from the hosts file
 func Del(c *cli.Context) {
 	if len(c.Args()) != 1 {
 		MaybeError(c, "expected <hostname>")
@@ -106,6 +108,7 @@ func Del(c *cli.Context) {
 	}
 }
 
+// Has command indicates whether a hostname is present in the hosts file
 func Has(c *cli.Context) {
 	if len(c.Args()) != 1 {
 		MaybeError(c, "expected <hostname>")
@@ -122,6 +125,7 @@ func Has(c *cli.Context) {
 
 }
 
+// Off command disables (comments) the specified hostname in the hosts file
 func Off(c *cli.Context) {
 	if len(c.Args()) != 1 {
 		MaybeError(c, "expected <hostname>")
@@ -129,12 +133,14 @@ func Off(c *cli.Context) {
 
 }
 
+// On command enabled (uncomments) the specified hostname in the hosts file
 func On(c *cli.Context) {
 	if len(c.Args()) != 1 {
 		MaybeError(c, "expected <hostname>")
 	}
 }
 
+// Ls command shows a list of hostnames in the hosts file
 func Ls(c *cli.Context) {
 	hostsfile := MaybeLoadHostFile(c)
 	maxdomain := 0
@@ -168,6 +174,7 @@ whitespace and comments will be removed.
    hostess fix -n   Show the new hostsfile. Don't write it
 `
 
+// Fix command removes duplicates and conflicts from the hosts file
 func Fix(c *cli.Context) {
 	hostsfile := MaybeLoadHostFile(c)
 	if c.Bool("n") {
@@ -177,10 +184,12 @@ func Fix(c *cli.Context) {
 	}
 }
 
+// Dump command outputs hosts file contents as JSON
 func Dump(c *cli.Context) {
 
 }
 
+// Apply command adds hostnames to the hosts file from JSON
 func Apply(c *cli.Context) {
 
 }

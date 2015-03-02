@@ -1,8 +1,6 @@
 all: build test
 
 deps:
-	@go get golang.org/x/tools/cmd/cover
-	@go get golang.org/x/tools/cmd/vet
 	@go get github.com/golang/lint/golint
 	@go get github.com/codegangsta/cli
 

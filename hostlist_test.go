@@ -21,12 +21,12 @@ func TestContainsDomainIp(t *testing.T) {
 	}
 
 	var first_ip = net.ParseIP(ip)
-	if !hosts.ContainsIp(first_ip) {
+	if !hosts.ContainsIP(first_ip) {
 		t.Errorf("Expected to find %s", ip)
 	}
 
 	var extra_ip = net.ParseIP("1.2.3.4")
-	if hosts.ContainsIp(extra_ip) {
+	if hosts.ContainsIP(extra_ip) {
 		t.Errorf("Did not expect to find %s", extra_ip)
 	}
 

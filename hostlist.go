@@ -7,11 +7,19 @@ import (
 	"sort"
 )
 
-var InvalidVersionArgumentError = errors.New("Version argument must be 4 or 6")
+// ErrInvalidVersionArg is raised when a function expects IPv 4 or 6 but is
+// passed a value not 4 or 6.
+var ErrInvalidVersionArg = errors.New("Version argument must be 4 or 6")
 
+// Hostlist is a collection of Hostnames. When in a Hostlist, hostnames must
+// follow some rules:
+// - Hostlist may contain IPv4 AND IPv6 (collectively, "IP version") hostnames.
+// - Names are only allowed to overlap if IP version is different.
+// - Adding a hostname for an existing name will replace the old one.
+// See docs for the Sort and Add for more details.
 type Hostlist []*Hostname
 
-// NewHostList initializes a new Hostlist
+// NewHostlist initializes a new Hostlist
 func NewHostlist() *Hostlist {
 	return &Hostlist{}
 }
@@ -31,7 +39,7 @@ func (h Hostlist) Less(i, j int) bool {
 		return false
 	}
 
-	// Sort ipv4 before ipv6
+	// Sort IPv4 before IPv6
 	if h[i].Ipv6 && !h[j].Ipv6 {
 		return false
 	}
@@ -39,8 +47,8 @@ func (h Hostlist) Less(i, j int) bool {
 		return true
 	}
 
-	// Compare the the ip addresses (byte array)
-	for c, _ := range h[i].Ip {
+	// Compare the the IP addresses (byte array)
+	for c := range h[i].Ip {
 		if h[i].Ip[c] < h[j].Ip[c] {
 			return true
 		} else if h[i].Ip[c] > h[j].Ip[c] {
@@ -87,8 +95,8 @@ func (h Hostlist) Swap(i, j int) {
 
 // Sort this list of Hostnames, according to Hostlist sorting rules:
 // 1. localhost comes first
-// 2. ipv4 comes first
-// 3. ips are sorted in numerical order
+// 2. IPv4 comes first
+// 3. IPs are sorted in numerical order
 // 4. domains are sorted in alphabetical
 func (h *Hostlist) Sort() {
 	sort.Sort(*h)
@@ -114,10 +122,10 @@ func (h *Hostlist) ContainsDomain(domain string) bool {
 	return false
 }
 
-// ContainsDomain returns true if a Hostname in this Hostlist matches ip
-func (h *Hostlist) ContainsIp(ip net.IP) bool {
+// ContainsIP returns true if a Hostname in this Hostlist matches IP
+func (h *Hostlist) ContainsIP(IP net.IP) bool {
 	for _, hostname := range *h {
-		if hostname.EqualIp(ip) {
+		if hostname.EqualIp(IP) {
 			return true
 		}
 	}
@@ -125,7 +133,7 @@ func (h *Hostlist) ContainsIp(ip net.IP) bool {
 }
 
 // Add a new Hostname to this hostlist. If a Hostname with the same domain name
-// and Ip version is found, it will be replaced and an error will be returned.
+// and IP version is found, it will be replaced and an error will be returned.
 // If you try to add an identical Hostname, an error will be returned.
 // Note that in normal operation, you will sometimes expect an error, and the
 // error data is mainly to alert you that you mis-entered information, not that
@@ -133,11 +141,11 @@ func (h *Hostlist) ContainsIp(ip net.IP) bool {
 func (h *Hostlist) Add(host *Hostname) error {
 	for _, found := range *h {
 		if found.Equal(host) {
-			return errors.New(fmt.Sprintf("Duplicate hostname entry for %s -> %s",
-				host.Domain, host.Ip))
+			return fmt.Errorf("Duplicate hostname entry for %s -> %s",
+				host.Domain, host.Ip)
 		} else if found.Domain == host.Domain && found.Ipv6 == host.Ipv6 {
-			return errors.New(fmt.Sprintf("Conflicting hostname entries for %s -> %s and -> %s",
-				host.Domain, host.Ip, found.Ip))
+			return fmt.Errorf("Conflicting hostname entries for %s -> %s and -> %s",
+				host.Domain, host.Ip, found.Ip)
 		}
 	}
 	*h = append(*h, host)
@@ -160,7 +168,7 @@ func (h *Hostlist) IndexOf(host *Hostname) int {
 // This function will panic if IP version is not 4 or 6.
 func (h *Hostlist) IndexOfDomainV(domain string, version int) int {
 	if version != 4 && version != 6 {
-		panic(InvalidVersionArgumentError)
+		panic(ErrInvalidVersionArg)
 	}
 	for index, hostname := range *h {
 		if hostname.Domain == domain && hostname.Ipv6 == (version == 6) {
@@ -188,7 +196,7 @@ func (h *Hostlist) RemoveDomain(domain string) {
 // This function will panic if IP version is not 4 or 6.
 func (h *Hostlist) RemoveDomainV(domain string, version int) {
 	if version != 4 && version != 6 {
-		panic(InvalidVersionArgumentError)
+		panic(ErrInvalidVersionArg)
 	}
 	h.Remove(h.IndexOfDomainV(domain, version))
 }
@@ -206,7 +214,7 @@ func (h *Hostlist) Enable(domain string) {
 // This function will panic if IP version is not 4 or 6.
 func (h *Hostlist) EnableV(domain string, version int) {
 	if version != 4 && version != 6 {
-		panic(InvalidVersionArgumentError)
+		panic(ErrInvalidVersionArg)
 	}
 	for _, hostname := range *h {
 		if hostname.Domain == domain && hostname.Ipv6 == (version == 6) {
@@ -215,7 +223,7 @@ func (h *Hostlist) EnableV(domain string, version int) {
 	}
 }
 
-// Enable will change any Hostnames matching domain to be disabled.
+// Disable will change any Hostnames matching domain to be disabled.
 func (h *Hostlist) Disable(domain string) {
 	for _, hostname := range *h {
 		if hostname.Domain == domain {
@@ -224,11 +232,11 @@ func (h *Hostlist) Disable(domain string) {
 	}
 }
 
-// Enable will change any Hostnames matching domain and IP version to be disabled.
+// DisableV will change any Hostnames matching domain and IP version to be disabled.
 // This function will panic if IP version is not 4 or 6.
 func (h *Hostlist) DisableV(domain string, version int) {
 	if version != 4 && version != 6 {
-		panic(InvalidVersionArgumentError)
+		panic(ErrInvalidVersionArg)
 	}
 	for _, hostname := range *h {
 		if hostname.Domain == domain && hostname.Ipv6 == (version == 6) {
