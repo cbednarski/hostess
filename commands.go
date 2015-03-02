@@ -152,7 +152,7 @@ func Ls(c *cli.Context) {
 	// }
 }
 
-const fix_help = `Programmatically rewrite your hostsfile.
+const fixHelp = `Programmatically rewrite your hostsfile.
 
 Domains pointing to the same IP will be consolidated, sorted, and extra
 whitespace and comments will be removed.

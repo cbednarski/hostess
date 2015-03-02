@@ -91,24 +91,51 @@ func TestRemoveDomain(t *testing.T) {
 }
 
 func TestSort(t *testing.T) {
+	// Getting 100% coverage on this is kinda tricky. It's pretty close and
+	// this is already too long.
+
 	hosts := hostess.NewHostlist()
 	hosts.Add(hostess.NewHostname("google.com", "8.8.8.8", true))
 	hosts.Add(hostess.NewHostname("google3.com", "::1", true))
 	hosts.Add(hostess.NewHostname(domain, ip, false))
 	hosts.Add(hostess.NewHostname("google2.com", "8.8.4.4", true))
+	hosts.Add(hostess.NewHostname("blah2", "10.20.1.1", true))
+	hosts.Add(hostess.NewHostname("blah3", "10.20.1.1", true))
+	hosts.Add(hostess.NewHostname("blah33", "10.20.1.1", true))
+	hosts.Add(hostess.NewHostname("blah", "10.20.1.1", true))
 
 	hosts.Sort()
 	if (*hosts)[0].Domain != "localhost" {
 		t.Error("Expected localhost to be first")
+		t.Error(hosts.Format())
 	}
 	if (*hosts)[1].Domain != "google2.com" {
 		t.Error("Expected google2 to be second")
+		t.Error(hosts.Format())
 	}
 	if (*hosts)[2].Domain != "google.com" {
 		t.Error("Expected google3 to be third")
+		t.Error(hosts.Format())
 	}
-	if (*hosts)[3].Domain != "google3.com" {
-		t.Error("Expected google3 to be last")
+	if (*hosts)[3].Domain != "blah" {
+		t.Error("Expected blah to be fourth")
+		t.Error(hosts.Format())
 	}
-	hosts.Format()
+	if (*hosts)[4].Domain != "blah2" {
+		t.Error("Expected blah2 to be fifth")
+		t.Error(hosts.Format())
+	}
+	if (*hosts)[5].Domain != "blah3" {
+		t.Error("Expected blah3 to be sixth")
+		t.Error(hosts.Format())
+	}
+	if (*hosts)[6].Domain != "blah33" {
+		t.Error("Expected blah33 to be seventh")
+		t.Error(hosts.Format())
+	}
+	// IPv6 Domains
+	if (*hosts)[7].Domain != "google3.com" {
+		t.Error("Expected google3 to be eigth")
+		t.Error(hosts.Format())
+	}
 }

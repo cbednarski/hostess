@@ -72,10 +72,10 @@ func (h Hostlist) Less(i, j int) bool {
 	// case folding. There is a way to do this correctly but it's complicated
 	// so I'm not going to do it right now.
 	for c := 0; c < max; c++ {
-		if c > ilen {
+		if c >= ilen {
 			return true
 		}
-		if c > jlen {
+		if c >= jlen {
 			return false
 		}
 		if h[i].Domain[c] < h[j].Domain[c] {
@@ -86,7 +86,8 @@ func (h Hostlist) Less(i, j int) bool {
 		}
 	}
 
-	// Seems like everything was the same, so it can't be Less
+	// Seems like everything was the same, so it can't be Less. Also since we
+	// can't Add something twice we should never end up here. Just in case...
 	return false
 }
 

@@ -83,7 +83,7 @@ func (h *Hostname) FormatEnabled() string {
 	return "(Off)"
 }
 
-// Format outputs the Hostname in a more human-readable format:
+// FormatHuman outputs the Hostname in a more human-readable format:
 // blah.example.com -> 127.0.0.1 (Off)
 func (h *Hostname) FormatHuman() string {
 	return fmt.Sprintf("%s -> %s %s", h.Domain, h.IP, h.FormatEnabled())
