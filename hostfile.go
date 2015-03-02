@@ -1,7 +1,6 @@
 package hostess
 
 import (
-	// "errors"
 	"fmt"
 	"io/ioutil"
 	"net"
@@ -114,7 +113,7 @@ func ParseLine(line string) Hostlist {
 	ip := words[0]
 	domains := words[1:]
 
-	if LooksLikeIpv4(ip) || LooksLikeIpv6(ip) {
+	if LooksLikeIPv4(ip) || LooksLikeIPv6(ip) {
 		for _, v := range domains {
 			hostname := NewHostname(v, ip, enabled)
 			hostnames = append(hostnames, hostname)
@@ -148,12 +147,12 @@ func MoveToFront(list []string, search string) []string {
 	return append([]string{search}, list...)
 }
 
-// ListDomainsByIp will look through Hostfile to find domains that match the
-// specified Ip and return them in a sorted slice.
-func (h *Hostfile) ListDomainsByIp(ip net.IP) []string {
+// ListDomainsByIP will look through Hostfile to find domains that match the
+// specified IP and return them in a sorted slice.
+func (h *Hostfile) ListDomainsByIP(ip net.IP) []string {
 	var names []string
 	for _, v := range h.Hosts {
-		if v.Ip.Equal(ip) {
+		if v.IP.Equal(ip) {
 			names = append(names, v.Domain)
 		}
 	}
@@ -194,10 +193,10 @@ func (h *Hostfile) Format() string {
 	// 127.0.0.1 = [localhost, blah, blah2]
 	// 2.2.2.3 = [domain1, domain2]
 	for _, hostname := range h.Hosts {
-		if hostname.Ip.String()[0:4] == "127." {
-			localhosts[hostname.Ip.String()] = append(localhosts[hostname.Ip.String()], hostname.Domain)
+		if hostname.IP.String()[0:4] == "127." {
+			localhosts[hostname.IP.String()] = append(localhosts[hostname.IP.String()], hostname.Domain)
 		} else {
-			ips[hostname.Ip.String()] = append(ips[hostname.Ip.String()], hostname.Domain)
+			ips[hostname.IP.String()] = append(ips[hostname.IP.String()], hostname.Domain)
 		}
 	}
 
@@ -211,9 +210,9 @@ func (h *Hostfile) Format() string {
 	// 	disabled := "# " + ip
 	// 	disabled_b := false
 	// 	IP := net.ParseIP(ip)
-	// 	for _, domain := range h.ListDomainsByIp(IP) {
+	// 	for _, domain := range h.ListDomainsByIP(IP) {
 	// 		hostname := *h.Hosts[domain]
-	// 		if hostname.Ip.Equal(IP) {
+	// 		if hostname.IP.Equal(IP) {
 	// 			if hostname.Enabled {
 	// 				enabled += " " + hostname.Domain
 	// 				enabled_b = true
@@ -237,9 +236,9 @@ func (h *Hostfile) Format() string {
 	// 	disabled := "# " + ip
 	// 	disabled_b := false
 	// 	IP := net.ParseIP(ip)
-	// 	for _, domain := range h.ListDomainsByIp(IP) {
+	// 	for _, domain := range h.ListDomainsByIP(IP) {
 	// 		hostname := *h.Hosts[domain]
-	// 		if hostname.Ip.Equal(IP) {
+	// 		if hostname.IP.Equal(IP) {
 	// 			if hostname.Enabled {
 	// 				enabled += " " + hostname.Domain
 	// 				enabled_b = true
@@ -267,7 +266,7 @@ func (h *Hostfile) Save() error {
 
 func (h *Hostfile) Contains(b *Hostname) bool {
 	for _, a := range h.Hosts {
-		if a.Equals(*b) {
+		if a.Equal(b) {
 			return true
 		}
 	}
@@ -286,12 +285,12 @@ func (h *Hostfile) ContainsDomain(search string) bool {
 func (h *Hostfile) Add(host *Hostname) error {
 	// host_f, found := h.Hosts[host.Domain]
 	// if found {
-	// 	if host_f.Ip.Equal(host.Ip) {
+	// 	if host_f.IP.Equal(host.IP) {
 	// 		return errors.New(fmt.Sprintf("Duplicate hostname entry for %s -> %s",
-	// 			host.Domain, host.Ip))
+	// 			host.Domain, host.IP))
 	// 	} else {
 	// 		return errors.New(fmt.Sprintf("Conflicting hostname entries for %s -> %s and -> %s",
-	// 			host.Domain, host.Ip, host_f.Ip))
+	// 			host.Domain, host.IP, host_f.IP))
 	// 	}
 	// } else {
 	// 	h.Hosts[host.Domain] = host

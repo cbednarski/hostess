@@ -12,8 +12,8 @@ func TestHostname(t *testing.T) {
 	if h.Domain != domain {
 		t.Errorf("Domain should be %s", domain)
 	}
-	if !h.Ip.Equal(net.ParseIP(ip)) {
-		t.Errorf("Ip should be %s", ip)
+	if !h.IP.Equal(net.ParseIP(ip)) {
+		t.Errorf("IP should be %s", ip)
 	}
 	if h.Enabled != enabled {
 		t.Errorf("Enabled should be %t", enabled)
@@ -33,16 +33,16 @@ func TestEqual(t *testing.T) {
 	}
 }
 
-func TestEqualIp(t *testing.T) {
+func TestEqualIP(t *testing.T) {
 	a := hostess.NewHostname("localhost", "127.0.0.1", true)
 	c := hostess.NewHostname("localhost", "127.0.1.1", false)
 	ip := net.ParseIP("127.0.0.1")
 
-	if !a.EqualIp(ip) {
-		t.Errorf("%s and %s should be equal", a.Ip, ip)
+	if !a.EqualIP(ip) {
+		t.Errorf("%s and %s should be equal", a.IP, ip)
 	}
-	if a.EqualIp(c.Ip) {
-		t.Errorf("%s and %s should not be equal", a.Ip, c.Ip)
+	if a.EqualIP(c.IP) {
+		t.Errorf("%s and %s should not be equal", a.IP, c.IP)
 	}
 }
 
