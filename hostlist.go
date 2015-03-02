@@ -69,8 +69,8 @@ func (h Hostlist) Less(i, j int) bool {
 	// Sort domains alphabetically
 	// Note: This works best if domains are lowercased. However, we do not
 	// enforce lowercase because of UTF-8 domain names, which may be broken by
-	// case folding. There is a way to do this correctly but it's completed so
-	// I'm not going to do it right now.
+	// case folding. There is a way to do this correctly but it's complicated
+	// so I'm not going to do it right now.
 	for c := 0; c < max; c++ {
 		if c > ilen {
 			return true
