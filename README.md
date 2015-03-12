@@ -30,7 +30,7 @@ hostess may mangle your hosts file. In general it will probably look like this, 
 
 ## IPv4 and IPv6
 
-Your hosts file *can* contain overlapping entries where the same hostname points to both an IPv4 and IPv6 ip. In this case, hostess commands will apply to both entries. Typically this is not the case and the default behavior is OK. However, if you need to be more granular you can pass -4 or -6 to limit operations to hostnames associated with that type of ip.
+Your hosts file *can* contain overlapping entries where the same hostname points to both an IPv4 and IPv6 IP. In this case, hostess commands will apply to both entries. Typically you won't have this kind of overlap and the default behavior is OK. However, if you need to be more granular you can use `-4` or `-6` to limit operations to entries associated with that type of IP.
 
 ## Installation
 
