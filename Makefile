@@ -1,8 +1,8 @@
 all: build test
 
 deps:
-	@go get github.com/golang/lint/golint
-	@go get github.com/codegangsta/cli
+	go get github.com/golang/lint/golint
+	go get
 
 build: deps
 	go build
@@ -14,12 +14,12 @@ test:
 	golint
 
 gox:
-	@go get github.com/mitchellh/gox
+	go get github.com/mitchellh/gox
 	gox -build-toolchain
 
 build-all: test
-	@which gox || make gox
-	@gox -arch="amd64" -os="darwin" -os="linux" github.com/cbednarski/hostess/cmd/hostess
+	which gox || make gox
+	gox -arch="amd64" -os="darwin" -os="linux" github.com/cbednarski/hostess/cmd/hostess
 
 install: build test
 	cp hostess /usr/sbin/hostess

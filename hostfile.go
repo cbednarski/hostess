@@ -128,7 +128,7 @@ func getSortedMapKeys(m map[string][]string) []string {
 	i := 0
 	for k := range m {
 		keys[i] = k
-		i += 1
+		i++
 	}
 	sort.Strings(keys)
 	return keys
