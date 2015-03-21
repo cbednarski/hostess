@@ -38,7 +38,7 @@ Grab a [release](https://github.com/cbednarski/hostess/releases) or download the
 
 ## Configuration
 
-By default, hostess will read / write to `/etc/hosts`. You can use the `HOSTESS_FILE` environment variable to provide an alternate path (for testing).
+By default, hostess will read / write to `/etc/hosts`. You can use the `HOSTESS_PATH` environment variable to provide an alternate path (for testing).
 
 ## Disclaimer
 

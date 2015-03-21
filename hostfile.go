@@ -123,17 +123,6 @@ func ParseLine(line string) Hostlist {
 	return hostnames
 }
 
-func getSortedMapKeys(m map[string][]string) []string {
-	keys := make([]string, len(m))
-	i := 0
-	for k := range m {
-		keys[i] = k
-		i++
-	}
-	sort.Strings(keys)
-	return keys
-}
-
 // MoveToFront looks for string in a slice of strings and if it finds it, moves
 // it to the front of the slice.
 // Note: this could probably be made faster using pointers to switch the values
@@ -259,65 +248,15 @@ func (h *Hostfile) Format() string {
 	return strings.Join(out, "\n")
 }
 
+// Save writes the Hostfile to disk to /etc/hosts or to the location specified
+// by the HOSTESS_PATH environment variable (if set).
 func (h *Hostfile) Save() error {
 	// h.Format(h.Path)
 	return nil
 }
 
-func (h *Hostfile) Contains(b *Hostname) bool {
-	for _, a := range h.Hosts {
-		if a.Equal(b) {
-			return true
-		}
-	}
-	return false
-}
-
-func (h *Hostfile) ContainsDomain(search string) bool {
-	for _, hostname := range h.Hosts {
-		if hostname.Domain == search {
-			return true
-		}
-	}
-	return false
-}
-
-func (h *Hostfile) Add(host *Hostname) error {
-	// host_f, found := h.Hosts[host.Domain]
-	// if found {
-	// 	if host_f.IP.Equal(host.IP) {
-	// 		return errors.New(fmt.Sprintf("Duplicate hostname entry for %s -> %s",
-	// 			host.Domain, host.IP))
-	// 	} else {
-	// 		return errors.New(fmt.Sprintf("Conflicting hostname entries for %s -> %s and -> %s",
-	// 			host.Domain, host.IP, host_f.IP))
-	// 	}
-	// } else {
-	// 	h.Hosts[host.Domain] = host
-	// }
-	return nil
-}
-
-func (h *Hostfile) Delete(domain string) {
-	// delete(h.Hosts, domain)
-}
-
-func (h *Hostfile) Enable(domain string) {
-	// _, ok := h.Hosts[domain]
-	// if ok {
-	// 	h.Hosts[domain].Enabled = true
-	// }
-}
-
-func (h *Hostfile) Disable(domain string) {
-	// _, ok := h.Hosts[domain]
-	// if ok {
-	// 	h.Hosts[domain].Enabled = false
-	// }
-}
-
 func GetHostsPath() string {
-	path := os.Getenv("HOSTESS_FILE")
+	path := os.Getenv("HOSTESS_PATH")
 	if path == "" {
 		path = "/etc/hosts"
 	}
