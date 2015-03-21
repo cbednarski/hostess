@@ -57,8 +57,8 @@ func Add(c *cli.Context) {
 	hostname := NewHostname(c.Args()[0], c.Args()[1], true)
 
 	var err error
-	if !hostsfile.Contains(hostname) {
-		err = hostsfile.Add(hostname)
+	if !hostsfile.Hosts.Contains(hostname) {
+		err = hostsfile.Hosts.Add(hostname)
 	}
 
 	if err == nil {
@@ -81,9 +81,9 @@ func Del(c *cli.Context) {
 	domain := c.Args()[0]
 	hostsfile := MaybeLoadHostFile(c)
 
-	found := hostsfile.ContainsDomain(domain)
+	found := hostsfile.Hosts.ContainsDomain(domain)
 	if found {
-		hostsfile.Delete(domain)
+		hostsfile.Hosts.RemoveDomain(domain)
 		if c.Bool("n") {
 			fmt.Println(hostsfile.Format())
 		} else {
@@ -103,7 +103,7 @@ func Has(c *cli.Context) {
 	domain := c.Args()[0]
 	hostsfile := MaybeLoadHostFile(c)
 
-	found := hostsfile.ContainsDomain(domain)
+	found := hostsfile.Hosts.ContainsDomain(domain)
 	if found {
 		MaybePrintln(c, fmt.Sprintf("Found %s in %s", domain, GetHostsPath()))
 	} else {

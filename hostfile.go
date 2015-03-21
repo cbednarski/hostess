@@ -3,13 +3,11 @@ package hostess
 import (
 	"fmt"
 	"io/ioutil"
-	"net"
 	"os"
-	"sort"
 	"strings"
 )
 
-const default_osx = `
+const defaultOSX = `
 ##
 # Host Database
 #
@@ -23,7 +21,7 @@ const default_osx = `
 fe80::1%lo0     localhost
 `
 
-const default_linux = `
+const defaultLinux = `
 127.0.0.1   localhost
 127.0.1.1   HOSTNAME
 
@@ -41,29 +39,29 @@ ff02::3 ip6-allhosts
 type Hostfile struct {
 	Path  string
 	Hosts Hostlist
-	data  string
+	data  []byte
 }
 
-// NewHostFile creates a new Hostfile object from the specified file.
+// NewHostfile creates a new Hostfile object from the specified file.
 func NewHostfile(path string) *Hostfile {
-	return &Hostfile{path, Hostlist{}, ""}
+	return &Hostfile{path, Hostlist{}, []byte{}}
 }
 
-func (h *Hostfile) Load() string {
+func (h *Hostfile) Load() []byte {
 	data, err := ioutil.ReadFile(h.Path)
 	if err != nil {
-		fmt.Println("Can't read ", h.Path)
+		fmt.Printf("Can't read %s: %s\n", h.Path, err)
 		os.Exit(1)
 	}
-	h.data = string(data)
+	h.data = data
 	return h.data
 }
 
 func (h *Hostfile) Parse() []error {
 	var errs []error
-	for _, v := range strings.Split(h.data, "\n") {
+	for _, v := range strings.Split(string(h.data), "\n") {
 		for _, hostname := range ParseLine(v) {
-			err := h.Add(hostname)
+			err := h.Hosts.Add(hostname)
 			if err != nil {
 				errs = append(errs, err)
 			}
@@ -79,6 +77,8 @@ func LoadHostFile() (*Hostfile, []error) {
 	return hostfile, errs
 }
 
+// TrimWS (Trim Whitespace) removes space, newline, and tabs from a string
+// using strings.Trim()
 func TrimWS(s string) string {
 	return strings.Trim(s, " \n\t")
 }
@@ -134,35 +134,6 @@ func MoveToFront(list []string, search string) []string {
 		}
 	}
 	return append([]string{search}, list...)
-}
-
-// ListDomainsByIP will look through Hostfile to find domains that match the
-// specified IP and return them in a sorted slice.
-func (h *Hostfile) ListDomainsByIP(ip net.IP) []string {
-	var names []string
-	for _, v := range h.Hosts {
-		if v.IP.Equal(ip) {
-			names = append(names, v.Domain)
-		}
-	}
-	sort.Strings(names)
-
-	// Magic for localhost only, to make sure it's the first domain on its line
-	if ip.Equal(net.ParseIP("127.0.0.1")) {
-		names = MoveToFront(names, "localhost")
-	}
-
-	return names
-}
-
-// ListDomains will return a list of domains in alphabetical order.
-func (h *Hostfile) ListDomains() []string {
-	var names []string
-	for _, v := range h.Hosts {
-		names = append(names, v.Domain)
-	}
-	sort.Strings(names)
-	return names
 }
 
 // Format takes the current list of Hostnames in this Hostfile and turns it
