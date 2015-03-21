@@ -22,7 +22,7 @@ build-all: test
 	gox -arch="amd64" -os="darwin" -os="linux" github.com/cbednarski/hostess/cmd/hostess
 
 install: build test
-	cp hostess /usr/sbin/hostess
+	cp hostess /usr/local/bin/hostess
 
 clean:
 	rm -f ./hostess
