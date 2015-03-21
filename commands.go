@@ -30,7 +30,7 @@ func MaybePrintln(c *cli.Context, message string) {
 // MaybeLoadHostFile will try to load, parse, and return a Hostfile. If we
 // encounter errors we will terminate, unless -f is passed.
 func MaybeLoadHostFile(c *cli.Context) *Hostfile {
-	hostsfile, errs := LoadHostFile()
+	hostsfile, errs := LoadHostfile()
 	if len(errs) > 0 && !c.Bool("f") {
 		for _, err := range errs {
 			MaybeErrorln(c, err.Error())

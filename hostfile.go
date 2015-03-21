@@ -1,7 +1,6 @@
 package hostess
 
 import (
-	"fmt"
 	"io/ioutil"
 	"os"
 	"strings"
@@ -47,16 +46,16 @@ func NewHostfile(path string) *Hostfile {
 	return &Hostfile{path, Hostlist{}, []byte{}}
 }
 
-func (h *Hostfile) Load() []byte {
+// Read the contents of the hostfile from disk
+func (h *Hostfile) Read() error {
 	data, err := ioutil.ReadFile(h.Path)
-	if err != nil {
-		fmt.Printf("Can't read %s: %s\n", h.Path, err)
-		os.Exit(1)
+	if err == nil {
+		h.data = data
 	}
-	h.data = data
-	return h.data
+	return err
 }
 
+// Parse reads
 func (h *Hostfile) Parse() []error {
 	var errs []error
 	for _, v := range strings.Split(string(h.data), "\n") {
@@ -70,11 +69,17 @@ func (h *Hostfile) Parse() []error {
 	return errs
 }
 
-func LoadHostFile() (*Hostfile, []error) {
-	hostfile := NewHostfile(GetHostsPath())
-	hostfile.Load()
-	errs := hostfile.Parse()
-	return hostfile, errs
+// LoadHostfile creates a new Hostfile struct and tries to populate it from
+// disk. Read and/or parse errors are returned as a slice.
+func LoadHostfile() (hostfile *Hostfile, errs []error) {
+	hostfile = NewHostfile(GetHostsPath())
+	readErr := hostfile.Read()
+	if readErr != nil {
+		errs = []error{readErr}
+		return
+	}
+	errs = hostfile.Parse()
+	return
 }
 
 // TrimWS (Trim Whitespace) removes space, newline, and tabs from a string
@@ -83,6 +88,10 @@ func TrimWS(s string) string {
 	return strings.Trim(s, " \n\t")
 }
 
+// ParseLine parses an individual line in a hostfile, which may contain one
+// (un)commented ip and one or more hostnames. For example
+//
+//	127.0.0.1 localhost mysite1 mysite2
 func ParseLine(line string) Hostlist {
 	var hostnames Hostlist
 
@@ -226,6 +235,8 @@ func (h *Hostfile) Save() error {
 	return nil
 }
 
+// GetHostsPath returns the location of the hostfile; either env HOSTESS_PATH
+// or /etc/hosts if HOSTESS_PATH is not set.
 func GetHostsPath() string {
 	path := os.Getenv("HOSTESS_PATH")
 	if path == "" {
