@@ -46,40 +46,14 @@ func NewHostfile(path string) *Hostfile {
 	return &Hostfile{path, Hostlist{}, []byte{}}
 }
 
-// Read the contents of the hostfile from disk
-func (h *Hostfile) Read() error {
-	data, err := ioutil.ReadFile(h.Path)
-	if err == nil {
-		h.data = data
+// GetHostsPath returns the location of the hostfile; either env HOSTESS_PATH
+// or /etc/hosts if HOSTESS_PATH is not set.
+func GetHostsPath() string {
+	path := os.Getenv("HOSTESS_PATH")
+	if path == "" {
+		path = "/etc/hosts"
 	}
-	return err
-}
-
-// Parse reads
-func (h *Hostfile) Parse() []error {
-	var errs []error
-	for _, v := range strings.Split(string(h.data), "\n") {
-		for _, hostname := range ParseLine(v) {
-			err := h.Hosts.Add(hostname)
-			if err != nil {
-				errs = append(errs, err)
-			}
-		}
-	}
-	return errs
-}
-
-// LoadHostfile creates a new Hostfile struct and tries to populate it from
-// disk. Read and/or parse errors are returned as a slice.
-func LoadHostfile() (hostfile *Hostfile, errs []error) {
-	hostfile = NewHostfile(GetHostsPath())
-	readErr := hostfile.Read()
-	if readErr != nil {
-		errs = []error{readErr}
-		return
-	}
-	errs = hostfile.Parse()
-	return
+	return path
 }
 
 // TrimWS (Trim Whitespace) removes space, newline, and tabs from a string
@@ -130,6 +104,42 @@ func ParseLine(line string) Hostlist {
 	}
 
 	return hostnames
+}
+
+// Parse reads
+func (h *Hostfile) Parse() []error {
+	var errs []error
+	for _, v := range strings.Split(string(h.data), "\n") {
+		for _, hostname := range ParseLine(v) {
+			err := h.Hosts.Add(hostname)
+			if err != nil {
+				errs = append(errs, err)
+			}
+		}
+	}
+	return errs
+}
+
+// Read the contents of the hostfile from disk
+func (h *Hostfile) Read() error {
+	data, err := ioutil.ReadFile(h.Path)
+	if err == nil {
+		h.data = data
+	}
+	return err
+}
+
+// LoadHostfile creates a new Hostfile struct and tries to populate it from
+// disk. Read and/or parse errors are returned as a slice.
+func LoadHostfile() (hostfile *Hostfile, errs []error) {
+	hostfile = NewHostfile(GetHostsPath())
+	readErr := hostfile.Read()
+	if readErr != nil {
+		errs = []error{readErr}
+		return
+	}
+	errs = hostfile.Parse()
+	return
 }
 
 // MoveToFront looks for string in a slice of strings and if it finds it, moves
@@ -233,14 +243,4 @@ func (h *Hostfile) Format() string {
 func (h *Hostfile) Save() error {
 	// h.Format(h.Path)
 	return nil
-}
-
-// GetHostsPath returns the location of the hostfile; either env HOSTESS_PATH
-// or /etc/hosts if HOSTESS_PATH is not set.
-func GetHostsPath() string {
-	path := os.Getenv("HOSTESS_PATH")
-	if path == "" {
-		path = "/etc/hosts"
-	}
-	return path
 }
