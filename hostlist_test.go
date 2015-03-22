@@ -112,13 +112,21 @@ func TestRemove(t *testing.T) {
 	hosts.Add(hostess.NewHostname(domain, ip, false))
 	hosts.Add(hostess.NewHostname("google.com", "8.8.8.8", true))
 
-	hosts.Remove(1)
+	removed := hosts.Remove(1)
+	if removed != 1 {
+		t.Error("Expected to remove 1 item")
+	}
 	if len(*hosts) > 1 {
 		t.Errorf("Expected hostlist to have 1 item, found %d", len(*hosts))
 	}
-
 	if hosts.ContainsDomain("google.com") {
 		t.Errorf("Expected not to find google.com")
+	}
+
+	hosts.Add(hostess.NewHostname(domain, "::1", enabled))
+	removed = hosts.RemoveDomain(domain)
+	if removed != 2 {
+		t.Error("Expected to remove 2 items")
 	}
 }
 
