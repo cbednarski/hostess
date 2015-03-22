@@ -11,10 +11,10 @@ import (
 // passed a value not 4 or 6.
 var ErrInvalidVersionArg = errors.New("Version argument must be 4 or 6")
 
-// Hostlist is a collection of Hostnames. When in a Hostlist, Hostnames must
+// Hostlist is an ordered set of Hostnames. When in a Hostlist, Hostnames must
 // follow some rules:
 //
-// 	- Hostlist may contain IPv4 AND IPv6 (collectively, "IP version") Hostnames.
+// 	- Hostlist may contain IPv4 AND IPv6 ("IP version" or "IPv") Hostnames.
 // 	- Names are only allowed to overlap if IP version is different.
 // 	- Adding a Hostname for an existing name will replace the old one.
 //
@@ -155,6 +155,7 @@ func (h *Hostlist) Add(host *Hostname) error {
 		}
 	}
 	*h = append(*h, host)
+	h.Sort()
 	return nil
 }
 
@@ -255,14 +256,36 @@ func (h *Hostlist) DisableV(domain string, version int) {
 	}
 }
 
-func (h *Hostlist) ListDomainsByIP(IP net.IP) []Hostname {
-	hostnames := []Hostname{}
+// FilterByIP filters the list of hostnames by IP address.
+func (h *Hostlist) FilterByIP(IP net.IP) (hostnames []*Hostname) {
 	for _, hostname := range *h {
 		if hostname.IP.Equal(IP) {
-			hostnames = append(hostnames, *hostname)
+			hostnames = append(hostnames, hostname)
 		}
 	}
-	return hostnames
+	return
+}
+
+// FilterByDomain filters the list of hostnames by Domain.
+func (h *Hostlist) FilterByDomain(domain string) (hostnames []*Hostname) {
+	for _, hostname := range *h {
+		if hostname.Domain == domain {
+			hostnames = append(hostnames, hostname)
+		}
+	}
+	return
+}
+
+// FilterByDomainV filters the list of hostnames by domain and IPv4 or IPv6.
+// This should never contain more than one item, but returns a list for
+// consistency with other filter functions.
+func (h *Hostlist) FilterByDomainV(domain string, version int) (hostnames []*Hostname) {
+	for _, hostname := range *h {
+		if hostname.Domain == domain && hostname.IPv6 == (version == 6) {
+			hostnames = append(hostnames, hostname)
+		}
+	}
+	return
 }
 
 // Format takes the current list of Hostnames in this Hostfile and turns it

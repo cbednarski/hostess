@@ -42,8 +42,8 @@ type Hostfile struct {
 }
 
 // NewHostfile creates a new Hostfile object from the specified file.
-func NewHostfile(path string) *Hostfile {
-	return &Hostfile{path, Hostlist{}, []byte{}}
+func NewHostfile() *Hostfile {
+	return &Hostfile{GetHostsPath(), Hostlist{}, []byte{}}
 }
 
 // GetHostsPath returns the location of the hostfile; either env HOSTESS_PATH
@@ -132,7 +132,7 @@ func (h *Hostfile) Read() error {
 // LoadHostfile creates a new Hostfile struct and tries to populate it from
 // disk. Read and/or parse errors are returned as a slice.
 func LoadHostfile() (hostfile *Hostfile, errs []error) {
-	hostfile = NewHostfile(GetHostsPath())
+	hostfile = NewHostfile()
 	readErr := hostfile.Read()
 	if readErr != nil {
 		errs = []error{readErr}
@@ -153,6 +153,10 @@ func MoveToFront(list []string, search string) []string {
 		}
 	}
 	return append([]string{search}, list...)
+}
+
+func (h *Hostfile) GetData() []byte {
+	return h.data
 }
 
 // Format takes the current list of Hostnames in this Hostfile and turns it
