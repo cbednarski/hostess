@@ -140,8 +140,6 @@ func TestSort(t *testing.T) {
 	CheckIndexDomain(t, 7, "blah3", hosts)
 	CheckIndexDomain(t, 8, "blah33", hosts)
 	CheckIndexDomain(t, 9, "google3.com", hosts)
-
-	fmt.Println(string(hosts.Format()))
 }
 
 func ExampleHostlist_1() {
