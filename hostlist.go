@@ -32,10 +32,11 @@ func (h Hostlist) Len() int {
 }
 
 // MakeSurrogateIP takes an IP like 127.0.0.1 and munges it to 0.0.0.1 so we can
-// sort it more easily.
+// sort it more easily. Note that we don't actually want to change the value,
+// so we use value copies here (not pointers).
 func MakeSurrogateIP(IP net.IP) net.IP {
-	if string(IP[0:3]) == "127" {
-		return net.IP("0" + string(IP[3:]))
+	if len(IP.String()) > 3 && IP.String()[0:3] == "127" {
+		return net.ParseIP("0" + IP.String()[3:])
 	}
 	return IP
 }

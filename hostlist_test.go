@@ -8,16 +8,16 @@ import (
 )
 
 func TestMakeSurrogateIP(t *testing.T) {
-	const orig = "127.0.0.1"
-	const expected1 = "0.0.0.1"
-	IP1 := string(hostess.MakeSurrogateIP(net.IP(orig)))
-	if IP1 != expected1 {
-		t.Errorf("Expected %s to convert to %s; got %s", orig, expected1, IP1)
+	original := net.ParseIP("127.0.0.1")
+	expected1 := net.ParseIP("0.0.0.1")
+	IP1 := hostess.MakeSurrogateIP(original)
+	if !IP1.Equal(expected1) {
+		t.Errorf("Expected %s to convert to %s; got %s", original, expected1, IP1)
 	}
 
-	const expected2 = "10.20.30.40"
-	IP2 := string(hostess.MakeSurrogateIP(net.IP(expected2)))
-	if IP2 != expected2 {
+	expected2 := net.ParseIP("10.20.30.40")
+	IP2 := hostess.MakeSurrogateIP(expected2)
+	if !IP2.Equal(expected2) {
 		t.Errorf("Expected %s to remain unchanged; got %s", expected2, IP2)
 	}
 }
@@ -106,6 +106,12 @@ func TestRemoveDomain(t *testing.T) {
 	}
 }
 
+func CheckIndexDomain(t *testing.T, index int, domain string, hosts *hostess.Hostlist) {
+	if (*hosts)[index].Domain != domain {
+		t.Errorf("Expected %s to be in position %d. Found: %s", domain, index, (*hosts)[index].FormatHuman())
+	}
+}
+
 func TestSort(t *testing.T) {
 	// Getting 100% coverage on this is kinda tricky. It's pretty close and
 	// this is already too long.
@@ -119,41 +125,23 @@ func TestSort(t *testing.T) {
 	hosts.Add(hostess.NewHostname("blah3", "10.20.1.1", true))
 	hosts.Add(hostess.NewHostname("blah33", "10.20.1.1", true))
 	hosts.Add(hostess.NewHostname("blah", "10.20.1.1", true))
+	hosts.Add(hostess.NewHostname("hostname", "127.0.1.1", true))
+	hosts.Add(hostess.NewHostname("devsite", "127.0.0.1", true))
 
 	hosts.Sort()
-	if (*hosts)[0].Domain != "localhost" {
-		t.Error("Expected localhost to be first")
-		t.Error(hosts.Format())
-	}
-	if (*hosts)[1].Domain != "google2.com" {
-		t.Error("Expected google2 to be second")
-		t.Error(hosts.Format())
-	}
-	if (*hosts)[2].Domain != "google.com" {
-		t.Error("Expected google3 to be third")
-		t.Error(hosts.Format())
-	}
-	if (*hosts)[3].Domain != "blah" {
-		t.Error("Expected blah to be fourth")
-		t.Error(hosts.Format())
-	}
-	if (*hosts)[4].Domain != "blah2" {
-		t.Error("Expected blah2 to be fifth")
-		t.Error(hosts.Format())
-	}
-	if (*hosts)[5].Domain != "blah3" {
-		t.Error("Expected blah3 to be sixth")
-		t.Error(hosts.Format())
-	}
-	if (*hosts)[6].Domain != "blah33" {
-		t.Error("Expected blah33 to be seventh")
-		t.Error(hosts.Format())
-	}
-	// IPv6 Domains
-	if (*hosts)[7].Domain != "google3.com" {
-		t.Error("Expected google3 to be eigth")
-		t.Error(hosts.Format())
-	}
+
+	CheckIndexDomain(t, 0, "localhost", hosts)
+	CheckIndexDomain(t, 1, "devsite", hosts)
+	CheckIndexDomain(t, 2, "hostname", hosts)
+	CheckIndexDomain(t, 3, "google2.com", hosts)
+	CheckIndexDomain(t, 4, "google.com", hosts)
+	CheckIndexDomain(t, 5, "blah", hosts)
+	CheckIndexDomain(t, 6, "blah2", hosts)
+	CheckIndexDomain(t, 7, "blah3", hosts)
+	CheckIndexDomain(t, 8, "blah33", hosts)
+	CheckIndexDomain(t, 9, "google3.com", hosts)
+
+	fmt.Println(string(hosts.Format()))
 }
 
 func ExampleHostlist_1() {
