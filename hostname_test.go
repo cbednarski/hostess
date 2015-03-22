@@ -67,12 +67,29 @@ func TestFormatHostname(t *testing.T) {
 
 	const exp_enabled = "127.0.0.1 localhost"
 	if hostname.Format() != exp_enabled {
-		t.Errorf(asserts, hostname.Format(), exp_enabled)
+		t.Errorf("Hostname format doesn't match desired output: %s", Diff(hostname.Format(), exp_enabled))
 	}
 
 	hostname.Enabled = false
 	const exp_disabled = "# 127.0.0.1 localhost"
 	if hostname.Format() != exp_disabled {
-		t.Errorf(asserts, hostname.Format(), exp_disabled)
+		t.Errorf("Hostname format doesn't match desired output: %s", Diff(hostname.Format(), exp_disabled))
+	}
+}
+
+func TestFormatEnabled(t *testing.T) {
+	hostname := hostess.NewHostname(domain, ip, enabled)
+	const expectedOn = "(On)"
+	if hostname.FormatEnabled() != expectedOn {
+		t.Errorf("Expected hostname to be turned %s", expectedOn)
+	}
+	const expectedHumanOn = "localhost -> 127.0.0.1 (On)"
+	if hostname.FormatHuman() != expectedHumanOn {
+		t.Errorf("Unexpected output%s", Diff(expectedHumanOn, hostname.FormatHuman()))
+	}
+
+	hostname.Enabled = false
+	if hostname.FormatEnabled() != "(Off)" {
+		t.Error("Expected hostname to be turned (Off)")
 	}
 }
