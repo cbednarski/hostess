@@ -296,11 +296,12 @@ func (h *Hostlist) FilterByDomainV(domain string, version int) (hostnames []*Hos
 // 2. Commented items are sorted displayed
 // 3. 127.* appears at the top of the list (so boot resolvers don't break)
 // 4. When present, "localhost" will always appear first in the domain list
-func (h *Hostlist) Format() string {
+func (h *Hostlist) Format() []byte {
 	h.Sort()
-	out := ""
+	var out []byte
 	for _, hostname := range *h {
-		out += hostname.Format() + "\n"
+		out = append(out, []byte(hostname.Format())...)
+		out = append(out, []byte("\n")...)
 	}
 	return out
 }

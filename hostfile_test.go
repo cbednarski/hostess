@@ -59,7 +59,7 @@ func TestFormatHostfile(t *testing.T) {
 	hostfile.Hosts.Add(hostess.NewHostname("google.com", "8.8.8.8", false))
 	hostfile.Hosts.Add(hostess.NewHostname("devsite.com", "10.37.12.18", true))
 	hostfile.Hosts.Add(hostess.NewHostname("m.devsite.com", "10.37.12.18", true))
-	f := hostfile.Format()
+	f := string(hostfile.Format())
 	if f != expected {
 		t.Errorf(asserts, expected, f)
 	}

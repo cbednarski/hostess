@@ -166,80 +166,8 @@ func (h *Hostfile) GetData() []byte {
 // 2. Commented items are left in place
 // 3. 127.* appears at the top of the list (so boot resolvers don't break)
 // 4. When present, localhost will always appear first in the domain list
-func (h *Hostfile) Format() string {
-	// localhost := "127.0.0.1 localhost"
-
-	localhosts := make(map[string][]string)
-	ips := make(map[string][]string)
-
-	// Map domains and IPs into slices of domains keyd by IP
-	// 127.0.0.1 = [localhost, blah, blah2]
-	// 2.2.2.3 = [domain1, domain2]
-	for _, hostname := range h.Hosts {
-		if hostname.IP.String()[0:4] == "127." {
-			localhosts[hostname.IP.String()] = append(localhosts[hostname.IP.String()], hostname.Domain)
-		} else {
-			ips[hostname.IP.String()] = append(ips[hostname.IP.String()], hostname.Domain)
-		}
-	}
-
-	// localhosts_keys := getSortedMapKeys(localhosts)
-	// ips_keys := getSortedMapKeys(ips)
-	var out []string
-
-	// for _, ip := range localhosts_keys {
-	// 	enabled := ip
-	// 	enabled_b := false
-	// 	disabled := "# " + ip
-	// 	disabled_b := false
-	// 	IP := net.ParseIP(ip)
-	// 	for _, domain := range h.ListDomainsByIP(IP) {
-	// 		hostname := *h.Hosts[domain]
-	// 		if hostname.IP.Equal(IP) {
-	// 			if hostname.Enabled {
-	// 				enabled += " " + hostname.Domain
-	// 				enabled_b = true
-	// 			} else {
-	// 				disabled += " " + hostname.Domain
-	// 				disabled_b = true
-	// 			}
-	// 		}
-	// 	}
-	// 	if enabled_b {
-	// 		out = append(out, enabled)
-	// 	}
-	// 	if disabled_b {
-	// 		out = append(out, disabled)
-	// 	}
-	// }
-
-	// for _, ip := range ips_keys {
-	// 	enabled := ip
-	// 	enabled_b := false
-	// 	disabled := "# " + ip
-	// 	disabled_b := false
-	// 	IP := net.ParseIP(ip)
-	// 	for _, domain := range h.ListDomainsByIP(IP) {
-	// 		hostname := *h.Hosts[domain]
-	// 		if hostname.IP.Equal(IP) {
-	// 			if hostname.Enabled {
-	// 				enabled += " " + hostname.Domain
-	// 				enabled_b = true
-	// 			} else {
-	// 				disabled += " " + hostname.Domain
-	// 				disabled_b = true
-	// 			}
-	// 		}
-	// 	}
-	// 	if enabled_b {
-	// 		out = append(out, enabled)
-	// 	}
-	// 	if disabled_b {
-	// 		out = append(out, disabled)
-	// 	}
-	// }
-
-	return strings.Join(out, "\n")
+func (h *Hostfile) Format() []byte {
+	return h.Hosts.Format()
 }
 
 // Save writes the Hostfile to disk to /etc/hosts or to the location specified

@@ -50,7 +50,7 @@ func TestFormat(t *testing.T) {
 	expected := `# 127.0.0.1 localhost
 8.8.8.8 google.com
 `
-	if hosts.Format() != expected {
+	if string(hosts.Format()) != expected {
 		t.Error("Formatted hosts list is not formatted correctly")
 	}
 }
@@ -146,7 +146,7 @@ func ExampleHostlist_1() {
 	hosts.Add(hostess.NewHostname("google.com", "127.0.0.1", false))
 	hosts.Add(hostess.NewHostname("google.com", "::1", true))
 
-	fmt.Println(hosts.Format())
+	fmt.Printf("%s\n", hosts.Format())
 	// Output:
 	// # 127.0.0.1 google.com
 	// ::1 google.com
