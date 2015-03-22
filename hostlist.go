@@ -227,27 +227,25 @@ func (h *Hostlist) IndexOfDomainV(domain string, version int) int {
 }
 
 // Remove will delete the Hostname at the specified index. If index is out of
-// bounds (i.e. -1), Remove silently no-ops.
-func (h *Hostlist) Remove(index int) {
+// bounds (i.e. -1), Remove silently no-ops. Remove returns the number of items
+// removed (0 or 1).
+func (h *Hostlist) Remove(index int) int {
 	if index > -1 && index < len(*h) {
 		*h = append((*h)[:index], (*h)[index+1:]...)
+		return 1
 	}
+	return 0
 }
 
 // RemoveDomain removes both IPv4 and IPv6 Hostname entries matching domain.
-func (h *Hostlist) RemoveDomain(domain string) {
-	h.Remove(h.IndexOfDomainV(domain, 4))
-	h.Remove(h.IndexOfDomainV(domain, 6))
+// Returns the number of entries removed.
+func (h *Hostlist) RemoveDomain(domain string) int {
+	return h.RemoveDomainV(domain, 4) + h.RemoveDomainV(domain, 6)
 }
 
 // RemoveDomainV removes a Hostname entry matching the domain and IP version.
-//
-// This function will panic if IP version is not 4 or 6.
-func (h *Hostlist) RemoveDomainV(domain string, version int) {
-	if version != 4 && version != 6 {
-		panic(ErrInvalidVersionArg)
-	}
-	h.Remove(h.IndexOfDomainV(domain, version))
+func (h *Hostlist) RemoveDomainV(domain string, version int) int {
+	return h.Remove(h.IndexOfDomainV(domain, version))
 }
 
 // Enable will change any Hostnames matching domain to be enabled.
@@ -319,7 +317,12 @@ func (h *Hostlist) FilterByDomain(domain string) (hostnames []*Hostname) {
 // FilterByDomainV filters the list of hostnames by domain and IPv4 or IPv6.
 // This should never contain more than one item, but returns a list for
 // consistency with other filter functions.
+//
+// This function will panic if IP version is not 4 or 6.
 func (h *Hostlist) FilterByDomainV(domain string, version int) (hostnames []*Hostname) {
+	if version != 4 && version != 6 {
+		panic(ErrInvalidVersionArg)
+	}
 	for _, hostname := range *h {
 		if hostname.Domain == domain && hostname.IPv6 == (version == 6) {
 			hostnames = append(hostnames, hostname)
