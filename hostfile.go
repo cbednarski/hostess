@@ -142,19 +142,6 @@ func LoadHostfile() (hostfile *Hostfile, errs []error) {
 	return
 }
 
-// MoveToFront looks for string in a slice of strings and if it finds it, moves
-// it to the front of the slice.
-// Note: this could probably be made faster using pointers to switch the values
-// instead of copying a bunch of crap, but it works and speed is not a problem.
-func MoveToFront(list []string, search string) []string {
-	for k, v := range list {
-		if v == search {
-			list = append(list[:k], list[k+1:]...)
-		}
-	}
-	return append([]string{search}, list...)
-}
-
 // GetData returns the internal snapshot of the hostfile we read when we loaded
 // this hostfile from disk (if we ever did that). This is implemented for
 // testing and you probably won't need to use it.
