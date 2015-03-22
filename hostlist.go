@@ -5,20 +5,26 @@ import (
 	"fmt"
 	"net"
 	"sort"
+	"strings"
 )
 
 // ErrInvalidVersionArg is raised when a function expects IPv 4 or 6 but is
 // passed a value not 4 or 6.
 var ErrInvalidVersionArg = errors.New("Version argument must be 4 or 6")
 
-// Hostlist is an ordered set of Hostnames. When in a Hostlist, Hostnames must
+// Hostlist is a sortable set of Hostnames. When in a Hostlist, Hostnames must
 // follow some rules:
 //
 // 	- Hostlist may contain IPv4 AND IPv6 ("IP version" or "IPv") Hostnames.
 // 	- Names are only allowed to overlap if IP version is different.
 // 	- Adding a Hostname for an existing name will replace the old one.
 //
-// See docs for the Sort and Add for more details.
+// The Hostlist uses a deterministic Sort order designed to make a hostfile
+// output look a particular way. Generally you don't need to worry about this
+// as Sort will be called automatically before Format. However, the Hostlist
+// may or may not be sorted at any particular time during runtime.
+//
+// See the docs and implementation in Sort and Add for more details.
 type Hostlist []*Hostname
 
 // NewHostlist initializes a new Hostlist
@@ -312,6 +318,26 @@ func (h *Hostlist) FilterByDomainV(domain string, version int) (hostnames []*Hos
 	return
 }
 
+// GetUniqueIPs extracts an ordered list of unique IPs from the Hostlist.
+// This calls Sort() internally.
+func (h *Hostlist) GetUniqueIPs() []net.IP {
+	h.Sort()
+	// A map doesn't preserve order so we're going to use the map to check
+	// whether we've seen something and use the list to keep track of the
+	// order.
+	seen := make(map[string]bool)
+	inOrder := []net.IP{}
+
+	for _, hostname := range *h {
+		key := (*hostname).IP.String()
+		if !seen[key] {
+			seen[key] = true
+			inOrder = append(inOrder, (*hostname).IP)
+		}
+	}
+	return inOrder
+}
+
 // Format takes the current list of Hostnames in this Hostfile and turns it
 // into a string suitable for use as an /etc/hosts file.
 // Sorting uses the following logic:
@@ -322,10 +348,41 @@ func (h *Hostlist) FilterByDomainV(domain string, version int) (hostnames []*Hos
 // 4. When present, "localhost" will always appear first in the domain list
 func (h *Hostlist) Format() []byte {
 	h.Sort()
-	var out []byte
-	for _, hostname := range *h {
-		out = append(out, []byte(hostname.Format())...)
-		out = append(out, []byte("\n")...)
+	out := []byte{}
+
+	// We want to output one line of hostnames per IP, so first we get that
+	// list of IPs and iterate.
+	for _, IP := range h.GetUniqueIPs() {
+		// Technically if an IP has some disabled hostnames we'll show two
+		// lines, one starting with a comment (#).
+		enabledIPs := []string{}
+		disabledIPs := []string{}
+
+		// For this IP, get all hostnames that match and iterate over them.
+		for _, hostname := range h.FilterByIP(IP) {
+			// If it's enabled, put it in the enabled bucket (likewise for
+			// disabled hostnames)
+			if hostname.Enabled {
+				enabledIPs = append(enabledIPs, hostname.Domain)
+			} else {
+				disabledIPs = append(disabledIPs, hostname.Domain)
+			}
+		}
+
+		// Finally, if the bucket contains anything, concatenate it all
+		// together and append it to the output. Also add a newline.
+		if len(enabledIPs) > 0 {
+			concat := fmt.Sprintf("%s %s", IP.String(), strings.Join(enabledIPs, " "))
+			out = append(out, []byte(concat)...)
+			out = append(out, []byte("\n")...)
+		}
+
+		if len(disabledIPs) > 0 {
+			concat := fmt.Sprintf("# %s %s", IP.String(), strings.Join(disabledIPs, " "))
+			out = append(out, []byte(concat)...)
+			out = append(out, []byte("\n")...)
+		}
 	}
+
 	return out
 }
