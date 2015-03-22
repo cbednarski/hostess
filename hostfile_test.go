@@ -53,7 +53,8 @@ func TestFormatHostfile(t *testing.T) {
 	const expected = `127.0.0.1 localhost devsite
 127.0.1.1 ip-10-37-12-18
 # 8.8.8.8 google.com
-10.37.12.18 devsite.com m.devsite.com`
+10.37.12.18 devsite.com m.devsite.com
+`
 
 	hostfile := hostess.NewHostfile()
 	hostfile.Path = "./hosts"
