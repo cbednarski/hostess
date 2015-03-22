@@ -31,9 +31,18 @@ func (h Hostlist) Len() int {
 	return len(h)
 }
 
+// MakeSurrogateIP takes an IP like 127.0.0.1 and munges it to 0.0.0.1 so we can
+// sort it more easily.
+func MakeSurrogateIP(IP net.IP) net.IP {
+	if string(IP[0:3]) == "127" {
+		return net.IP("0" + string(IP[3:]))
+	}
+	return IP
+}
+
 // Less determines the sort order of two Hostnames, part of sort.Interface
 func (h Hostlist) Less(A, B int) bool {
-	// Sort 127.0.0.1, 127.0.1.1 and "localhost" at the top
+	// Sort "localhost" at the top
 	if h[A].Domain == "localhost" {
 		return true
 	}
@@ -52,20 +61,25 @@ func (h Hostlist) Less(A, B int) bool {
 	}
 
 	// Compare the the IP addresses (byte array)
-	if !h[A].IP.Equal(h[B].IP) {
-		for charIndex := range h[A].IP {
+	// We want to push 127. to the top so we're going to mark it zero.
+	surrogateA := MakeSurrogateIP(h[A].IP)
+	surrogateB := MakeSurrogateIP(h[B].IP)
+	if !surrogateA.Equal(surrogateB) {
+		for charIndex := range surrogateA {
 			// A and B's IPs differ at this index, and A is less. A wins!
-			if h[A].IP[charIndex] < h[B].IP[charIndex] {
+			if surrogateA[charIndex] < surrogateB[charIndex] {
 				return true
 			}
 			// A and B's IPs differ at this index, and B is less. A loses!
-			if h[A].IP[charIndex] > h[B].IP[charIndex] {
+			if surrogateA[charIndex] > surrogateB[charIndex] {
 				return false
 			}
 		}
+		// If we got here then the IPs are the same and we want to continue on
+		// to the domain sorting section.
 	}
 
-	// Prep for domain sorting
+	// Prep for sorting by domain name
 	aLength := len(h[A].Domain)
 	bLength := len(h[B].Domain)
 	max := aLength
@@ -97,8 +111,9 @@ func (h Hostlist) Less(A, B int) bool {
 		}
 	}
 
-	// Seems like everything was the same, so it can't be Less. Also since we
-	// can't Add something twice we should never end up here. Just in case...
+	// If we got here then A and B are the same -- by definition A is not Less
+	// than B so we return false. Technically we shouldn't get here since Add
+	// should not allow duplicates, but we'll guard anyway.
 	return false
 }
 
@@ -164,7 +179,6 @@ func (h *Hostlist) Add(host *Hostname) error {
 		}
 	}
 	*h = append(*h, host)
-	h.Sort()
 	return nil
 }
 

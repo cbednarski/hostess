@@ -7,6 +7,21 @@ import (
 	"testing"
 )
 
+func TestMakeSurrogateIP(t *testing.T) {
+	const orig = "127.0.0.1"
+	const expected1 = "0.0.0.1"
+	IP1 := string(hostess.MakeSurrogateIP(net.IP(orig)))
+	if IP1 != expected1 {
+		t.Errorf("Expected %s to convert to %s; got %s", orig, expected1, IP1)
+	}
+
+	const expected2 = "10.20.30.40"
+	IP2 := string(hostess.MakeSurrogateIP(net.IP(expected2)))
+	if IP2 != expected2 {
+		t.Errorf("Expected %s to remain unchanged; got %s", expected2, IP2)
+	}
+}
+
 func TestContainsDomainIp(t *testing.T) {
 	hosts := hostess.NewHostlist()
 	hosts.Add(hostess.NewHostname(domain, ip, false))
