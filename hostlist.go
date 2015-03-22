@@ -49,14 +49,6 @@ func MakeSurrogateIP(IP net.IP) net.IP {
 
 // Less determines the sort order of two Hostnames, part of sort.Interface
 func (h Hostlist) Less(A, B int) bool {
-	// Sort "localhost" at the top
-	if h[A].Domain == "localhost" {
-		return true
-	}
-	if h[B].Domain == "localhost" {
-		return false
-	}
-
 	// Sort IPv4 before IPv6
 	// A is IPv4 and B is IPv6. A wins!
 	if !h[A].IPv6 && h[B].IPv6 {
@@ -64,6 +56,14 @@ func (h Hostlist) Less(A, B int) bool {
 	}
 	// A is IPv6 but B is IPv4. A loses!
 	if h[A].IPv6 && !h[B].IPv6 {
+		return false
+	}
+
+	// Sort "localhost" at the top
+	if h[A].Domain == "localhost" {
+		return true
+	}
+	if h[B].Domain == "localhost" {
 		return false
 	}
 

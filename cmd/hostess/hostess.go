@@ -29,6 +29,7 @@ const help = `an idempotent tool for managing /etc/hosts
 func main() {
 	app := cli.NewApp()
 	app.Name = "hostess"
+	app.Authors = []cli.Author{{Name: "Chris Bednarski", Email: "banzaimonkey@gmail.com"}}
 	app.Usage = help
 	app.Version = "0.1.0"
 
@@ -59,10 +60,11 @@ func main() {
 			Flags:  app.Flags,
 		},
 		{
-			Name:   "del",
-			Usage:  "delete a hosts entry",
-			Action: hostess.Del,
-			Flags:  app.Flags,
+			Name:    "del",
+			Aliases: []string{"rm"},
+			Usage:   "delete a hosts entry",
+			Action:  hostess.Del,
+			Flags:   app.Flags,
 		},
 		{
 			Name:   "has",
@@ -83,10 +85,11 @@ func main() {
 			Flags:  app.Flags,
 		},
 		{
-			Name:   "ls, list",
-			Usage:  "list entries in the hosts file",
-			Action: hostess.Ls,
-			Flags:  app.Flags,
+			Name:    "list",
+			Aliases: []string{"ls"},
+			Usage:   "list entries in the hosts file",
+			Action:  hostess.Ls,
+			Flags:   app.Flags,
 		},
 		{
 			Name:   "fix",

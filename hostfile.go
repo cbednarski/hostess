@@ -139,6 +139,7 @@ func LoadHostfile() (hostfile *Hostfile, errs []error) {
 		return
 	}
 	errs = hostfile.Parse()
+	hostfile.Hosts.Sort()
 	return
 }
 

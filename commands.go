@@ -143,13 +143,12 @@ func Ls(c *cli.Context) {
 		}
 	}
 
-	// for _, domain := range hostsfile.ListDomains() {
-	// 	hostname := hostsfile.Hosts[domain]
-	// 	fmt.Printf("%s -> %s %s\n",
-	// 		StrPadRight(hostname.Domain, maxdomain),
-	// 		StrPadRight(hostname.Ip.String(), maxip),
-	// 		ShowEnabled(hostname.Enabled))
-	// }
+	for _, hostname := range hostsfile.Hosts {
+		fmt.Printf("%s -> %s %s\n",
+			StrPadRight(hostname.Domain, maxdomain),
+			StrPadRight(hostname.IP.String(), maxip),
+			hostname.FormatEnabled())
+	}
 }
 
 const fixHelp = `Programmatically rewrite your hostsfile.
@@ -165,7 +164,7 @@ whitespace and comments will be removed.
 func Fix(c *cli.Context) {
 	hostsfile := MaybeLoadHostFile(c)
 	if c.Bool("n") {
-		fmt.Println(hostsfile.Format())
+		fmt.Printf("%s", hostsfile.Format())
 	} else {
 		hostsfile.Save()
 	}

@@ -5,7 +5,7 @@ deps:
 	go get
 
 build: deps
-	go build
+	go build cmd/hostess/hostess.go
 
 test:
 	go test -coverprofile=coverage.out; go tool cover -html=coverage.out -o coverage.html
