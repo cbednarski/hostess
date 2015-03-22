@@ -155,6 +155,9 @@ func MoveToFront(list []string, search string) []string {
 	return append([]string{search}, list...)
 }
 
+// GetData returns the internal snapshot of the hostfile we read when we loaded
+// this hostfile from disk (if we ever did that). This is implemented for
+// testing and you probably won't need to use it.
 func (h *Hostfile) GetData() []byte {
 	return h.data
 }
