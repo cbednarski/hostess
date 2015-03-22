@@ -169,23 +169,33 @@ func (h *Hostlist) ContainsIP(IP net.IP) bool {
 	return false
 }
 
-// Add a new Hostname to this hostlist. If a Hostname with the same domain name
-// and IP version is found, it will be replaced and an error will be returned.
-// If you try to add an identical Hostname, an error will be returned.
-// Note that in normal operation, you will sometimes expect an error, and the
-// error data is mainly to alert you that you mis-entered information, not that
-// the application has a problem.
-func (h *Hostlist) Add(host *Hostname) error {
-	for _, found := range *h {
-		if found.Equal(host) {
+// Add a new Hostname to this hostlist. Add uses some merging logic in the
+// event it finds duplicated hostnames. In the case of a conflict (incompatible
+// entries) the last write wins. In the case of duplicates, duplicates will be
+// removed and the remaining entry will be enabled if any of the duplicates was
+// enabled.
+//
+// Both duplicate and conflicts return errors so you are aware of them, but you
+// don't necessarily need to do anything about the error.
+func (h *Hostlist) Add(hostnamev *Hostname) error {
+	hostname := NewHostname(hostnamev.Domain, hostnamev.IP.String(), hostnamev.Enabled)
+	for index, found := range *h {
+		if found.Equal(hostname) {
+			// If either hostname is enabled we will set the existing one to
+			// enabled state. That way if we add a hostname from the end of a
+			// hosts file it will take over, and if we later add a disabled one
+			// the original one will stick. We still error in this case so the
+			// user can see that there is a duplicate.
+			(*h)[index].Enabled = found.Enabled || hostname.Enabled
 			return fmt.Errorf("Duplicate hostname entry for %s -> %s",
-				host.Domain, host.IP)
-		} else if found.Domain == host.Domain && found.IPv6 == host.IPv6 {
+				hostname.Domain, hostname.IP)
+		} else if found.Domain == hostname.Domain && found.IPv6 == hostname.IPv6 {
+			(*h)[index] = hostname
 			return fmt.Errorf("Conflicting hostname entries for %s -> %s and -> %s",
-				host.Domain, host.IP, found.IP)
+				hostname.Domain, hostname.IP, found.IP)
 		}
 	}
-	*h = append(*h, host)
+	*h = append(*h, hostname)
 	return nil
 }
 

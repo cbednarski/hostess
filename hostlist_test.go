@@ -7,6 +7,43 @@ import (
 	"testing"
 )
 
+func TestAddDuplicate(t *testing.T) {
+	list := hostess.NewHostlist()
+
+	hostname := hostess.NewHostname("mysite", "1.2.3.4", false)
+	err := list.Add(hostname)
+	if err != nil {
+		t.Error("Expected no errors when adding a hostname for the first time")
+	}
+
+	hostname.Enabled = true
+	err = list.Add(hostname)
+	if err == nil {
+		t.Error("Expected error when adding a duplicate")
+	}
+	if !(*list)[0].Enabled {
+		t.Error("Expected hostname to be in enabled state")
+	}
+}
+
+func TestAddConflict(t *testing.T) {
+	hostnameA := hostess.NewHostname("mysite", "1.2.3.4", true)
+	hostnameB := hostess.NewHostname("mysite", "5.2.3.4", false)
+
+	list := hostess.NewHostlist()
+	list.Add(hostnameA)
+	err := list.Add(hostnameB)
+	if err == nil {
+		t.Error("Expected conflict error")
+	}
+	if !(*list)[0].Equal(hostnameB) {
+		t.Error("Expected second hostname to overwrite")
+	}
+	if (*list)[0].Enabled {
+		t.Error("Expected second hostname to be disabled")
+	}
+}
+
 func TestMakeSurrogateIP(t *testing.T) {
 	original := net.ParseIP("127.0.0.1")
 	expected1 := net.ParseIP("0.0.0.1")
