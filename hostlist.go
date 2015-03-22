@@ -32,40 +32,45 @@ func (h Hostlist) Len() int {
 }
 
 // Less determines the sort order of two Hostnames, part of sort.Interface
-func (h Hostlist) Less(i, j int) bool {
+func (h Hostlist) Less(A, B int) bool {
 	// Sort 127.0.0.1, 127.0.1.1 and "localhost" at the top
-	if h[i].Domain == "localhost" {
+	if h[A].Domain == "localhost" {
 		return true
 	}
-	if h[j].Domain == "localhost" {
+	if h[B].Domain == "localhost" {
 		return false
 	}
 
 	// Sort IPv4 before IPv6
-	if h[i].IPv6 && !h[j].IPv6 {
-		return false
-	}
-	if !h[i].IPv6 && h[j].IPv6 {
+	// A is IPv4 and B is IPv6. A wins!
+	if !h[A].IPv6 && h[B].IPv6 {
 		return true
+	}
+	// A is IPv6 but B is IPv4. A loses!
+	if h[A].IPv6 && !h[B].IPv6 {
+		return false
 	}
 
 	// Compare the the IP addresses (byte array)
-	if !h[i].IP.Equal(h[j].IP) {
-		for c := range h[i].IP {
-			if h[i].IP[c] < h[j].IP[c] {
+	if !h[A].IP.Equal(h[B].IP) {
+		for charIndex := range h[A].IP {
+			// A and B's IPs differ at this index, and A is less. A wins!
+			if h[A].IP[charIndex] < h[B].IP[charIndex] {
 				return true
-			} else if h[i].IP[c] > h[j].IP[c] {
+			}
+			// A and B's IPs differ at this index, and B is less. A loses!
+			if h[A].IP[charIndex] > h[B].IP[charIndex] {
 				return false
 			}
 		}
 	}
 
 	// Prep for domain sorting
-	ilen := len(h[i].Domain)
-	jlen := len(h[j].Domain)
-	max := ilen
-	if jlen > max {
-		max = jlen
+	aLength := len(h[A].Domain)
+	bLength := len(h[B].Domain)
+	max := aLength
+	if bLength > max {
+		max = bLength
 	}
 
 	// Sort domains alphabetically
@@ -73,17 +78,21 @@ func (h Hostlist) Less(i, j int) bool {
 	// enforce lowercase because of UTF-8 domain names, which may be broken by
 	// case folding. There is a way to do this correctly but it's complicated
 	// so I'm not going to do it right now.
-	for c := 0; c < max; c++ {
-		if c >= ilen {
+	for charIndex := 0; charIndex < max; charIndex++ {
+		// This index is longer than A, so A is shorter. A wins!
+		if charIndex >= aLength {
 			return true
 		}
-		if c >= jlen {
+		// This index is longer than B, so B is shorter. A loses!
+		if charIndex >= bLength {
 			return false
 		}
-		if h[i].Domain[c] < h[j].Domain[c] {
+		// A and B differ at this index and A is less. A wins!
+		if h[A].Domain[charIndex] < h[B].Domain[charIndex] {
 			return true
 		}
-		if h[i].Domain[c] > h[j].Domain[c] {
+		// A and B differ at this index and B is less. A loses!
+		if h[A].Domain[charIndex] > h[B].Domain[charIndex] {
 			return false
 		}
 	}
