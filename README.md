@@ -2,16 +2,22 @@
 
 An idempotent command-line utility for managing your `/etc/hosts` file.
 
-## Usage
+## Using Hostess
 
-    hostess add domain ip   # Add or change a hosts entry for this domain pointing to this IP
-    hostess add -off domain ip  # Add in a disabled state (if it already exists, disable it)
+### Download and Install
+
+Download a [precompiled release](https://github.com/cbednarski/hostess/releases) from GitHub.
+
+### Usage
+
+    hostess add domain ip   # Add or replace a hosts entry for this domain pointing to this IP
+    hostess aff domain ip   # Add or replace a hosts entry in an off state
     hostess del domain      # Remove a domain from your hosts file
-    hostess has domain      # exit code 0 or 1 if the domain is in your hostfile
-    hostess off domain      # Disable a domain (but don't remove it completely)
-    hostess on domain       # Re-enable a domain that was disabled
+    hostess has domain      # exit code 0 if the domain is in your hostfile, 1 otherwise
+    hostess off domain      # Disable a domain (but don't remove it completely), exit 0 if hosts entry is missing
+    hostess on domain       # Re-enable a domain that was disabled, exit 1 if hosts entry is missing
     hostess ls              # List domains, target ips, and on/off status
-    hostess fix             # Read your hosts file and show warnings if there are bumps
+    hostess fix             # Rewrite your hosts file; use -n to dry run
     hostess dump            # Dump your hostfile as json
     hostess apply           # Add entries from a json file
 
@@ -28,18 +34,31 @@ hostess may mangle your hosts file. In general it will probably look like this, 
     127.0.1.1 machine.name
     # 10.10.20.30 some.host
 
-## IPv4 and IPv6
+### IPv4 and IPv6
 
 Your hosts file *can* contain overlapping entries where the same hostname points to both an IPv4 and IPv6 IP. In this case, hostess commands will apply to both entries. Typically you won't have this kind of overlap and the default behavior is OK. However, if you need to be more granular you can use `-4` or `-6` to limit operations to entries associated with that type of IP.
 
-## Installation
+### Disclaimer
 
-Grab a [release](https://github.com/cbednarski/hostess/releases) or download the code and run `make install` (building probably requires go 1.4).
+hostess uses readme-driven-development and may not actually do any of the things listed above. When in doubt, pass the `-n` flag to try hostess without changing your system.
 
-## Configuration
+## Developing Hostess
+
+### Configuration
 
 By default, hostess will read / write to `/etc/hosts`. You can use the `HOSTESS_PATH` environment variable to provide an alternate path (for testing).
 
-## Disclaimer
+### Building from Source
 
-hostess uses readme-driven-development and may not actually do any of the things listed above. When in doubt, pass the `-n` flag to try hostess without changing your system.
+To build from source you'll need to have go 1.4+
+
+#### Install with go get
+
+    go get github.com/cbednarski/hostess/cmd/hostess
+
+#### Install from source
+
+    git clone https://github.com/cbednarski/hostess
+    cd hostess
+    make
+    make install

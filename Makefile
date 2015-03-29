@@ -20,7 +20,7 @@ build-all: test
 	which gox || make gox
 	gox -arch="amd64" -os="darwin" -os="linux" github.com/cbednarski/hostess/cmd/hostess
 
-install: build test
+install: hostess
 	cp hostess /usr/local/bin/hostess
 
 clean:
