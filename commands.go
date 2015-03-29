@@ -169,7 +169,11 @@ func On(c *cli.Context) {
 
 	if success {
 		MaybeSaveHostFile(c, hostsfile)
-		MaybePrintln(c, fmt.Sprintf("Enabled %s", domain))
+		if c.Command.Name == "on" {
+			MaybePrintln(c, fmt.Sprintf("Enabled %s", domain))
+		} else {
+			MaybePrintln(c, fmt.Sprintf("Disabled %s", domain))
+		}
 	} else {
 		MaybeError(c, fmt.Sprintf("%s not found in %s", domain, GetHostsPath()))
 	}
