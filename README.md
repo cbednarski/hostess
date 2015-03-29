@@ -14,8 +14,8 @@ Download a [precompiled release](https://github.com/cbednarski/hostess/releases)
     hostess aff domain ip   # Add or replace a hosts entry in an off state
     hostess del domain      # (alias rm) Remove a domain from your hosts file
     hostess has domain      # exit code 0 if the domain is in your hostfile, 1 otherwise
-    hostess off domain      # Disable a domain (but don't remove it completely), exit 0 if hosts entry is missing
-    hostess on domain       # Re-enable a domain that was disabled, exit 1 if hosts entry is missing
+    hostess off domain      # Disable a domain (but don't remove it completely), exit 1 if entry is missing
+    hostess on domain       # Re-enable a domain that was disabled, exit 1 if entry is missing
     hostess list            # (alias ls) List domains, target ips, and on/off status
     hostess fix             # Rewrite your hosts file; use -n to dry run
     hostess dump            # Dump your hostfile as json
