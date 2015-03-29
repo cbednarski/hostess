@@ -1,16 +1,21 @@
 package hostess
 
 import (
+	"bytes"
 	"fmt"
 	"github.com/codegangsta/cli"
 	"os"
 	"strings"
 )
 
+// ErrCantWriteHostFile indicates that we are unable to write to the hosts file
+var ErrCantWriteHostFile = fmt.Errorf(
+	"Unable to write to %s. Maybe you need to sudo?", GetHostsPath())
+
 // MaybeErrorln will print an error message unless -s is passed
 func MaybeErrorln(c *cli.Context, message string) {
 	if !c.Bool("s") {
-		os.Stderr.WriteString(fmt.Sprintf("%s: %s\n", c.Command.Name, message))
+		os.Stderr.WriteString(fmt.Sprintf("%s\n", message))
 	}
 }
 
@@ -35,7 +40,19 @@ func MaybeLoadHostFile(c *cli.Context) *Hostfile {
 		for _, err := range errs {
 			MaybeErrorln(c, err.Error())
 		}
-		MaybeError(c, "Errors while parsing hostsfile. Try using fix -f")
+		MaybeError(c, "Errors while parsing hostsfile. Try hostess fix")
+	}
+	return hostsfile
+}
+
+// AlwaysLoadHostFile will load, parse, and return a Hostfile. If we encouter
+// errors they will be printed to the terminal, but we'll try to continue.
+func AlwaysLoadHostFile(c *cli.Context) *Hostfile {
+	hostsfile, errs := LoadHostfile()
+	if len(errs) > 0 {
+		for _, err := range errs {
+			MaybeErrorln(c, err.Error())
+		}
 	}
 	return hostsfile
 }
@@ -87,8 +104,12 @@ func Del(c *cli.Context) {
 		if c.Bool("n") {
 			fmt.Println(hostsfile.Format())
 		} else {
+			err := hostsfile.Save()
+			if err != nil {
+				MaybeErrorln(c, ErrCantWriteHostFile.Error())
+				os.Exit(1)
+			}
 			MaybePrintln(c, fmt.Sprintf("Deleted %s", domain))
-			hostsfile.Save()
 		}
 	} else {
 		MaybePrintln(c, fmt.Sprintf("%s not found in %s", domain, GetHostsPath()))
@@ -129,7 +150,7 @@ func On(c *cli.Context) {
 
 // Ls command shows a list of hostnames in the hosts file
 func Ls(c *cli.Context) {
-	hostsfile := MaybeLoadHostFile(c)
+	hostsfile := AlwaysLoadHostFile(c)
 	maxdomain := 0
 	maxip := 0
 	for _, hostname := range hostsfile.Hosts {
@@ -162,11 +183,19 @@ whitespace and comments will be removed.
 
 // Fix command removes duplicates and conflicts from the hosts file
 func Fix(c *cli.Context) {
-	hostsfile := MaybeLoadHostFile(c)
+	hostsfile := AlwaysLoadHostFile(c)
+	if bytes.Equal(hostsfile.GetData(), hostsfile.Format()) {
+		MaybePrintln(c, fmt.Sprintf("%s is already formatted and contains no dupes or conflicts; nothing to do", GetHostsPath()))
+		os.Exit(0)
+	}
 	if c.Bool("n") {
 		fmt.Printf("%s", hostsfile.Format())
 	} else {
-		hostsfile.Save()
+		err := hostsfile.Save()
+		if err != nil {
+			MaybeErrorln(c, ErrCantWriteHostFile.Error())
+		}
+		MaybePrintln(c, fmt.Sprintf("Fixed %s", GetHostsPath()))
 	}
 }
 
