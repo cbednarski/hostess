@@ -81,13 +81,13 @@ func main() {
 		{
 			Name:   "on",
 			Usage:  "enable a hosts entry (if if exists)",
-			Action: hostess.On,
+			Action: hostess.OnOff,
 			Flags:  app.Flags,
 		},
 		{
 			Name:   "off",
 			Usage:  "disable a hosts entry (don't delete it)",
-			Action: hostess.On,
+			Action: hostess.OnOff,
 			Flags:  app.Flags,
 		},
 		{

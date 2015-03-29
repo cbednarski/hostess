@@ -152,7 +152,7 @@ func Has(c *cli.Context) {
 
 // On (and off) command enables (uncomments) or disables (comments) the
 // specified hostname in the hosts file
-func On(c *cli.Context) {
+func OnOff(c *cli.Context) {
 	if len(c.Args()) != 1 {
 		MaybeError(c, "expected <hostname>")
 	}
