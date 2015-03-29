@@ -57,6 +57,14 @@ func AlwaysLoadHostFile(c *cli.Context) *Hostfile {
 	return hostsfile
 }
 
+// MaybeSaveHostFile will save the Hostfile or exit 1 with an error message.
+func MaybeSaveHostFile(c *cli.Context, hostfile *Hostfile) {
+	err := hostfile.Save()
+	if err != nil {
+		MaybeError(c, ErrCantWriteHostFile.Error())
+	}
+}
+
 // StrPadRight adds spaces to the right of a string until it reaches l length.
 // If the input string is already that long, do nothing.
 func StrPadRight(s string, l int) string {
@@ -64,29 +72,42 @@ func StrPadRight(s string, l int) string {
 }
 
 // Add command parses <hostname> <ip> and adds or updates a hostname in the
-// hosts file
+// hosts file. If the aff command is used the hostname will be disabled or
+// added in the off state.
 func Add(c *cli.Context) {
 	if len(c.Args()) != 2 {
 		MaybeError(c, "expected <hostname> <ip>")
 	}
 
 	hostsfile := MaybeLoadHostFile(c)
-	hostname := NewHostname(c.Args()[0], c.Args()[1], true)
 
-	var err error
-	if !hostsfile.Hosts.Contains(hostname) {
-		err = hostsfile.Hosts.Add(hostname)
+	hostname := NewHostname(c.Args()[0], c.Args()[1], true)
+	// If the command is aff instead of add then the entry should be disabled
+	if c.Command.Name == "aff" {
+		hostname.Enabled = false
 	}
 
-	if err == nil {
-		if c.Bool("n") {
-			fmt.Println(hostsfile.Format())
+	replace := hostsfile.Hosts.ContainsDomain(hostname.Domain)
+	// Note that Add() may return an error, but they are informational only. We
+	// don't actually care what the error is -- we just want to add the
+	// hostname and save the file. This way the behavior is idempotent.
+	hostsfile.Hosts.Add(hostname)
+
+	// If the user passes -n then we'll Add and show the new hosts file, but
+	// not save it.
+	if c.Bool("n") {
+		fmt.Println(hostsfile.Format())
+	} else {
+		MaybeSaveHostFile(c, hostsfile)
+		// We'll give a little bit of information about whether we added or
+		// updated, but if the user wants to know they can use has or ls to
+		// show the file before they run the operation. Maybe later we can add
+		// a verbose flag to show more information.
+		if replace {
+			MaybePrintln(c, fmt.Sprintf("Updated %s", hostname.FormatHuman()))
 		} else {
 			MaybePrintln(c, fmt.Sprintf("Added %s", hostname.FormatHuman()))
-			hostsfile.Save()
 		}
-	} else {
-		MaybeError(c, err.Error())
 	}
 }
 
@@ -104,11 +125,7 @@ func Del(c *cli.Context) {
 		if c.Bool("n") {
 			fmt.Println(hostsfile.Format())
 		} else {
-			err := hostsfile.Save()
-			if err != nil {
-				MaybeErrorln(c, ErrCantWriteHostFile.Error())
-				os.Exit(1)
-			}
+			MaybeSaveHostFile(c, hostsfile)
 			MaybePrintln(c, fmt.Sprintf("Deleted %s", domain))
 		}
 	} else {
@@ -146,6 +163,16 @@ func On(c *cli.Context) {
 	if len(c.Args()) != 1 {
 		MaybeError(c, "expected <hostname>")
 	}
+	domain := c.Args()[0]
+	hostsfile := MaybeLoadHostFile(c)
+	success := hostsfile.Hosts.Enable(domain)
+	if success {
+		MaybeSaveHostFile(c, hostsfile)
+		MaybePrintln(c, fmt.Sprintf("Enabled %s", domain))
+	} else {
+		MaybeError(c, fmt.Sprintf("%s not found in %s", domain, GetHostsPath()))
+	}
+
 }
 
 // Ls command shows a list of hostnames in the hosts file
@@ -174,8 +201,9 @@ func Ls(c *cli.Context) {
 
 const fixHelp = `Programmatically rewrite your hostsfile.
 
-Domains pointing to the same IP will be consolidated, sorted, and extra
-whitespace and comments will be removed.
+Domains pointing to the same IP will be consolidated onto single lines and
+sorted. Duplicates and conflicts will be removed. Extra whitespace and comments
+will be removed.
 
    hostess fix      Rewrite the hostsfile
    hostess fix -n   Show the new hostsfile. Don't write it
@@ -191,11 +219,7 @@ func Fix(c *cli.Context) {
 	if c.Bool("n") {
 		fmt.Printf("%s", hostsfile.Format())
 	} else {
-		err := hostsfile.Save()
-		if err != nil {
-			MaybeErrorln(c, ErrCantWriteHostFile.Error())
-		}
-		MaybePrintln(c, fmt.Sprintf("Fixed %s", GetHostsPath()))
+		MaybeSaveHostFile(c, hostsfile)
 	}
 }
 

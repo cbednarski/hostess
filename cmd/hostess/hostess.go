@@ -55,7 +55,13 @@ func main() {
 	app.Commands = []cli.Command{
 		{
 			Name:   "add",
-			Usage:  "add (or update) a hosts entry",
+			Usage:  "add or replace a hosts entry",
+			Action: hostess.Add,
+			Flags:  app.Flags,
+		},
+		{
+			Name:   "aff",
+			Usage:  "add or replace a hosts entry in an off state",
 			Action: hostess.Add,
 			Flags:  app.Flags,
 		},
