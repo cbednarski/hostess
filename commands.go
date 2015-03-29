@@ -150,29 +150,29 @@ func Has(c *cli.Context) {
 
 }
 
-// Off command disables (comments) the specified hostname in the hosts file
-func Off(c *cli.Context) {
-	if len(c.Args()) != 1 {
-		MaybeError(c, "expected <hostname>")
-	}
-
-}
-
-// On command enabled (uncomments) the specified hostname in the hosts file
+// On (and off) command enables (uncomments) or disables (comments) the
+// specified hostname in the hosts file
 func On(c *cli.Context) {
 	if len(c.Args()) != 1 {
 		MaybeError(c, "expected <hostname>")
 	}
 	domain := c.Args()[0]
 	hostsfile := MaybeLoadHostFile(c)
-	success := hostsfile.Hosts.Enable(domain)
+
+	// Switch on / off commands
+	success := false
+	if c.Command.Name == "on" {
+		success = hostsfile.Hosts.Enable(domain)
+	} else {
+		success = hostsfile.Hosts.Disable(domain)
+	}
+
 	if success {
 		MaybeSaveHostFile(c, hostsfile)
 		MaybePrintln(c, fmt.Sprintf("Enabled %s", domain))
 	} else {
 		MaybeError(c, fmt.Sprintf("%s not found in %s", domain, GetHostsPath()))
 	}
-
 }
 
 // Ls command shows a list of hostnames in the hosts file
