@@ -57,11 +57,17 @@ func AlwaysLoadHostFile(c *cli.Context) *Hostfile {
 	return hostsfile
 }
 
-// MaybeSaveHostFile will save the Hostfile or exit 1 with an error message.
+// MaybeSaveHostFile will output or write the Hostfile, or exit 1 and error.
 func MaybeSaveHostFile(c *cli.Context, hostfile *Hostfile) {
-	err := hostfile.Save()
-	if err != nil {
-		MaybeError(c, ErrCantWriteHostFile.Error())
+	// If -n is passed, no-op and output the resultant hosts file to stdout.
+	// Otherwise it's for real and we're going to write it.
+	if c.Bool("n") {
+		fmt.Printf("%s", hostfile.Format())
+	} else {
+		err := hostfile.Save()
+		if err != nil {
+			MaybeError(c, ErrCantWriteHostFile.Error())
+		}
 	}
 }
 
@@ -220,11 +226,7 @@ func Fix(c *cli.Context) {
 		MaybePrintln(c, fmt.Sprintf("%s is already formatted and contains no dupes or conflicts; nothing to do", GetHostsPath()))
 		os.Exit(0)
 	}
-	if c.Bool("n") {
-		fmt.Printf("%s", hostsfile.Format())
-	} else {
-		MaybeSaveHostFile(c, hostsfile)
-	}
+	MaybeSaveHostFile(c, hostsfile)
 }
 
 // Dump command outputs hosts file contents as JSON
