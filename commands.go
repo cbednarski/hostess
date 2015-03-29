@@ -156,8 +156,8 @@ func Has(c *cli.Context) {
 
 }
 
-// On (and off) command enables (uncomments) or disables (comments) the
-// specified hostname in the hosts file
+// OnOff enables (uncomments) or disables (comments) the specified hostname in
+// the hosts file. Exits code 1 if the hostname is missing.
 func OnOff(c *cli.Context) {
 	if len(c.Args()) != 1 {
 		MaybeError(c, "expected <hostname>")
@@ -216,7 +216,7 @@ sorted. Duplicates and conflicts will be removed. Extra whitespace and comments
 will be removed.
 
    hostess fix      Rewrite the hostsfile
-   hostess fix -n   Show the new hostsfile. Don't write it
+   hostess fix -n   Show the new hostsfile. Don't write it to disk.
 `
 
 // Fix command removes duplicates and conflicts from the hosts file
