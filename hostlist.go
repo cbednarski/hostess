@@ -249,49 +249,61 @@ func (h *Hostlist) RemoveDomainV(domain string, version int) int {
 }
 
 // Enable will change any Hostnames matching domain to be enabled.
-func (h *Hostlist) Enable(domain string) {
+func (h *Hostlist) Enable(domain string) bool {
+	found := false
 	for _, hostname := range *h {
 		if hostname.Domain == domain {
 			hostname.Enabled = true
+			found = true
 		}
 	}
+	return found
 }
 
 // EnableV will change a Hostname matching domain and IP version to be enabled.
 //
 // This function will panic if IP version is not 4 or 6.
-func (h *Hostlist) EnableV(domain string, version int) {
+func (h *Hostlist) EnableV(domain string, version int) bool {
+	found := false
 	if version != 4 && version != 6 {
 		panic(ErrInvalidVersionArg)
 	}
 	for _, hostname := range *h {
 		if hostname.Domain == domain && hostname.IPv6 == (version == 6) {
 			hostname.Enabled = true
+			found = true
 		}
 	}
+	return found
 }
 
 // Disable will change any Hostnames matching domain to be disabled.
-func (h *Hostlist) Disable(domain string) {
+func (h *Hostlist) Disable(domain string) bool {
+	found := false
 	for _, hostname := range *h {
 		if hostname.Domain == domain {
 			hostname.Enabled = false
+			found = true
 		}
 	}
+	return found
 }
 
 // DisableV will change any Hostnames matching domain and IP version to be disabled.
 //
 // This function will panic if IP version is not 4 or 6.
-func (h *Hostlist) DisableV(domain string, version int) {
+func (h *Hostlist) DisableV(domain string, version int) bool {
+	found := false
 	if version != 4 && version != 6 {
 		panic(ErrInvalidVersionArg)
 	}
 	for _, hostname := range *h {
 		if hostname.Domain == domain && hostname.IPv6 == (version == 6) {
 			hostname.Enabled = false
+			found = true
 		}
 	}
+	return found
 }
 
 // FilterByIP filters the list of hostnames by IP address.
