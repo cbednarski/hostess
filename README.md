@@ -24,7 +24,6 @@ Download a [precompiled release](https://github.com/cbednarski/hostess/releases)
     Flags
 
     -n   # Dry run. Show what will happen but don't do it; output to stdout
-    -f   # Forcibly rewrite the hostfile, even if there are errors or conflicts
     -4   # Limit operation to ipv4 entries
     -6   # Limit operation to ipv6 entries
 
