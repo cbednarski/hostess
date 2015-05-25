@@ -234,11 +234,11 @@ func Fix(c *cli.Context) {
 // Dump command outputs hosts file contents as JSON
 func Dump(c *cli.Context) {
 	hostsfile := AlwaysLoadHostFile(c)
-	output, err := hostsfile.Hosts.Dump()
+	jsonbytes, err := hostsfile.Hosts.Dump()
 	if err != nil {
 		MaybeError(c, err.Error())
 	}
-	fmt.Println(fmt.Sprintf("%s", output))
+	fmt.Println(fmt.Sprintf("%s", jsonbytes))
 }
 
 // Apply command adds hostnames to the hosts file from JSON
@@ -248,13 +248,13 @@ func Apply(c *cli.Context) {
 	}
 	filename := c.Args()[0]
 
-	data, err := ioutil.ReadFile(filename)
+	jsonbytes, err := ioutil.ReadFile(filename)
 	if err != nil {
 		MaybeError(c, fmt.Sprintf("Unable to read %s: %s", filename, err))
 	}
 
 	hostfile := AlwaysLoadHostFile(c)
-	err = hostfile.Hosts.Apply(data)
+	err = hostfile.Hosts.Apply(jsonbytes)
 	if err != nil {
 		MaybeError(c, fmt.Sprintf("Error applying changes to hosts file: %s", err))
 	}

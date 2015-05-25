@@ -419,9 +419,9 @@ func (h *Hostlist) Dump() ([]byte, error) {
 }
 
 // Apply imports all entries from the JSON input to this Hostlist
-func (h *Hostlist) Apply(data []byte) error {
+func (h *Hostlist) Apply(jsonbytes []byte) error {
 	var hostnames Hostlist
-	err := json.Unmarshal(data, &hostnames)
+	err := json.Unmarshal(jsonbytes, &hostnames)
 	if err != nil {
 		return err
 	}
