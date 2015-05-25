@@ -33,10 +33,10 @@ func LooksLikeIPv6(ip string) bool {
 // can cause unexpected behavior. Instead, use Hostlist's Add, Remove, Enable,
 // and Disable methods.
 type Hostname struct {
-	Domain  string
-	IP      net.IP
-	Enabled bool
-	IPv6    bool
+	Domain  string `json:"domain"`
+	IP      net.IP `json:"ip"`
+	Enabled bool   `json:"enabled"`
+	IPv6    bool   `json:"-"`
 }
 
 // NewHostname creates a new Hostname struct and automatically sets the IPv6

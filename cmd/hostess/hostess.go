@@ -1,9 +1,10 @@
 package main
 
 import (
+	"os"
+
 	"github.com/cbednarski/hostess"
 	"github.com/codegangsta/cli"
-	"os"
 )
 
 func getCommand() string {
@@ -111,7 +112,7 @@ func main() {
 		},
 		{
 			Name:   "apply",
-			Usage:  "apply a JSON hosts dict to your hosts file",
+			Usage:  "add hostnames from a JSON file to the hosts file",
 			Action: hostess.Apply,
 			Flags:  app.Flags,
 		},

@@ -1,6 +1,7 @@
 package hostess
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"net"
@@ -410,4 +411,24 @@ func (h *Hostlist) Format() []byte {
 	}
 
 	return out
+}
+
+// Dump exports all entries in the Hostlist as JSON
+func (h *Hostlist) Dump() ([]byte, error) {
+	return json.MarshalIndent(h, "", "  ")
+}
+
+// Apply imports all entries from the JSON input to this Hostlist
+func (h *Hostlist) Apply(data []byte) error {
+	var hostnames Hostlist
+	err := json.Unmarshal(data, &hostnames)
+	if err != nil {
+		return err
+	}
+
+	for _, hostname := range hostnames {
+		h.Add(hostname)
+	}
+
+	return nil
 }

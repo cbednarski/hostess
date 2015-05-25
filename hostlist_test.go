@@ -1,10 +1,12 @@
 package hostess_test
 
 import (
+	"bytes"
 	"fmt"
-	"github.com/cbednarski/hostess"
 	"net"
 	"testing"
+
+	"github.com/cbednarski/hostess"
 )
 
 func TestAddDuplicate(t *testing.T) {
@@ -196,4 +198,51 @@ func ExampleHostlist_1() {
 	// Output:
 	// # 127.0.0.1 google.com
 	// ::1 google.com
+}
+
+const hostsjson = `[
+  {
+    "domain": "google.com",
+    "ip": "127.0.0.1",
+    "enabled": false
+  },
+  {
+    "domain": "google.com",
+    "ip": "::1",
+    "enabled": true
+  }
+]`
+
+func TestDump(t *testing.T) {
+	hosts := hostess.NewHostlist()
+	hosts.Add(hostess.NewHostname("google.com", "127.0.0.1", false))
+	hosts.Add(hostess.NewHostname("google.com", "::1", true))
+
+	expected := []byte(hostsjson)
+	actual, _ := hosts.Dump()
+
+	if !bytes.Equal(actual, expected) {
+		t.Errorf("JSON output did not match expected output: %s", Diff(string(expected), string(actual)))
+	}
+
+}
+
+func TestApply(t *testing.T) {
+	hosts := hostess.NewHostlist()
+	hosts.Apply([]byte(hostsjson))
+
+	hostnameA := hostess.NewHostname("google.com", "127.0.0.1", false)
+	if !hosts.Contains(hostnameA) {
+		t.Errorf("Expected to find %s", hostnameA.Format())
+	}
+
+	hostnameB := hostess.NewHostname("google.com", "::1", true)
+	if !hosts.Contains(hostnameB) {
+		t.Errorf("Expected to find %s", hostnameB.Format())
+	}
+
+	hosts.Apply([]byte(hostsjson))
+	if hosts.Len() != 2 {
+		t.Error("Hostslist contains the wrong number of items, expected 2")
+	}
 }
