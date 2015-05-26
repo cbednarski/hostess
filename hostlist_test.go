@@ -6,6 +6,8 @@ import (
 	"net"
 	"testing"
 
+	"github.com/stretchr/testify/assert"
+
 	"github.com/cbednarski/hostess"
 )
 
@@ -14,18 +16,12 @@ func TestAddDuplicate(t *testing.T) {
 
 	hostname := hostess.NewHostname("mysite", "1.2.3.4", false)
 	err := list.Add(hostname)
-	if err != nil {
-		t.Error("Expected no errors when adding a hostname for the first time")
-	}
+	assert.Nil(t, err, "Expected no errors when adding a hostname for the first time")
 
 	hostname.Enabled = true
 	err = list.Add(hostname)
-	if err == nil {
-		t.Error("Expected error when adding a duplicate")
-	}
-	if !(*list)[0].Enabled {
-		t.Error("Expected hostname to be in enabled state")
-	}
+	assert.NotNil(t, err, "Expected error when adding a duplicate")
+	assert.True(t, (*list)[0].Enabled, "Expected hostname to be in enabled state")
 }
 
 func TestAddConflict(t *testing.T) {
@@ -35,9 +31,8 @@ func TestAddConflict(t *testing.T) {
 	list := hostess.NewHostlist()
 	list.Add(hostnameA)
 	err := list.Add(hostnameB)
-	if err == nil {
-		t.Error("Expected conflict error")
-	}
+	assert.NotNil(t, err, "Expected conflict error")
+
 	if !(*list)[0].Equal(hostnameB) {
 		t.Error("Expected second hostname to overwrite")
 	}
