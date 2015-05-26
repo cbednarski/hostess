@@ -70,29 +70,29 @@ func TestContainsDomainIp(t *testing.T) {
 		t.Errorf("Expected to find %s", domain)
 	}
 
-	const extra_domain = "yahoo.com"
-	if hosts.ContainsDomain(extra_domain) {
-		t.Errorf("Did not expect to find %s", extra_domain)
+	const extraneousDomain = "yahoo.com"
+	if hosts.ContainsDomain(extraneousDomain) {
+		t.Errorf("Did not expect to find %s", extraneousDomain)
 	}
 
-	var first_ip = net.ParseIP(ip)
-	if !hosts.ContainsIP(first_ip) {
+	var expectedIP = net.ParseIP(ip)
+	if !hosts.ContainsIP(expectedIP) {
 		t.Errorf("Expected to find %s", ip)
 	}
 
-	var extra_ip = net.ParseIP("1.2.3.4")
-	if hosts.ContainsIP(extra_ip) {
-		t.Errorf("Did not expect to find %s", extra_ip)
+	var extraneousIP = net.ParseIP("1.2.3.4")
+	if hosts.ContainsIP(extraneousIP) {
+		t.Errorf("Did not expect to find %s", extraneousIP)
 	}
 
-	hostname := hostess.NewHostname(domain, ip, true)
-	if !hosts.Contains(hostname) {
-		t.Errorf("Expected to find %s", hostname)
+	expectedHostname := hostess.NewHostname(domain, ip, true)
+	if !hosts.Contains(expectedHostname) {
+		t.Errorf("Expected to find %s", expectedHostname)
 	}
 
-	extra_hostname := hostess.NewHostname("yahoo.com", "4.3.2.1", false)
-	if hosts.Contains(extra_hostname) {
-		t.Errorf("Did not expect to find %s", extra_hostname)
+	extraneousHostname := hostess.NewHostname("yahoo.com", "4.3.2.1", false)
+	if hosts.Contains(extraneousHostname) {
+		t.Errorf("Did not expect to find %s", extraneousHostname)
 	}
 }
 
