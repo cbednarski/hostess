@@ -1,12 +1,21 @@
 # hostess [![](https://travis-ci.org/cbednarski/hostess.svg)](https://travis-ci.org/cbednarski/hostess)
 
-An idempotent command-line utility for managing your `/etc/hosts` file.
+An **idempotent** command-line utility for managing your `/etc/hosts` file.
+
+    hostess add local.example.com 127.0.0.1
+    hostess add staging.example.com 10.0.2.16
+
+Why? Because you edit `/etc/hosts` for development, testing, and debugging.
+Because sometimes DNS doesn't work in production. And because editing
+`/etc/hosts` by hand is a pain. Put hostess in your `Makefile` or deploy scripts
+and call it a day.
 
 ## Using Hostess
 
 ### Download and Install
 
-Download a [precompiled release](https://github.com/cbednarski/hostess/releases) from GitHub.
+Download a [precompiled release](https://github.com/cbednarski/hostess/releases)
+from GitHub.
 
 ### Usage
 
@@ -27,7 +36,8 @@ Download a [precompiled release](https://github.com/cbednarski/hostess/releases)
     -4   # Limit operation to ipv4 entries
     -6   # Limit operation to ipv6 entries
 
-hostess may mangle your hosts file. In general it will probably look like this, with domains pointing at the same IP grouped together and disabled domains commented out.
+hostess will mangle your hosts file. Domains pointing at the same IP will be
+grouped together and disabled domains commented out.
 
     127.0.0.1 localhost hostname2 hostname3
     127.0.1.1 machine.name
@@ -35,17 +45,18 @@ hostess may mangle your hosts file. In general it will probably look like this, 
 
 ### IPv4 and IPv6
 
-Your hosts file *can* contain overlapping entries where the same hostname points to both an IPv4 and IPv6 IP. In this case, hostess commands will apply to both entries. Typically you won't have this kind of overlap and the default behavior is OK. However, if you need to be more granular you can use `-4` or `-6` to limit operations to entries associated with that type of IP.
-
-### Disclaimer
-
-hostess uses readme-driven-development and may not actually do any of the things listed above. When in doubt, pass the `-n` flag to try hostess without changing your system.
+Your hosts file *can* contain overlapping entries where the same hostname points
+to both an IPv4 and IPv6 IP. In this case, hostess commands will apply to both
+entries. Typically you won't have this kind of overlap and the default behavior
+is OK. However, if you need to be more granular you can use `-4` or `-6` to
+limit operations to entries associated with that type of IP.
 
 ## Developing Hostess
 
 ### Configuration
 
-By default, hostess will read / write to `/etc/hosts`. You can use the `HOSTESS_PATH` environment variable to provide an alternate path (for testing).
+By default, hostess will read / write to `/etc/hosts`. You can use the
+`HOSTESS_PATH` environment variable to provide an alternate path (for testing).
 
 ### Building from Source
 
