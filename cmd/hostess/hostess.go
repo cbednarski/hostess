@@ -18,14 +18,10 @@ func getArgs() []string {
 const help = `an idempotent tool for managing /etc/hosts
 
  * Commands will exit 0 or 1 in a sensible way to facilitate scripting.
-
  * Hostess operates on /etc/hosts by default. Specify the HOSTESS_PATH
    environment variable to change this.
-
  * Run 'hostess fix -n' to preview changes hostess will make to your hostsfile.
-
- * Report bugs and feedback at https://github.com/cbednarski/hostess
- `
+ * Report bugs and feedback at https://github.com/cbednarski/hostess`
 
 func main() {
 	app := cli.NewApp()

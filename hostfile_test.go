@@ -2,12 +2,13 @@ package hostess_test
 
 import (
 	"fmt"
-	"github.com/cbednarski/hostess"
 	"strings"
 	"testing"
+
+	"github.com/cbednarski/hostess"
 )
 
-const ipv4_pass = `
+const ipv4Pass = `
 127.0.0.1
 127.0.1.1
 10.200.30.50
@@ -16,7 +17,7 @@ const ipv4_pass = `
 0.1.1.0
 `
 
-const ipv4_fail = `
+const ipv4Fail = `
 1234.1.1.1
 123.5.6
 12.12
