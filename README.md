@@ -17,6 +17,8 @@ and call it a day.
 Download a [precompiled release](https://github.com/cbednarski/hostess/releases)
 from GitHub.
 
+Builds are supported for OSX, Linux, Windows, and RaspberryPi.
+
 ### Usage
 
     hostess add domain ip   # Add or replace a hosts entry for this domain pointing to this IP
