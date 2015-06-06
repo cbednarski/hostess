@@ -64,7 +64,7 @@ func GetHostsPath() string {
 // TrimWS (Trim Whitespace) removes space, newline, and tabs from a string
 // using strings.Trim()
 func TrimWS(s string) string {
-	return strings.Trim(s, " \n\t")
+	return strings.TrimSpace(s)
 }
 
 // ParseLine parses an individual line in a hostfile, which may contain one

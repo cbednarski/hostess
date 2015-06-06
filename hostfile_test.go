@@ -146,9 +146,6 @@ func TestParseLine(t *testing.T) {
 }
 
 func TestLoadHostfile(t *testing.T) {
-	if runtime.GOOS == "windows" {
-		t.Skip("Default host file is empty on Windows")
-	}
 	hostfile := hostess.NewHostfile()
 	hostfile.Read()
 	if !strings.Contains(string(hostfile.GetData()), domain) {
@@ -156,7 +153,11 @@ func TestLoadHostfile(t *testing.T) {
 	}
 
 	hostfile.Parse()
-	hostname := hostess.NewHostname(domain, ip, enabled)
+	on := enabled
+	if runtime.GOOS == "windows" {
+		on = false
+	}
+	hostname := hostess.NewHostname(domain, ip, on)
 	found := hostfile.Hosts.Contains(hostname)
 	if !found {
 		t.Errorf("Expected to find %#v", hostname)
