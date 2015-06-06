@@ -3,15 +3,15 @@ all: build test
 deps:
 	go get github.com/golang/lint/golint
 	go get github.com/stretchr/testify/assert
-	go get
+	go get -u ./...
 
 build: deps
 	go build cmd/hostess/hostess.go
 
 test:
 	go test -coverprofile=coverage.out; go tool cover -html=coverage.out -o coverage.html
-	go vet
-	golint
+	go vet ./...
+	golint ./...
 
 gox:
 	go get github.com/mitchellh/gox
