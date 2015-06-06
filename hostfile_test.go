@@ -41,7 +41,12 @@ func Diff(expected, actual string) string {
 
 func TestGetHostsPath(t *testing.T) {
 	path := hostess.GetHostsPath()
-	const expected = "/etc/hosts"
+	var expected string
+	if runtime.GOOS == "windows" {
+		expected = "C:\\Windows\\System32\\drivers\\etc\\hosts"
+	} else {
+		expected = "/etc/hosts"
+	}
 	if path != expected {
 		t.Error("Hosts path should be " + expected)
 	}
