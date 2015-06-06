@@ -3,6 +3,7 @@ package hostess
 import (
 	"io/ioutil"
 	"os"
+	"runtime"
 	"strings"
 )
 
@@ -51,7 +52,11 @@ func NewHostfile() *Hostfile {
 func GetHostsPath() string {
 	path := os.Getenv("HOSTESS_PATH")
 	if path == "" {
-		path = "/etc/hosts"
+		if runtime.GOOS == "windows" {
+			path = "C:\\Windows\\System32\\drivers\\etc\\hosts"
+		} else {
+			path = "/etc/hosts"
+		}
 	}
 	return path
 }
