@@ -19,7 +19,7 @@ gox:
 
 build-all: test
 	which gox || make gox
-	gox -arch="amd64" -os="darwin" -os="linux" github.com/cbednarski/hostess/cmd/hostess
+	gox -arch="386 amd64 arm" -os="darwin linux windows" github.com/cbednarski/hostess/cmd/hostess
 
 install: hostess
 	cp hostess /usr/local/bin/hostess
