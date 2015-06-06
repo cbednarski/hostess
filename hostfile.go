@@ -93,9 +93,13 @@ func ParseLine(line string) Hostlist {
 	for strings.Contains(line, "  ") {
 		line = strings.Replace(line, "  ", " ", -1)
 	}
+	line = TrimWS(line)
 
 	// Break line into words
 	words := strings.Split(line, " ")
+	for idx, word := range words {
+		words[idx] = TrimWS(word)
+	}
 
 	// Separate the first bit (the ip) from the other bits (the domains)
 	ip := words[0]
