@@ -3,7 +3,7 @@ all: build test
 deps:
 	go get github.com/golang/lint/golint
 	go get github.com/stretchr/testify/assert
-	go get -u ./...
+	go get -u
 
 build: deps
 	go build cmd/hostess/hostess.go
