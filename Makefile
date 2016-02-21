@@ -3,6 +3,7 @@ all: build test
 deps:
 	go get github.com/golang/lint/golint
 	go get github.com/stretchr/testify/assert
+	go get golang.org/x/tools/cmd/cover
 	go get
 
 build: deps
