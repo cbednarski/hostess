@@ -76,7 +76,11 @@ func MaybeSaveHostFile(c *cli.Context, hostfile *Hostfile) {
 // StrPadRight adds spaces to the right of a string until it reaches l length.
 // If the input string is already that long, do nothing.
 func StrPadRight(s string, l int) string {
-	return s + strings.Repeat(" ", l-len(s))
+	r := l - len(s)
+	if r < 0 {
+		r = 0
+	}
+	return s + strings.Repeat(" ", r)
 }
 
 // Add command parses <hostname> <ip> and adds or updates a hostname in the
