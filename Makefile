@@ -1,3 +1,12 @@
+prefix=/usr/local
+exec_prefix=$(prefix)
+bindir=$(exec_prefix)/bin
+datarootdir=$(prefix)/share
+datadir=$(datarootdir)
+mandir=$(datarootdir)/man
+
+.PHONY: all deps build test gox build-all install clean
+
 all: build test
 
 deps:
@@ -23,7 +32,8 @@ build-all: test
 	gox -arch="386 amd64 arm" -os="darwin linux windows" github.com/cbednarski/hostess/cmd/hostess
 
 install: hostess
-	cp hostess /usr/local/bin/hostess
+	mkdir -p $(bindir)
+	cp hostess $(bindir)/hostess
 
 clean:
 	rm -f ./hostess
