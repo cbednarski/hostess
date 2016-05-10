@@ -1,3 +1,4 @@
+PACKAGES=$(go list ./... | grep -v vendor)
 prefix=/usr/local
 exec_prefix=$(prefix)
 bindir=$(exec_prefix)/bin
@@ -20,8 +21,8 @@ build: deps
 
 test:
 	go test -coverprofile=coverage.out; go tool cover -html=coverage.out -o coverage.html
-	go vet ./...
-	golint ./...
+	go vet $(PACKAGES)
+	golint $(PACKAGES)
 
 gox:
 	go get github.com/mitchellh/gox
