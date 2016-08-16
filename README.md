@@ -1,4 +1,4 @@
-# hostess [![](https://travis-ci.org/cbednarski/hostess.svg)](https://travis-ci.org/cbednarski/hostess) [![Coverage Status](https://coveralls.io/repos/cbednarski/hostess/badge.svg)](https://coveralls.io/r/cbednarski/hostess)
+# hostess [![](https://travis-ci.org/cbednarski/hostess.svg)](https://travis-ci.org/cbednarski/hostess) [![Coverage Status](https://coveralls.io/repos/cbednarski/hostess/badge.svg)](https://coveralls.io/r/cbednarski/hostess) [![GoDoc](https://godoc.org/github.com/cbednarski/hostess?status.svg)](http://godoc.org/github.com/cbednarski/hostess)
 
 An **idempotent** command-line utility for managing your `/etc/hosts` file.
 
