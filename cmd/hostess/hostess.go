@@ -28,7 +28,7 @@ func main() {
 	app.Name = "hostess"
 	app.Authors = []cli.Author{{Name: "Chris Bednarski", Email: "banzaimonkey@gmail.com"}}
 	app.Usage = help
-	app.Version = "0.1.0"
+	app.Version = "0.2.1"
 
 	app.Flags = []cli.Flag{
 		cli.BoolFlag{
