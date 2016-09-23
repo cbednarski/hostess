@@ -16,7 +16,7 @@ var ErrCantWriteHostFile = fmt.Errorf(
 
 // MaybeErrorln will print an error message unless -s is passed
 func MaybeErrorln(c *cli.Context, message string) {
-	if !c.Bool("s") {
+	if !c.GlobalBool("s") {
 		os.Stderr.WriteString(fmt.Sprintf("%s\n", message))
 	}
 }
@@ -29,7 +29,7 @@ func MaybeError(c *cli.Context, message string) {
 
 // MaybePrintln will print a message unless -q or -s is passed
 func MaybePrintln(c *cli.Context, message string) {
-	if !c.Bool("q") && !c.Bool("s") {
+	if !c.GlobalBool("q") && !c.GlobalBool("s") {
 		fmt.Println(message)
 	}
 }
@@ -38,7 +38,7 @@ func MaybePrintln(c *cli.Context, message string) {
 // encounter errors we will terminate, unless -f is passed.
 func MaybeLoadHostFile(c *cli.Context) *Hostfile {
 	hostsfile, errs := LoadHostfile()
-	if len(errs) > 0 && !c.Bool("f") {
+	if len(errs) > 0 && !c.GlobalBool("f") {
 		for _, err := range errs {
 			MaybeErrorln(c, err.Error())
 		}
@@ -63,7 +63,7 @@ func AlwaysLoadHostFile(c *cli.Context) *Hostfile {
 func MaybeSaveHostFile(c *cli.Context, hostfile *Hostfile) {
 	// If -n is passed, no-op and output the resultant hosts file to stdout.
 	// Otherwise it's for real and we're going to write it.
-	if c.Bool("n") {
+	if c.GlobalBool("n") {
 		fmt.Printf("%s", hostfile.Format())
 	} else {
 		err := hostfile.Save()
@@ -107,8 +107,8 @@ func Add(c *cli.Context) {
 
 	// If the user passes -n then we'll Add and show the new hosts file, but
 	// not save it.
-	if c.Bool("n") {
-		fmt.Println(hostsfile.Format())
+	if c.GlobalBool("n") {
+		fmt.Printf("%s", hostsfile.Format())
 	} else {
 		MaybeSaveHostFile(c, hostsfile)
 		// We'll give a little bit of information about whether we added or
@@ -134,7 +134,7 @@ func Del(c *cli.Context) {
 	found := hostsfile.Hosts.ContainsDomain(domain)
 	if found {
 		hostsfile.Hosts.RemoveDomain(domain)
-		if c.Bool("n") {
+		if c.GlobalBool("n") {
 			fmt.Println(hostsfile.Format())
 		} else {
 			MaybeSaveHostFile(c, hostsfile)
