@@ -10,13 +10,17 @@ import (
 	"github.com/codegangsta/cli"
 )
 
+func AnyBool(c *cli.Context, key string) bool {
+	return c.Bool(key) || c.GlobalBool(key)
+}
+
 // ErrCantWriteHostFile indicates that we are unable to write to the hosts file
 var ErrCantWriteHostFile = fmt.Errorf(
 	"Unable to write to %s. Maybe you need to sudo?", GetHostsPath())
 
 // MaybeErrorln will print an error message unless -s is passed
 func MaybeErrorln(c *cli.Context, message string) {
-	if !c.GlobalBool("s") {
+	if !AnyBool(c, "s") {
 		os.Stderr.WriteString(fmt.Sprintf("%s\n", message))
 	}
 }
@@ -29,7 +33,7 @@ func MaybeError(c *cli.Context, message string) {
 
 // MaybePrintln will print a message unless -q or -s is passed
 func MaybePrintln(c *cli.Context, message string) {
-	if !c.GlobalBool("q") && !c.GlobalBool("s") {
+	if !AnyBool(c, "q") && !AnyBool(c, "s") {
 		fmt.Println(message)
 	}
 }
@@ -38,7 +42,7 @@ func MaybePrintln(c *cli.Context, message string) {
 // encounter errors we will terminate, unless -f is passed.
 func MaybeLoadHostFile(c *cli.Context) *Hostfile {
 	hostsfile, errs := LoadHostfile()
-	if len(errs) > 0 && !c.GlobalBool("f") {
+	if len(errs) > 0 && !AnyBool(c, "f") {
 		for _, err := range errs {
 			MaybeErrorln(c, err.Error())
 		}
@@ -63,7 +67,7 @@ func AlwaysLoadHostFile(c *cli.Context) *Hostfile {
 func MaybeSaveHostFile(c *cli.Context, hostfile *Hostfile) {
 	// If -n is passed, no-op and output the resultant hosts file to stdout.
 	// Otherwise it's for real and we're going to write it.
-	if c.GlobalBool("n") {
+	if AnyBool(c, "n") {
 		fmt.Printf("%s", hostfile.Format())
 	} else {
 		err := hostfile.Save()
@@ -107,7 +111,7 @@ func Add(c *cli.Context) {
 
 	// If the user passes -n then we'll Add and show the new hosts file, but
 	// not save it.
-	if c.GlobalBool("n") {
+	if c.Bool("n") || AnyBool(c, "n") {
 		fmt.Printf("%s", hostsfile.Format())
 	} else {
 		MaybeSaveHostFile(c, hostsfile)
@@ -134,8 +138,8 @@ func Del(c *cli.Context) {
 	found := hostsfile.Hosts.ContainsDomain(domain)
 	if found {
 		hostsfile.Hosts.RemoveDomain(domain)
-		if c.GlobalBool("n") {
-			fmt.Println(hostsfile.Format())
+		if AnyBool(c, "n") {
+			fmt.Printf("%s", hostsfile.Format())
 		} else {
 			MaybeSaveHostFile(c, hostsfile)
 			MaybePrintln(c, fmt.Sprintf("Deleted %s", domain))
