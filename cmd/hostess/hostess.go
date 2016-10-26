@@ -101,6 +101,12 @@ func main() {
 			Flags:  app.Flags,
 		},
 		{
+			Name:   "fixed",
+			Usage:  "exit 0 if the hosts file is formatted, 1 if not",
+			Action: hostess.Fixed,
+			Flags:  app.Flags,
+		},
+		{
 			Name:   "dump",
 			Usage:  "dump the hosts file as JSON",
 			Action: hostess.Dump,
