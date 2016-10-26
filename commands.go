@@ -239,6 +239,18 @@ func Fix(c *cli.Context) {
 	MaybeSaveHostFile(c, hostsfile)
 }
 
+// Fixed command removes duplicates and conflicts from the hosts file
+func Fixed(c *cli.Context) {
+	hostsfile := AlwaysLoadHostFile(c)
+	if bytes.Equal(hostsfile.GetData(), hostsfile.Format()) {
+		MaybePrintln(c, fmt.Sprintf("%s is already formatted and contains no dupes or conflicts", GetHostsPath()))
+		os.Exit(0)
+	} else {
+		MaybePrintln(c, fmt.Sprintf("%s is not formatted. Use hostess fix to format it", GetHostsPath()))
+		os.Exit(1)
+	}
+}
+
 // Dump command outputs hosts file contents as JSON
 func Dump(c *cli.Context) {
 	hostsfile := AlwaysLoadHostFile(c)
