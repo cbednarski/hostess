@@ -1,6 +1,7 @@
 package hostess
 
 import (
+	"fmt"
 	"io/ioutil"
 	"os"
 	"runtime"
@@ -71,11 +72,11 @@ func TrimWS(s string) string {
 // (un)commented ip and one or more hostnames. For example
 //
 //	127.0.0.1 localhost mysite1 mysite2
-func ParseLine(line string) Hostlist {
+func ParseLine(line string) (Hostlist, error) {
 	var hostnames Hostlist
 
 	if len(line) == 0 {
-		return hostnames
+		return hostnames, fmt.Errorf("line is blank")
 	}
 
 	// Parse leading # for disabled lines
@@ -105,26 +106,44 @@ func ParseLine(line string) Hostlist {
 	ip := words[0]
 	domains := words[1:]
 
-	if LooksLikeIPv4(ip) || LooksLikeIPv6(ip) {
-		for _, v := range domains {
-			hostname := NewHostname(v, ip, enabled)
-			hostnames = append(hostnames, hostname)
+	// if LooksLikeIPv4(ip) || LooksLikeIPv6(ip) {
+	for _, v := range domains {
+		hostname, err := NewHostname(v, ip, enabled)
+		if err != nil {
+			return nil, err
 		}
+		hostnames = append(hostnames, hostname)
 	}
+	// }
 
-	return hostnames
+	return hostnames, nil
+}
+
+// MustParseLine is like ParseLine but panics instead of errors.
+func MustParseLine(line string) Hostlist {
+	hostlist, err := ParseLine(line)
+	if err != nil {
+		panic(err)
+	}
+	return hostlist
 }
 
 // Parse reads
 func (h *Hostfile) Parse() []error {
 	var errs []error
+	var line = 1
 	for _, v := range strings.Split(string(h.data), "\n") {
-		for _, hostname := range ParseLine(v) {
+		hostnames, _ := ParseLine(v)
+		// if err != nil {
+		// 	log.Printf("Error parsing line %d: %s\n", line, err)
+		// }
+		for _, hostname := range hostnames {
 			err := h.Hosts.Add(hostname)
 			if err != nil {
 				errs = append(errs, err)
 			}
 		}
+		line++
 	}
 	return errs
 }

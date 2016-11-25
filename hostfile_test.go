@@ -65,12 +65,12 @@ func TestFormatHostfile(t *testing.T) {
 
 	hostfile := hostess.NewHostfile()
 	hostfile.Path = "./hosts"
-	hostfile.Hosts.Add(hostess.NewHostname("localhost", "127.0.0.1", true))
-	hostfile.Hosts.Add(hostess.NewHostname("ip-10-37-12-18", "127.0.1.1", true))
-	hostfile.Hosts.Add(hostess.NewHostname("devsite", "127.0.0.1", true))
-	hostfile.Hosts.Add(hostess.NewHostname("google.com", "8.8.8.8", false))
-	hostfile.Hosts.Add(hostess.NewHostname("devsite.com", "10.37.12.18", true))
-	hostfile.Hosts.Add(hostess.NewHostname("m.devsite.com", "10.37.12.18", true))
+	hostfile.Hosts.Add(hostess.MustHostname("localhost", "127.0.0.1", true))
+	hostfile.Hosts.Add(hostess.MustHostname("ip-10-37-12-18", "127.0.1.1", true))
+	hostfile.Hosts.Add(hostess.MustHostname("devsite", "127.0.0.1", true))
+	hostfile.Hosts.Add(hostess.MustHostname("google.com", "8.8.8.8", false))
+	hostfile.Hosts.Add(hostess.MustHostname("devsite.com", "10.37.12.18", true))
+	hostfile.Hosts.Add(hostess.MustHostname("m.devsite.com", "10.37.12.18", true))
 	f := string(hostfile.Format())
 	if f != expected {
 		t.Errorf("Hostfile output is not formatted correctly: %s", Diff(expected, f))
@@ -87,59 +87,96 @@ func TestTrimWS(t *testing.T) {
 	}
 }
 
-func TestParseLine(t *testing.T) {
-	var hosts hostess.Hostlist
-
+func TestParseLineBlank(t *testing.T) {
 	// Blank line
-	hosts = hostess.ParseLine("")
+	hosts, err := hostess.ParseLine("")
+	expected := "line is blank"
+	if err.Error() != expected {
+		t.Errorf("Expected error %q; found %q", expected, err.Error())
+	}
 	if len(hosts) > 0 {
 		t.Error("Expected to find zero hostnames")
 	}
+}
 
+func TestParseLineComment(t *testing.T) {
 	// Comment
-	hosts = hostess.ParseLine("# The following lines are desirable for IPv6 capable hosts")
+	hosts, err := hostess.ParseLine("# The following lines are desirable for IPv6 capable hosts")
+	if err == nil {
+		t.Error(err)
+	}
 	if len(hosts) > 0 {
 		t.Error("Expected to find zero hostnames")
 	}
+}
 
+func TestParseLineOneWordComment(t *testing.T) {
 	// Single word comment
-	hosts = hostess.ParseLine("#blah")
+	hosts, err := hostess.ParseLine("#blah")
+	if err != nil {
+		t.Error(err)
+	}
 	if len(hosts) > 0 {
 		t.Error("Expected to find zero hostnames")
 	}
+}
 
-	hosts = hostess.ParseLine("#66.33.99.11              test.domain.com")
-	if !hosts.Contains(hostess.NewHostname("test.domain.com", "66.33.99.11", false)) ||
+func TestParseLineBasicHostnameComment(t *testing.T) {
+	hosts, err := hostess.ParseLine("#66.33.99.11              test.domain.com")
+	if err != nil {
+		t.Error(err)
+	}
+	if !hosts.Contains(hostess.MustHostname("test.domain.com", "66.33.99.11", false)) ||
 		len(hosts) != 1 {
 		t.Error("Expected to find test.domain.com (disabled)")
 	}
+}
 
-	hosts = hostess.ParseLine("#  66.33.99.11	test.domain.com	domain.com")
-	if !hosts.Contains(hostess.NewHostname("test.domain.com", "66.33.99.11", false)) ||
-		!hosts.Contains(hostess.NewHostname("domain.com", "66.33.99.11", false)) ||
+func TestParseLineMultiHostnameComment(t *testing.T) {
+	hosts, err := hostess.ParseLine("#  66.33.99.11	test.domain.com	domain.com")
+	if err != nil {
+		t.Error(err)
+	}
+	if !hosts.Contains(hostess.MustHostname("test.domain.com", "66.33.99.11", false)) ||
+		!hosts.Contains(hostess.MustHostname("domain.com", "66.33.99.11", false)) ||
 		len(hosts) != 2 {
 		t.Error("Expected to find domain.com and test.domain.com (disabled)")
 		t.Errorf("Found %s", hosts)
 	}
+}
 
+func TestParseLineMultiHostname(t *testing.T) {
 	// Not Commented stuff
-	hosts = hostess.ParseLine("255.255.255.255 broadcasthost test.domain.com	domain.com")
-	if !hosts.Contains(hostess.NewHostname("broadcasthost", "255.255.255.255", true)) ||
-		!hosts.Contains(hostess.NewHostname("test.domain.com", "255.255.255.255", true)) ||
-		!hosts.Contains(hostess.NewHostname("domain.com", "255.255.255.255", true)) ||
+	hosts, err := hostess.ParseLine("255.255.255.255 broadcasthost test.domain.com	domain.com")
+	if err != nil {
+		t.Error(err)
+	}
+	if !hosts.Contains(hostess.MustHostname("broadcasthost", "255.255.255.255", true)) ||
+		!hosts.Contains(hostess.MustHostname("test.domain.com", "255.255.255.255", true)) ||
+		!hosts.Contains(hostess.MustHostname("domain.com", "255.255.255.255", true)) ||
 		len(hosts) != 3 {
 		t.Error("Expected to find broadcasthost, domain.com, and test.domain.com (enabled)")
 	}
+}
 
+func TestParseLineIPv6A(t *testing.T) {
 	// Ipv6 stuff
-	hosts = hostess.ParseLine("::1             localhost")
-	if !hosts.Contains(hostess.NewHostname("localhost", "::1", true)) ||
+	hosts, err := hostess.ParseLine("::1             localhost")
+	if err != nil {
+		t.Error(err)
+	}
+	if !hosts.Contains(hostess.MustHostname("localhost", "::1", true)) ||
 		len(hosts) != 1 {
 		t.Error("Expected to find localhost ipv6 (enabled)")
 	}
+}
 
-	hosts = hostess.ParseLine("ff02::1 ip6-allnodes")
-	if !hosts.Contains(hostess.NewHostname("ip6-allnodes", "ff02::1", true)) ||
+func TestParseLineIPv6B(t *testing.T) {
+	hosts, err := hostess.ParseLine("ff02::1 ip6-allnodes")
+	if err != nil {
+		t.Error(err)
+	}
+	if !hosts.Contains(hostess.MustHostname("ip6-allnodes", "ff02::1", true)) ||
 		len(hosts) != 1 {
 		t.Error("Expected to find ip6-allnodes ipv6 (enabled)")
 	}
@@ -157,7 +194,7 @@ func TestLoadHostfile(t *testing.T) {
 	if runtime.GOOS == "windows" {
 		on = false
 	}
-	hostname := hostess.NewHostname(domain, ip, on)
+	hostname := hostess.MustHostname(domain, ip, on)
 	found := hostfile.Hosts.Contains(hostname)
 	if !found {
 		t.Errorf("Expected to find %#v", hostname)

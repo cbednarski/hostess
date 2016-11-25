@@ -179,7 +179,10 @@ func (h *Hostlist) ContainsIP(IP net.IP) bool {
 // Both duplicate and conflicts return errors so you are aware of them, but you
 // don't necessarily need to do anything about the error.
 func (h *Hostlist) Add(hostnamev *Hostname) error {
-	hostname := NewHostname(hostnamev.Domain, hostnamev.IP.String(), hostnamev.Enabled)
+	hostname, err := NewHostname(hostnamev.Domain, hostnamev.IP.String(), hostnamev.Enabled)
+	if err != nil {
+		return err
+	}
 	for index, found := range *h {
 		if found.Equal(hostname) {
 			// If either hostname is enabled we will set the existing one to

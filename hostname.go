@@ -8,7 +8,7 @@ import (
 )
 
 var ipv4Pattern = regexp.MustCompile(`^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$`)
-var ipv6Pattern = regexp.MustCompile(`^[a-z0-9:]+$`)
+var ipv6Pattern = regexp.MustCompile(`^[(a-fA-F0-9){1-4}:]+$`)
 
 // LooksLikeIPv4 returns true if the IP looks like it's IPv4. This does not
 // validate whether the string is a valid IP address.
@@ -41,10 +41,21 @@ type Hostname struct {
 
 // NewHostname creates a new Hostname struct and automatically sets the IPv6
 // field based on the IP you pass in.
-func NewHostname(domain, ip string, enabled bool) (hostname *Hostname) {
+func NewHostname(domain, ip string, enabled bool) (*Hostname, error) {
+	if !LooksLikeIPv4(ip) && !LooksLikeIPv6(ip) {
+		return nil, fmt.Errorf("Unable to parse IP address %q", ip)
+	}
 	IP := net.ParseIP(ip)
-	hostname = &Hostname{domain, IP, enabled, LooksLikeIPv6(ip)}
-	return
+	return &Hostname{domain, IP, enabled, LooksLikeIPv6(ip)}, nil
+}
+
+// MustHostname calls NewHostname but panics if there is an error parsing it.
+func MustHostname(domain, ip string, enabled bool) *Hostname {
+	hostname, err := NewHostname(domain, ip, enabled)
+	if err != nil {
+		panic(err)
+	}
+	return hostname
 }
 
 // Equal compares two Hostnames. Note that only the Domain and IP fields are

@@ -10,6 +10,8 @@ import (
 	"github.com/codegangsta/cli"
 )
 
+// AnyBool checks whether a boolean CLI flag is set either globally or on this
+// individual command. This provides more flexible flag parsing behavior.
 func AnyBool(c *cli.Context, key string) bool {
 	return c.Bool(key) || c.GlobalBool(key)
 }
@@ -97,7 +99,10 @@ func Add(c *cli.Context) {
 
 	hostsfile := MaybeLoadHostFile(c)
 
-	hostname := NewHostname(c.Args()[0], c.Args()[1], true)
+	hostname, err := NewHostname(c.Args()[0], c.Args()[1], true)
+	if err != nil {
+		MaybeError(c, fmt.Sprintf("Failed to parse hosts entry: %s", err))
+	}
 	// If the command is aff instead of add then the entry should be disabled
 	if c.Command.Name == "aff" {
 		hostname.Enabled = false

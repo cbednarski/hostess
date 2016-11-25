@@ -1,13 +1,14 @@
 package hostess_test
 
 import (
-	"github.com/cbednarski/hostess"
 	"net"
 	"testing"
+
+	"github.com/cbednarski/hostess"
 )
 
 func TestHostname(t *testing.T) {
-	h := hostess.NewHostname(domain, ip, enabled)
+	h := hostess.MustHostname(domain, ip, enabled)
 
 	if h.Domain != domain {
 		t.Errorf("Domain should be %s", domain)
@@ -21,9 +22,9 @@ func TestHostname(t *testing.T) {
 }
 
 func TestEqual(t *testing.T) {
-	a := hostess.NewHostname("localhost", "127.0.0.1", true)
-	b := hostess.NewHostname("localhost", "127.0.0.1", false)
-	c := hostess.NewHostname("localhost", "127.0.1.1", false)
+	a := hostess.MustHostname("localhost", "127.0.0.1", true)
+	b := hostess.MustHostname("localhost", "127.0.0.1", false)
+	c := hostess.MustHostname("localhost", "127.0.1.1", false)
 
 	if !a.Equal(b) {
 		t.Errorf("%s and %s should be equal", a, b)
@@ -34,8 +35,8 @@ func TestEqual(t *testing.T) {
 }
 
 func TestEqualIP(t *testing.T) {
-	a := hostess.NewHostname("localhost", "127.0.0.1", true)
-	c := hostess.NewHostname("localhost", "127.0.1.1", false)
+	a := hostess.MustHostname("localhost", "127.0.0.1", true)
+	c := hostess.MustHostname("localhost", "127.0.1.1", false)
 	ip := net.ParseIP("127.0.0.1")
 
 	if !a.EqualIP(ip) {
@@ -47,23 +48,42 @@ func TestEqualIP(t *testing.T) {
 }
 
 func TestIsValid(t *testing.T) {
-	a := hostess.NewHostname("localhost", "127.0.0.1", true)
-	d := hostess.NewHostname("", "127.0.0.1", true)
-	e := hostess.NewHostname("localhost", "localhost", true)
+	hostname := &hostess.Hostname{
+		Domain:  "localhost",
+		IP:      net.ParseIP("127.0.0.1"),
+		Enabled: true,
+		IPv6:    true,
+	}
+	if !hostname.IsValid() {
+		t.Fatalf("%s should be a valid hostname", hostname)
+	}
+}
 
-	if !a.IsValid() {
-		t.Errorf("%s should be a valid hostname", a)
+func TestIsValidBlank(t *testing.T) {
+	hostname := &hostess.Hostname{
+		Domain:  "",
+		IP:      net.ParseIP("127.0.0.1"),
+		Enabled: true,
+		IPv6:    true,
 	}
-	if d.IsValid() {
-		t.Errorf("%s should be invalid because the name is blank", d)
+	if hostname.IsValid() {
+		t.Errorf("%s should be invalid because the name is blank", hostname)
 	}
-	if e.IsValid() {
-		t.Errorf("%s should be invalid because the ip is malformed", e)
+}
+func TestIsValidBadIP(t *testing.T) {
+	hostname := &hostess.Hostname{
+		Domain:  "localhost",
+		IP:      net.ParseIP("localhost"),
+		Enabled: true,
+		IPv6:    true,
+	}
+	if hostname.IsValid() {
+		t.Errorf("%s should be invalid because the ip is malformed", hostname)
 	}
 }
 
 func TestFormatHostname(t *testing.T) {
-	hostname := hostess.NewHostname(domain, ip, enabled)
+	hostname := hostess.MustHostname(domain, ip, enabled)
 
 	const exp_enabled = "127.0.0.1 localhost"
 	if hostname.Format() != exp_enabled {
@@ -78,7 +98,7 @@ func TestFormatHostname(t *testing.T) {
 }
 
 func TestFormatEnabled(t *testing.T) {
-	hostname := hostess.NewHostname(domain, ip, enabled)
+	hostname := hostess.MustHostname(domain, ip, enabled)
 	const expectedOn = "(On)"
 	if hostname.FormatEnabled() != expectedOn {
 		t.Errorf("Expected hostname to be turned %s", expectedOn)

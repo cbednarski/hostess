@@ -14,7 +14,7 @@ import (
 func TestAddDuplicate(t *testing.T) {
 	list := hostess.NewHostlist()
 
-	hostname := hostess.NewHostname("mysite", "1.2.3.4", false)
+	hostname := hostess.MustHostname("mysite", "1.2.3.4", false)
 	err := list.Add(hostname)
 	assert.Nil(t, err, "Expected no errors when adding a hostname for the first time")
 
@@ -25,8 +25,8 @@ func TestAddDuplicate(t *testing.T) {
 }
 
 func TestAddConflict(t *testing.T) {
-	hostnameA := hostess.NewHostname("mysite", "1.2.3.4", true)
-	hostnameB := hostess.NewHostname("mysite", "5.2.3.4", false)
+	hostnameA := hostess.MustHostname("mysite", "1.2.3.4", true)
+	hostnameB := hostess.MustHostname("mysite", "5.2.3.4", false)
 
 	list := hostess.NewHostlist()
 	list.Add(hostnameA)
@@ -58,8 +58,8 @@ func TestMakeSurrogateIP(t *testing.T) {
 
 func TestContainsDomainIp(t *testing.T) {
 	hosts := hostess.NewHostlist()
-	hosts.Add(hostess.NewHostname(domain, ip, false))
-	hosts.Add(hostess.NewHostname("google.com", "8.8.8.8", true))
+	hosts.Add(hostess.MustHostname(domain, ip, false))
+	hosts.Add(hostess.MustHostname("google.com", "8.8.8.8", true))
 
 	if !hosts.ContainsDomain(domain) {
 		t.Errorf("Expected to find %s", domain)
@@ -80,12 +80,12 @@ func TestContainsDomainIp(t *testing.T) {
 		t.Errorf("Did not expect to find %s", extraneousIP)
 	}
 
-	expectedHostname := hostess.NewHostname(domain, ip, true)
+	expectedHostname := hostess.MustHostname(domain, ip, true)
 	if !hosts.Contains(expectedHostname) {
 		t.Errorf("Expected to find %s", expectedHostname)
 	}
 
-	extraneousHostname := hostess.NewHostname("yahoo.com", "4.3.2.1", false)
+	extraneousHostname := hostess.MustHostname("yahoo.com", "4.3.2.1", false)
 	if hosts.Contains(extraneousHostname) {
 		t.Errorf("Did not expect to find %s", extraneousHostname)
 	}
@@ -93,8 +93,8 @@ func TestContainsDomainIp(t *testing.T) {
 
 func TestFormat(t *testing.T) {
 	hosts := hostess.NewHostlist()
-	hosts.Add(hostess.NewHostname(domain, ip, false))
-	hosts.Add(hostess.NewHostname("google.com", "8.8.8.8", true))
+	hosts.Add(hostess.MustHostname(domain, ip, false))
+	hosts.Add(hostess.MustHostname("google.com", "8.8.8.8", true))
 
 	expected := `# 127.0.0.1 localhost
 8.8.8.8 google.com
@@ -106,8 +106,8 @@ func TestFormat(t *testing.T) {
 
 func TestRemove(t *testing.T) {
 	hosts := hostess.NewHostlist()
-	hosts.Add(hostess.NewHostname(domain, ip, false))
-	hosts.Add(hostess.NewHostname("google.com", "8.8.8.8", true))
+	hosts.Add(hostess.MustHostname(domain, ip, false))
+	hosts.Add(hostess.MustHostname("google.com", "8.8.8.8", true))
 
 	removed := hosts.Remove(1)
 	if removed != 1 {
@@ -120,7 +120,7 @@ func TestRemove(t *testing.T) {
 		t.Errorf("Expected not to find google.com")
 	}
 
-	hosts.Add(hostess.NewHostname(domain, "::1", enabled))
+	hosts.Add(hostess.MustHostname(domain, "::1", enabled))
 	removed = hosts.RemoveDomain(domain)
 	if removed != 2 {
 		t.Error("Expected to remove 2 items")
@@ -129,8 +129,8 @@ func TestRemove(t *testing.T) {
 
 func TestRemoveDomain(t *testing.T) {
 	hosts := hostess.NewHostlist()
-	h1 := hostess.NewHostname("google.com", "127.0.0.1", false)
-	h2 := hostess.NewHostname("google.com", "::1", true)
+	h1 := hostess.MustHostname("google.com", "127.0.0.1", false)
+	h2 := hostess.MustHostname("google.com", "::1", true)
 	hosts.Add(h1)
 	hosts.Add(h2)
 
@@ -159,16 +159,16 @@ func TestSort(t *testing.T) {
 	// this is already too long.
 
 	hosts := hostess.NewHostlist()
-	hosts.Add(hostess.NewHostname("google.com", "8.8.8.8", true))
-	hosts.Add(hostess.NewHostname("google3.com", "::1", true))
-	hosts.Add(hostess.NewHostname(domain, ip, false))
-	hosts.Add(hostess.NewHostname("google2.com", "8.8.4.4", true))
-	hosts.Add(hostess.NewHostname("blah2", "10.20.1.1", true))
-	hosts.Add(hostess.NewHostname("blah3", "10.20.1.1", true))
-	hosts.Add(hostess.NewHostname("blah33", "10.20.1.1", true))
-	hosts.Add(hostess.NewHostname("blah", "10.20.1.1", true))
-	hosts.Add(hostess.NewHostname("hostname", "127.0.1.1", true))
-	hosts.Add(hostess.NewHostname("devsite", "127.0.0.1", true))
+	hosts.Add(hostess.MustHostname("google.com", "8.8.8.8", true))
+	hosts.Add(hostess.MustHostname("google3.com", "::1", true))
+	hosts.Add(hostess.MustHostname(domain, ip, false))
+	hosts.Add(hostess.MustHostname("google2.com", "8.8.4.4", true))
+	hosts.Add(hostess.MustHostname("blah2", "10.20.1.1", true))
+	hosts.Add(hostess.MustHostname("blah3", "10.20.1.1", true))
+	hosts.Add(hostess.MustHostname("blah33", "10.20.1.1", true))
+	hosts.Add(hostess.MustHostname("blah", "10.20.1.1", true))
+	hosts.Add(hostess.MustHostname("hostname", "127.0.1.1", true))
+	hosts.Add(hostess.MustHostname("devsite", "127.0.0.1", true))
 
 	hosts.Sort()
 
@@ -186,8 +186,8 @@ func TestSort(t *testing.T) {
 
 func ExampleHostlist_1() {
 	hosts := hostess.NewHostlist()
-	hosts.Add(hostess.NewHostname("google.com", "127.0.0.1", false))
-	hosts.Add(hostess.NewHostname("google.com", "::1", true))
+	hosts.Add(hostess.MustHostname("google.com", "127.0.0.1", false))
+	hosts.Add(hostess.MustHostname("google.com", "::1", true))
 
 	fmt.Printf("%s\n", hosts.Format())
 	// Output:
@@ -210,8 +210,8 @@ const hostsjson = `[
 
 func TestDump(t *testing.T) {
 	hosts := hostess.NewHostlist()
-	hosts.Add(hostess.NewHostname("google.com", "127.0.0.1", false))
-	hosts.Add(hostess.NewHostname("google.com", "::1", true))
+	hosts.Add(hostess.MustHostname("google.com", "127.0.0.1", false))
+	hosts.Add(hostess.MustHostname("google.com", "::1", true))
 
 	expected := []byte(hostsjson)
 	actual, _ := hosts.Dump()
@@ -226,12 +226,12 @@ func TestApply(t *testing.T) {
 	hosts := hostess.NewHostlist()
 	hosts.Apply([]byte(hostsjson))
 
-	hostnameA := hostess.NewHostname("google.com", "127.0.0.1", false)
+	hostnameA := hostess.MustHostname("google.com", "127.0.0.1", false)
 	if !hosts.Contains(hostnameA) {
 		t.Errorf("Expected to find %s", hostnameA.Format())
 	}
 
-	hostnameB := hostess.NewHostname("google.com", "::1", true)
+	hostnameB := hostess.MustHostname("google.com", "::1", true)
 	if !hosts.Contains(hostnameB) {
 		t.Errorf("Expected to find %s", hostnameB.Format())
 	}
