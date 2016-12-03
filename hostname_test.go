@@ -27,10 +27,10 @@ func TestEqual(t *testing.T) {
 	c := hostess.MustHostname("localhost", "127.0.1.1", false)
 
 	if !a.Equal(b) {
-		t.Errorf("%s and %s should be equal", a, b)
+		t.Errorf("%+v and %+v should be equal", a, b)
 	}
 	if a.Equal(c) {
-		t.Errorf("%s and %s should not be equal", a, c)
+		t.Errorf("%+v and %+v should not be equal", a, c)
 	}
 }
 
@@ -55,7 +55,7 @@ func TestIsValid(t *testing.T) {
 		IPv6:    true,
 	}
 	if !hostname.IsValid() {
-		t.Fatalf("%s should be a valid hostname", hostname)
+		t.Fatalf("%+v should be a valid hostname", hostname)
 	}
 }
 
@@ -67,7 +67,7 @@ func TestIsValidBlank(t *testing.T) {
 		IPv6:    true,
 	}
 	if hostname.IsValid() {
-		t.Errorf("%s should be invalid because the name is blank", hostname)
+		t.Errorf("%+v should be invalid because the name is blank", hostname)
 	}
 }
 func TestIsValidBadIP(t *testing.T) {
@@ -78,7 +78,7 @@ func TestIsValidBadIP(t *testing.T) {
 		IPv6:    true,
 	}
 	if hostname.IsValid() {
-		t.Errorf("%s should be invalid because the ip is malformed", hostname)
+		t.Errorf("%+v should be invalid because the ip is malformed", hostname)
 	}
 }
 

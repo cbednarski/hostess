@@ -141,7 +141,7 @@ func TestParseLineMultiHostnameComment(t *testing.T) {
 		!hosts.Contains(hostess.MustHostname("domain.com", "66.33.99.11", false)) ||
 		len(hosts) != 2 {
 		t.Error("Expected to find domain.com and test.domain.com (disabled)")
-		t.Errorf("Found %s", hosts)
+		t.Errorf("Found %+v", hosts)
 	}
 }
 

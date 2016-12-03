@@ -82,12 +82,12 @@ func TestContainsDomainIp(t *testing.T) {
 
 	expectedHostname := hostess.MustHostname(domain, ip, true)
 	if !hosts.Contains(expectedHostname) {
-		t.Errorf("Expected to find %s", expectedHostname)
+		t.Errorf("Expected to find %+v", expectedHostname)
 	}
 
 	extraneousHostname := hostess.MustHostname("yahoo.com", "4.3.2.1", false)
 	if hosts.Contains(extraneousHostname) {
-		t.Errorf("Did not expect to find %s", extraneousHostname)
+		t.Errorf("Did not expect to find %+v", extraneousHostname)
 	}
 }
 
