@@ -1,7 +1,5 @@
 language: go
 
 go:
-    - 1.6.3
     - 1.7.4
-    - 1.8beta1
     - master
