@@ -184,7 +184,7 @@ func TestSort(t *testing.T) {
 	CheckIndexDomain(t, 9, "google3.com", hosts)
 }
 
-func ExampleHostlist_1() {
+func ExampleHostlist() {
 	hosts := hostess.NewHostlist()
 	hosts.Add(hostess.MustHostname("google.com", "127.0.0.1", false))
 	hosts.Add(hostess.MustHostname("google.com", "::1", true))
