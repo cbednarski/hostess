@@ -4,8 +4,10 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"path/filepath"
 	"runtime"
 	"strings"
+	"time"
 )
 
 const defaultOSX = `
@@ -190,15 +192,35 @@ func (h *Hostfile) Format() []byte {
 }
 
 // Save writes the Hostfile to disk to /etc/hosts or to the location specified
-// by the HOSTESS_PATH environment variable (if set).
+// by the HOSTESS_PATH environment variable (if set). We'll try to write a
+// temporary file and then move it over the old file. This gives us an atomic
+// update and ensures that if there is an I/O error or bug we dont truncate the
+// hosts file and leave it empty.
 func (h *Hostfile) Save() error {
-	file, err := os.OpenFile(h.Path, os.O_RDWR|os.O_APPEND|os.O_TRUNC, 0644)
+	// TODO replace this with ioutil.TempFile
+	tempPath := filepath.Join(os.TempDir(), fmt.Sprintf("hostess.tmp.%d", time.Now().Unix()))
+	tempFile, err := os.OpenFile(tempPath, os.O_RDWR|os.O_CREATE, 0644)
 	if err != nil {
 		return err
 	}
 
-	defer file.Close()
-	_, err = file.Write(h.Format())
+	// Write a temp file
+	if _, err = tempFile.Write(h.Format()); err != nil {
+		tempFile.Close()
+		os.Remove(tempPath)
+		return err
+	}
 
-	return err
+	// Flush write buffers and close the file
+	if err := tempFile.Close(); err != nil {
+		os.Remove(tempPath) // cleanup code
+		return err
+	}
+
+	// Atomic update
+	if err := os.Rename(tempPath, h.Path); err != nil {
+		return err
+	}
+
+	return nil
 }

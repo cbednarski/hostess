@@ -2,9 +2,13 @@ package hostess_test
 
 import (
 	"fmt"
+	"io/ioutil"
+	"os"
+	"path/filepath"
 	"runtime"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/cbednarski/hostess"
 )
@@ -198,5 +202,33 @@ func TestLoadHostfile(t *testing.T) {
 	found := hostfile.Hosts.Contains(hostname)
 	if !found {
 		t.Errorf("Expected to find %#v", hostname)
+	}
+}
+
+// We're going to test saving the hosts file to a temporary path. In order to
+// verify atomic save behavior we'll first write a fixture file and then save
+// over it.
+func TestSave(t *testing.T) {
+	// TODO replace this with ioutil.TempFile
+	tempPath := filepath.Join(os.TempDir(), fmt.Sprintf("hostess.test.%d", time.Now().Unix()))
+	fixturePath := filepath.Join("test-fixtures", "hostfile1")
+
+	data, err := ioutil.ReadFile(fixturePath)
+	if err != nil {
+		t.Fatalf("Failed reading fixture file: %s", err)
+	}
+
+	if err := ioutil.WriteFile(tempPath, data, 0644); err != nil {
+		t.Fatalf("Failed writing temporary hosts file: %s", err)
+	}
+	defer os.Remove(tempPath)
+
+	if err := os.Setenv("HOSTESS_PATH", tempPath); err != nil {
+		t.Fatalf("Failed to set HOSTESS_PATH to %q: %s", tempPath, err)
+	}
+	hostfile, _ := hostess.LoadHostfile()
+	t.Log(hostfile.Path)
+	if err := hostfile.Save(); err != nil {
+		t.Fatalf("Failed saving hosts file %q: %s", tempPath, err)
 	}
 }
