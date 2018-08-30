@@ -77,7 +77,7 @@ func main() {
 		},
 		{
 			Name:   "on",
-			Usage:  "enable a hosts entry (if if exists)",
+			Usage:  "enable a hosts entry (if it exists)",
 			Action: hostess.OnOff,
 			Flags:  app.Flags,
 		},
