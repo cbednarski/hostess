@@ -202,6 +202,17 @@ func OnOff(c *cli.Context) {
 
 // Ls command shows a list of hostnames in the hosts file
 func Ls(c *cli.Context) {
+	var status bool
+	printall := true
+	if len(c.Args()) != 0 {
+		printall = false
+		status = false
+
+		if c.Args()[0] == "on" {
+			status = true
+		}
+	}
+
 	hostsfile := AlwaysLoadHostFile(c)
 	maxdomain := 0
 	maxip := 0
@@ -216,11 +227,21 @@ func Ls(c *cli.Context) {
 		}
 	}
 
-	for _, hostname := range hostsfile.Hosts {
+	printHost := func(hostname *Hostname) {
 		fmt.Printf("%s -> %s %s\n",
 			StrPadRight(hostname.Domain, maxdomain),
 			StrPadRight(hostname.IP.String(), maxip),
 			hostname.FormatEnabled())
+	}
+
+	for _, hostname := range hostsfile.Hosts {
+		if printall {
+			printHost(hostname)
+		} else {
+			if hostname.Enabled == status {
+				printHost(hostname)
+			}
+		}
 	}
 }
 
