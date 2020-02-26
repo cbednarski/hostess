@@ -10,67 +10,46 @@ Because sometimes DNS doesn't work in production. And because editing
 `/etc/hosts` by hand is a pain. Put hostess in your `Makefile` or deploy scripts
 and call it a day.
 
-## Using Hostess
+**Note: 0.5.0 has backwards incompatible changes in the API and CLI.**
 
-### Download and Install
+## Installation
 
 Download a [precompiled release](https://github.com/cbednarski/hostess/releases)
-from GitHub.
+from GitHub, or build from source (with a [recent version of Go](https://golang.org/dl)):
 
-Builds are supported for OSX, Linux, Windows, and RaspberryPi.
+    go get -u github.com/cbednarski/hostess
 
 ### Usage
 
-    hostess add domain ip   # Add or replace a hosts entry for this domain pointing to this IP
-    hostess aff domain ip   # Add or replace a hosts entry in an off state
-    hostess del domain      # (alias rm) Remove a domain from your hosts file
-    hostess has domain      # exit code 0 if the domain is in your hostfile, 1 otherwise
-    hostess off domain      # Disable a domain (but don't remove it completely), exit 1 if entry is missing
-    hostess on domain       # Re-enable a domain that was disabled, exit 1 if entry is missing
-    hostess list            # (alias ls) List domains, target ips, and on/off status
-    hostess fix             # Rewrite your hosts file; use -n to dry run
-    hostess dump            # Dump your hostfile as json
-    hostess apply           # Add entries from a json file
+Run `hostess` or `hostess -h` to see a full list of commands.
 
-    Flags
+### Behavior
 
-    -n   # Dry run. Show what will happen but don't do it; output to stdout
-    -4   # Limit operation to ipv4 entries
-    -6   # Limit operation to ipv6 entries
-
-hostess will mangle your hosts file. Domains pointing at the same IP will be
-grouped together and disabled domains commented out.
+On unixes, hostess follows the format specified by `man hosts`, with one line
+per IP address:
 
     127.0.0.1 localhost hostname2 hostname3
     127.0.1.1 machine.name
     # 10.10.20.30 some.host
 
-### IPv4 and IPv6
+On Windows, hostess writes each hostname on its own line.
 
-Your hosts file *can* contain overlapping entries where the same hostname points
-to both an IPv4 and IPv6 IP. In this case, hostess commands will apply to both
-entries. Typically you won't have this kind of overlap and the default behavior
-is OK. However, if you need to be more granular you can use `-4` or `-6` to
-limit operations to entries associated with that type of IP.
+    127.0.0.1 localhost
+    127.0.0.1 hostname2
+    127.0.0.1 hostname3
 
-## Developing Hostess
+## Configuration
 
-### Configuration
+You can force hostess to behave one way or the other with `HOSTESS_FMT=windows`
+or `HOSTESS_FMT=unix`.
 
 By default, hostess will read / write to `/etc/hosts`. You can use the
 `HOSTESS_PATH` environment variable to provide an alternate path (for testing).
 
-### Building from Source
+### IPv4 and IPv6
 
-To build from source you'll need to have go 1.4+
-
-#### Install with go get
-
-    go get github.com/cbednarski/hostess/cmd/hostess
-
-#### Install from source
-
-    git clone https://github.com/cbednarski/hostess
-    cd hostess
-    make
-    make install
+Your hosts file _may_ contain overlapping entries where the same hostname points
+to both an IPv4 and IPv6 IP. In this case, hostess commands will apply to both
+entries. Typically you won't have this kind of overlap and the default behavior
+is OK. However, if you need to be more granular you can use `-4` or `-6` to
+limit operations to entries associated with that type of IP.
