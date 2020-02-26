@@ -32,7 +32,6 @@ Commands
 Flags
 
     -n will preview changes but not rewrite your hosts file
-    -f force changes even if there are errors parsing the hosts file
     -4 limit changes to IPv4 entries
     -6 limit changes to IPv6 entries
 
@@ -70,19 +69,17 @@ func wrappedMain() error {
 	ipv4 := cli.Bool("4",false, "IPv4")
 	ipv6 := cli.Bool("6",false, "IPv6")
 	preview := cli.Bool("n",false, "preview")
-	force := cli.Bool("f",false, "force")
 	cli.Usage = func() {
 		fmt.Printf(help, hostess.GetHostsPath())
 	}
 
-	if err := cli.Parse(os.Args[2:]); err != nil {
+	if err := cli.Parse(os.Args[1:]); err != nil {
 		return err
 	}
 
 	options := &commands.Options{
 		IPVersion: 0,
 		Preview:   *preview,
-		Force:     *force,
 	}
 	if *ipv4 {
 		options.IPVersion = options.IPVersion|commands.IPv4
@@ -91,12 +88,7 @@ func wrappedMain() error {
 		options.IPVersion = options.IPVersion|commands.IPv6
 	}
 
-	if len(os.Args) == 1 {
-		cli.Usage()
-		return nil
-	}
-
-	command := os.Args[1]
+	command := cli.Arg(0)
 	switch command {
 
 	case "-v", "--version", "version":
@@ -106,6 +98,9 @@ func wrappedMain() error {
 	case "-h", "--help", "help":
 		cli.Usage()
 		return nil
+
+	case "fmt":
+		return commands.Format(options)
 
 	case "add":
 		if len(cli.Args()) != 2 {
@@ -119,12 +114,6 @@ func wrappedMain() error {
 		}
 		return commands.Remove(options, cli.Arg(0))
 
-	case "has":
-		if cli.Arg(0) == "" {
-			return CommandUsage(command)
-		}
-		return commands.Has(options, cli.Arg(0))
-
 	case "on":
 		if cli.Arg(0) == "" {
 			return CommandUsage(command)
@@ -137,11 +126,14 @@ func wrappedMain() error {
 		}
 		return commands.Disable(options, cli.Arg(0))
 
-	case "fmt":
-		return commands.Format(options)
-
 	case "ls":
 		return commands.List(options)
+
+	case "has":
+		if cli.Arg(0) == "" {
+			return CommandUsage(command)
+		}
+		return commands.Has(options, cli.Arg(0))
 
 	case "dump":
 		return commands.Dump(options)

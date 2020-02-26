@@ -19,34 +19,23 @@ const (
 type Options struct {
 	IPVersion int
 	Preview bool
-	Force bool
 }
 
-// ErrCantWriteHostFile indicates that we are unable to write to the hosts file
-var ErrCantWriteHostFile = ""
-
-// ErrorLn will print an error message unless -s is passed
-func ErrorLn(message string) {
-	os.Stderr.WriteString(fmt.Sprintf("%s\n", message))
-}
-
-// MaybePrintln will print a message unless -q or -s is passed
-func MaybePrintln(options *Options, message string) {
-	if !AnyBool(c, "q") && !AnyBool(c, "s") {
-		fmt.Println(message)
-	}
+// PrintErrLn will print to stderr followed by a newline
+func PrintErrLn(err error) {
+	os.Stderr.WriteString(fmt.Sprintf("%s\n", err))
 }
 
 // LoadHostfile will try to load, parse, and return a Hostfile. If we
 // encounter errors we will terminate, unless -f is passed.
-func LoadHostfile(options *Options) (*hostess.Hostfile, error) {
+func LoadHostfile() (*hostess.Hostfile, error) {
 	hosts, errs := hostess.LoadHostfile()
 
-	if len(errs) > 0 && !options.Force {
+	if len(errs) > 0 {
 		for _, err := range errs {
-			ErrorLn(err.Error())
+			PrintErrLn(err)
 		}
-		return nil, errors.New("Errors while parsing hostsfile. Try hostess fmt")
+		return nil, errors.New("Errors while parsing hostsfile. Please fix any dupes or conflicts and try again.")
 	}
 
 	return hosts, nil
@@ -58,11 +47,13 @@ func SaveOrPreview(options *Options, hostfile *hostess.Hostfile) error {
 	// Otherwise it's for real and we're going to write it.
 	if options.Preview {
 		fmt.Printf("%s", hostfile.Format())
-	} else {
-		if err := hostfile.Save(); err != nil {
-			return fmt.Errorf("Unable to write to %s. Maybe you need to sudo? (error: %s)", hostess.GetHostsPath(), err)
-		}
+		return nil
 	}
+
+	if err := hostfile.Save(); err != nil {
+		return fmt.Errorf("Unable to write to %s. Maybe you need to sudo? (error: %s)", hostess.GetHostsPath(), err)
+	}
+
 	return nil
 }
 
@@ -79,18 +70,14 @@ func StrPadRight(input string, length int) string {
 // Add command parses <hostname> <ip> and adds or updates a hostname in the
 // hosts file
 func Add(options *Options, hostname, ip string) error {
-	hostsfile, err := LoadHostfile(options)
+	hostsfile, err := LoadHostfile()
 
 	newHostname, err := hostess.NewHostname(hostname, ip, true)
 	if err != nil {
-		MaybeError(c, fmt.Sprintf("Failed to parse hosts entry: %s", err))
-	}
-	// If the command is aff instead of add then the entry should be disabled
-	if c.Command.Name == "aff" {
-		newHostname.Enabled = false
+		return err
 	}
 
-	replace := hostsfile.Hosts.ContainsDomain(newHostname.Domain)
+	replaced := hostsfile.Hosts.ContainsDomain(newHostname.Domain)
 	// Note that Add() may return an error, but they are informational only. We
 	// don't actually care what the error is -- we just want to add the
 	// hostname and save the file. This way the behavior is idempotent.
@@ -98,94 +85,116 @@ func Add(options *Options, hostname, ip string) error {
 
 	// If the user passes -n then we'll Add and show the new hosts file, but
 	// not save it.
-	if c.Bool("n") || AnyBool(c, "n") {
-		fmt.Printf("%s", hostsfile.Format())
-	} else {
-		SaveOrPreview(c, hostsfile)
-		// We'll give a little bit of information about whether we added or
-		// updated, but if the user wants to know they can use has or ls to
-		// show the file before they run the operation. Maybe later we can add
-		// a verbose flag to show more information.
-		if replace {
-			fmt.Printf("Updated %s\n", newHostname.FormatHuman())
-		} else {
-			fmt.Printf("Added %s\n", newHostname.FormatHuman())
-		}
+	if err := SaveOrPreview(options, hostsfile); err != nil {
+		return err
 	}
+	// We'll give a little bit of information about whether we added or
+	// updated, but if the user wants to know they can use has or ls to
+	// show the file before they run the operation. Maybe later we can add
+	// a verbose flag to show more information.
+	if replaced {
+		fmt.Printf("Updated %s\n", newHostname.FormatHuman())
+	} else {
+		fmt.Printf("Added %s\n", newHostname.FormatHuman())
+	}
+
+	return nil
 }
 
 // Remove command removes any hostname(s) matching <domain> from the hosts file
 func Remove(options *Options, hostname string) error {
-	hostsfile := LoadHostfile(c)
+	hostsfile, err := LoadHostfile()
+	if err != nil {
+		return err
+	}
 
 	found := hostsfile.Hosts.ContainsDomain(hostname)
-	if found {
-		hostsfile.Hosts.RemoveDomain(hostname)
-		if AnyBool(c, "n") {
-			fmt.Printf("%s", hostsfile.Format())
-		} else {
-			SaveOrPreview(c, hostsfile)
-			MaybePrintln(c, fmt.Sprintf("Deleted %s", hostname))
-		}
-	} else {
-		MaybePrintln(c, fmt.Sprintf("%s not found in %s", hostname, hostess.GetHostsPath()))
+	if !found {
+		fmt.Printf("%s not found in %s", hostname, hostess.GetHostsPath())
 	}
+
+	hostsfile.Hosts.RemoveDomain(hostname)
+	if err := SaveOrPreview(options, hostsfile); err != nil {
+		return err
+	}
+	fmt.Printf("Deleted %s\n", hostname)
+
+	return nil
 }
 
 // Has command indicates whether a hostname is present in the hosts file
 func Has(options *Options, hostname string) error {
-	if len(c.Args()) != 1 {
-		MaybeError(c, "expected <hostname>")
+	hostsfile, err := LoadHostfile()
+	if err != nil {
+		return err
 	}
-	domain := c.Args()[0]
-	hostsfile := LoadHostfile(c)
 
-	found := hostsfile.Hosts.ContainsDomain(domain)
+	found := hostsfile.Hosts.ContainsDomain(hostname)
 	if found {
-		MaybePrintln(c, fmt.Sprintf("Found %s in %s", domain, hostess.GetHostsPath()))
+		fmt.Printf("Found %s in %s\n", hostname, hostess.GetHostsPath())
 	} else {
-		MaybeError(c, fmt.Sprintf("%s not found in %s", domain, hostess.GetHostsPath()))
+		fmt.Printf("%s not found in %s\n", hostname, hostess.GetHostsPath())
+		// Exit 1 for bash scripts to use this as a check
+		os.Exit(1)
 	}
-}
-
-// OnOff enables (uncomments) or disables (comments) the specified hostname in
-// the hosts file. Exits code 1 if the hostname is missing.
-func OnOff(options *Options, hostname string) error {
-	hostsfile := LoadHostfile(c)
-
-	// Switch on / off commands
-	success := false
-	if c.Command.Name == "on" {
-		success = hostsfile.Hosts.Enable(domain)
-	} else {
-		success = hostsfile.Hosts.Disable(domain)
-	}
-
-	if success {
-		SaveOrPreview(c, hostsfile)
-		if c.Command.Name == "on" {
-			MaybePrintln(c, fmt.Sprintf("Enabled %s", domain))
-		} else {
-			MaybePrintln(c, fmt.Sprintf("Disabled %s", domain))
-		}
-	} else {
-		MaybeError(c, fmt.Sprintf("%s not found in %s", domain, hostess.GetHostsPath()))
-	}
+	return nil
 }
 
 func Enable(options *Options, hostname string) error {
+	hostsfile, err := LoadHostfile()
+	if err != nil {
+		return err
+	}
 
+	if err := hostsfile.Hosts.Enable(hostname); err != nil {
+		return err
+	}
+
+	if err := SaveOrPreview(options, hostsfile); err != nil {
+		return err
+	}
+
+	fmt.Printf("Enabled %s\n", hostname)
+
+	return nil
 }
 
 func Disable(options *Options, hostname string) error {
+	hostsfile, err := LoadHostfile()
+	if err != nil {
+		return err
+	}
 
+	if err := hostsfile.Hosts.Disable(hostname); err != nil {
+		if err == hostess.ErrHostnameNotFound {
+			// If the hostname does not exist then we have still achieved the
+			// desired result, so we will not exit with an error here. We'll
+			// handle the error by displaying it to the user.
+			PrintErrLn(err)
+			return nil
+		}
+		return err
+	}
+
+	if err := SaveOrPreview(options, hostsfile); err != nil {
+		return err
+	}
+
+	fmt.Printf("Disabled %s\n", hostname)
+
+	return nil
 }
 
 // List command shows a list of hostnames in the hosts file
 func List(options *Options) error {
-	hostsfile := AlwaysLoadHostFile(c)
+	hostsfile, err := LoadHostfile()
+	if err != nil {
+		return err
+	}
+
 	widestHostname := 0
 	widestIP := 0
+
 	for _, hostname := range hostsfile.Hosts {
 		dlen := len(hostname.Domain)
 		if dlen > widestHostname {
@@ -203,41 +212,62 @@ func List(options *Options) error {
 			StrPadRight(hostname.IP.String(), widestIP),
 			hostname.FormatEnabled())
 	}
+
+	return nil
 }
 
 // Format command removes duplicates and conflicts from the hosts file
 func Format(options *Options) error {
-	hostsfile := AlwaysLoadHostFile(c)
-	if bytes.Equal(hostsfile.GetData(), hostsfile.Format()) {
-		MaybePrintln(c, fmt.Sprintf("%s is already formatted and contains no dupes or conflicts; nothing to do", hostess.GetHostsPath()))
-		os.Exit(0)
+	hostsfile, err := LoadHostfile()
+	if err != nil {
+		return err
 	}
-	SaveOrPreview(c, hostsfile)
+
+	if bytes.Equal(hostsfile.GetData(), hostsfile.Format()) {
+		fmt.Printf("%s is already formatted and contains no dupes or conflicts; nothing to do\n", hostess.GetHostsPath())
+		return nil
+	}
+
+	return SaveOrPreview(options, hostsfile)
 }
 
 // Dump command outputs hosts file contents as JSON
 func Dump(options *Options) error {
-	hostsfile := AlwaysLoadHostFile(c)
+	hostsfile, err := LoadHostfile()
+	if err != nil {
+		return err
+	}
+
 	jsonbytes, err := hostsfile.Hosts.Dump()
 	if err != nil {
-		MaybeError(c, err.Error())
+		return err
 	}
+
 	fmt.Println(fmt.Sprintf("%s", jsonbytes))
+	return nil
 }
 
 // Apply command adds hostnames to the hosts file from JSON
 func Apply(options *Options, filename string) error {
 	jsonbytes, err := ioutil.ReadFile(filename)
 	if err != nil {
-		MaybeError(c, fmt.Sprintf("Unable to read %s: %s", filename, err))
+		return fmt.Errorf("Unable to read JSON from %s: %s", filename, err)
 	}
 
-	hostfile := AlwaysLoadHostFile(c)
-	err = hostfile.Hosts.Apply(jsonbytes)
+	hostfile, err := LoadHostfile()
 	if err != nil {
-		MaybeError(c, fmt.Sprintf("Error applying changes to hosts file: %s", err))
+		return err
 	}
 
-	SaveOrPreview(c, hostfile)
-	MaybePrintln(c, fmt.Sprintf("%s applied", filename))
+
+	if err := hostfile.Hosts.Apply(jsonbytes); err != nil {
+		return fmt.Errorf("Error applying changes to hosts file: %s", err)
+	}
+
+	if err := SaveOrPreview(options, hostfile); err != nil {
+		return err
+	}
+
+	fmt.Printf("%s applied\n", filename)
+	return nil
 }
