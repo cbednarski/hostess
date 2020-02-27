@@ -1,0 +1,9 @@
+install:
+  - go version
+
+build: false
+deploy: false
+
+test_script:
+  - go test ./...
+  - go vet ./...

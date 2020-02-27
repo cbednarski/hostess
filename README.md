@@ -1,6 +1,6 @@
-# hostess [![](https://travis-ci.org/cbednarski/hostess.svg)](https://travis-ci.org/cbednarski/hostess) [![Coverage Status](https://coveralls.io/repos/cbednarski/hostess/badge.svg)](https://coveralls.io/r/cbednarski/hostess) [![GoDoc](https://godoc.org/github.com/cbednarski/hostess?status.svg)](http://godoc.org/github.com/cbednarski/hostess)
+# hostess [![Linux Build Status](https://travis-ci.org/cbednarski/hostess.svg)](https://travis-ci.org/cbednarski/hostess) [![Windows Build Status](https://ci.appveyor.com/api/projects/status/wtxqb880b7v9dfgn/branch/master?svg=true)](https://ci.appveyor.com/project/cbednarski/hostess/branch/master) [![GoDoc](https://godoc.org/github.com/cbednarski/hostess?status.svg)](http://godoc.org/github.com/cbednarski/hostess)
 
-An **idempotent** command-line utility for managing your `/etc/hosts` file.
+An **idempotent** command-line utility for managing your `/etc/hosts`* file.
 
     hostess add local.example.com 127.0.0.1
     hostess add staging.example.com 10.0.2.16
@@ -10,7 +10,10 @@ Because sometimes DNS doesn't work in production. And because editing
 `/etc/hosts` by hand is a pain. Put hostess in your `Makefile` or deploy scripts
 and call it a day.
 
-**Note: 0.5.0 has backwards incompatible changes in the API and CLI.**
+\* And `C:\Windows\System32\drivers\etc\hosts` on Windows.
+
+**Note: 0.5.0 has backwards incompatible changes in the API and CLI.** See
+`CHANGELOG.md` for details.
 
 ## Installation
 
@@ -19,11 +22,11 @@ from GitHub, or build from source (with a [recent version of Go](https://golang.
 
     go get -u github.com/cbednarski/hostess
 
-### Usage
+## Usage
 
 Run `hostess` or `hostess -h` to see a full list of commands.
 
-### Behavior
+## Format
 
 On unixes, hostess follows the format specified by `man hosts`, with one line
 per IP address:
@@ -40,13 +43,16 @@ On Windows, hostess writes each hostname on its own line.
 
 ## Configuration
 
-You can force hostess to behave one way or the other with `HOSTESS_FMT=windows`
-or `HOSTESS_FMT=unix`.
+hostess may be configured via environment variables.
 
-By default, hostess will read / write to `/etc/hosts`. You can use the
-`HOSTESS_PATH` environment variable to provide an alternate path (for testing).
+- `HOSTESS_FMT` may be set to `windows` or `unix` to override platform detection
+  for the hosts file format. See Behavior, above, for details
 
-### IPv4 and IPv6
+- `HOSTESS_PATH` may be set to override platform detection for the location of
+  the hosts file. By default this is `C:\Windows\System32\drivers\etc\hosts` on
+  Windows and `/etc/hosts` everywhere else.
+
+## IPv4 and IPv6
 
 Your hosts file _may_ contain overlapping entries where the same hostname points
 to both an IPv4 and IPv6 IP. In this case, hostess commands will apply to both
