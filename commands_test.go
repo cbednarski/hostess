@@ -2,14 +2,14 @@ package main
 
 import (
 	"testing"
-	)
+)
 
 func TestStrPadRight(t *testing.T) {
 
 	type testCase struct {
 		Expected string
-		Output string
-		Name string
+		Output   string
+		Name     string
 	}
 
 	cases := []testCase{

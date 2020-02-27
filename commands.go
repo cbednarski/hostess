@@ -18,7 +18,7 @@ const (
 
 type Options struct {
 	IPVersion int
-	Preview bool
+	Preview   bool
 }
 
 // PrintErrLn will print to stderr followed by a newline
@@ -258,7 +258,6 @@ func Apply(options *Options, filename string) error {
 	if err != nil {
 		return err
 	}
-
 
 	if err := hostfile.Hosts.Apply(jsonbytes); err != nil {
 		return fmt.Errorf("Error applying changes to hosts file: %s", err)
