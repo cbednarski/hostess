@@ -59,3 +59,10 @@ to both an IPv4 and IPv6 IP. In this case, hostess commands will apply to both
 entries. Typically you won't have this kind of overlap and the default behavior
 is OK. However, if you need to be more granular you can use `-4` or `-6` to
 limit operations to entries associated with that type of IP.
+
+## Contributing
+
+I hope my software is useful, readable, fun to use, and helps you learn
+something new. I maintain this software in my spare time. I rarely merge PRs
+because I am both lazy and a snob. Bug reports, fixes, questions, and comments
+are welcome but expect a delayed response. No refunds. 👻
