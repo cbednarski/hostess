@@ -42,7 +42,7 @@ Configuration
 
 About
 
-    Copyright 2015-2020 Chris Bednarski <chris@cbednarski.com>; MIT Licensed 
+    Copyright 2015-2020 Chris Bednarski <chris@cbednarski.com>; MIT Licensed
     Portions Copyright the Go authors, licensed under BSD-style license
     Bugs and updates via https://github.com/cbednarski/hostess
 `
