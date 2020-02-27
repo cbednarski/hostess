@@ -1,3 +1,5 @@
+// Package hostess provides an API to interact with /etc/hosts and its Windows
+// equivalent.
 package hostess
 
 import (
