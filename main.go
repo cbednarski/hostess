@@ -1,3 +1,5 @@
+// hostess is command-line utility for managing your /etc/hosts file. Works on
+// Unixes and Windows.
 package main
 
 import (
@@ -6,7 +8,6 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/cbednarski/hostess/commands"
 	"github.com/cbednarski/hostess/hostess"
 )
 
@@ -77,15 +78,15 @@ func wrappedMain() error {
 		return err
 	}
 
-	options := &commands.Options{
+	options := &Options{
 		IPVersion: 0,
 		Preview:   *preview,
 	}
 	if *ipv4 {
-		options.IPVersion = options.IPVersion|commands.IPv4
+		options.IPVersion = options.IPVersion| IPv4
 	}
 	if *ipv6 {
-		options.IPVersion = options.IPVersion|commands.IPv6
+		options.IPVersion = options.IPVersion| IPv6
 	}
 
 	command := cli.Arg(0)
@@ -100,49 +101,49 @@ func wrappedMain() error {
 		return nil
 
 	case "fmt":
-		return commands.Format(options)
+		return Format(options)
 
 	case "add":
 		if len(cli.Args()) != 2 {
 			return fmt.Errorf("Usage: %s add <hostname> <ip>", cli.Name())
 		}
-		return commands.Add(options, cli.Arg(0), cli.Arg(1))
+		return Add(options, cli.Arg(0), cli.Arg(1))
 
 	case "rm":
 		if cli.Arg(0) == "" {
 			return CommandUsage(command)
 		}
-		return commands.Remove(options, cli.Arg(0))
+		return Remove(options, cli.Arg(0))
 
 	case "on":
 		if cli.Arg(0) == "" {
 			return CommandUsage(command)
 		}
-		return commands.Enable(options, cli.Arg(0))
+		return Enable(options, cli.Arg(0))
 
 	case "off":
 		if cli.Arg(0) == "" {
 			return CommandUsage(command)
 		}
-		return commands.Disable(options, cli.Arg(0))
+		return Disable(options, cli.Arg(0))
 
 	case "ls":
-		return commands.List(options)
+		return List(options)
 
 	case "has":
 		if cli.Arg(0) == "" {
 			return CommandUsage(command)
 		}
-		return commands.Has(options, cli.Arg(0))
+		return Has(options, cli.Arg(0))
 
 	case "dump":
-		return commands.Dump(options)
+		return Dump(options)
 
 	case "apply":
 		if cli.Arg(0) == "" {
 			return fmt.Errorf("Usage: %s apply <filename>", os.Args[0])
 		}
-		return commands.Apply(options, cli.Arg(0))
+		return Apply(options, cli.Arg(0))
 
 	default:
 		return ErrInvalidCommand
