@@ -12,7 +12,7 @@ and call it a day.
 
 \* And `C:\Windows\System32\drivers\etc\hosts` on Windows.
 
-**Note: 0.5.0 has backwards incompatible changes in the API and CLI.** See
+**Note: 0.4.0 has backwards incompatible changes in the API and CLI.** See
 `CHANGELOG.md` for details.
 
 ## Installation
