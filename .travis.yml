@@ -2,7 +2,6 @@ language: go
 
 go:
     - 1.14
-    - master
 
 notifications:
     email: false
