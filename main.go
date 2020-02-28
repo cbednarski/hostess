@@ -65,8 +65,8 @@ func CommandUsage(command string) error {
 	return fmt.Errorf("Usage: %s %s <hostname>", os.Args[0], command)
 }
 
-func wrappedMain() error {
-	cli := flag.NewFlagSet(os.Args[0], flag.ExitOnError)
+func wrappedMain(args []string) error {
+	cli := flag.NewFlagSet(args[0], flag.ExitOnError)
 	ipv4 := cli.Bool("4", false, "IPv4")
 	ipv6 := cli.Bool("6", false, "IPv6")
 	preview := cli.Bool("n", false, "preview")
@@ -74,7 +74,7 @@ func wrappedMain() error {
 		fmt.Printf(help, hostess.GetHostsPath())
 	}
 
-	if err := cli.Parse(os.Args[1:]); err != nil {
+	if err := cli.Parse(args[1:]); err != nil {
 		return err
 	}
 
@@ -96,7 +96,7 @@ func wrappedMain() error {
 		fmt.Println(Version)
 		return nil
 
-	case "-h", "--help", "help":
+	case "", "-h", "--help", "help":
 		cli.Usage()
 		return nil
 
@@ -104,46 +104,46 @@ func wrappedMain() error {
 		return Format(options)
 
 	case "add":
-		if len(cli.Args()) != 2 {
+		if len(cli.Args()) != 3 {
 			return fmt.Errorf("Usage: %s add <hostname> <ip>", cli.Name())
 		}
-		return Add(options, cli.Arg(0), cli.Arg(1))
+		return Add(options, cli.Arg(1), cli.Arg(2))
 
 	case "rm":
-		if cli.Arg(0) == "" {
+		if cli.Arg(1) == "" {
 			return CommandUsage(command)
 		}
-		return Remove(options, cli.Arg(0))
+		return Remove(options, cli.Arg(1))
 
 	case "on":
-		if cli.Arg(0) == "" {
+		if cli.Arg(1) == "" {
 			return CommandUsage(command)
 		}
-		return Enable(options, cli.Arg(0))
+		return Enable(options, cli.Arg(1))
 
 	case "off":
-		if cli.Arg(0) == "" {
+		if cli.Arg(1) == "" {
 			return CommandUsage(command)
 		}
-		return Disable(options, cli.Arg(0))
+		return Disable(options, cli.Arg(1))
 
 	case "ls":
 		return List(options)
 
 	case "has":
-		if cli.Arg(0) == "" {
+		if cli.Arg(1) == "" {
 			return CommandUsage(command)
 		}
-		return Has(options, cli.Arg(0))
+		return Has(options, cli.Arg(1))
 
 	case "dump":
 		return Dump(options)
 
 	case "apply":
-		if cli.Arg(0) == "" {
-			return fmt.Errorf("Usage: %s apply <filename>", os.Args[0])
+		if cli.Arg(1) == "" {
+			return fmt.Errorf("Usage: %s apply <filename>", args[0])
 		}
-		return Apply(options, cli.Arg(0))
+		return Apply(options, cli.Arg(1))
 
 	default:
 		return ErrInvalidCommand
@@ -151,5 +151,5 @@ func wrappedMain() error {
 }
 
 func main() {
-	ExitWithError(wrappedMain())
+	ExitWithError(wrappedMain(os.Args))
 }

@@ -20,7 +20,9 @@ and call it a day.
 Download a [precompiled release](https://github.com/cbednarski/hostess/releases)
 from GitHub, or build from source (with a [recent version of Go](https://golang.org/dl)):
 
-    go get -u github.com/cbednarski/hostess
+    git clone https://github.com/cbednarski/hostess
+    cd hostess
+    make install
 
 ## Usage
 

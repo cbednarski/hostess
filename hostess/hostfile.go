@@ -10,6 +10,8 @@ import (
 	"strings"
 )
 
+const EnvHostessPath = `HOSTESS_PATH`
+
 const defaultOSX = `
 ##
 # Host Database
@@ -53,7 +55,7 @@ func NewHostfile() *Hostfile {
 // GetHostsPath returns the location of the hostfile; either env HOSTESS_PATH
 // or /etc/hosts if HOSTESS_PATH is not set.
 func GetHostsPath() string {
-	path := os.Getenv("HOSTESS_PATH")
+	path := os.Getenv(EnvHostessPath)
 	if path == "" {
 		if runtime.GOOS == "windows" {
 			path = "C:\\Windows\\System32\\drivers\\etc\\hosts"

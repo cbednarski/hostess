@@ -9,6 +9,8 @@ import (
 	"strings"
 )
 
+const EnvHostessFmt = `HOSTESS_FMT`
+
 // ErrInvalidVersionArg is raised when a function expects IPv 4 or 6 but is
 // passed a value not 4 or 6.
 var ErrInvalidVersionArg = errors.New("version argument must be 4 or 6")
