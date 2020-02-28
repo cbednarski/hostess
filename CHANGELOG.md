@@ -1,6 +1,6 @@
 # Change Log
 
-## v0.4.0 (Unreleased)
+## v0.4.0 (February 28, 2020)
 
 0.4.0 is a major refactor of the frontend (CLI) focused on simplifying the UI
 and code, supporting newer Go tooling (i.e. go mod), and removing external
@@ -28,7 +28,7 @@ Improvements
 - Added AppVeyor for Windows builds
 - Overhauled the Makefile for easier builds
 
-## v0.3.0 (Februrary 18, 2018)
+## v0.3.0 (February 18, 2018)
 
 Improvements
 
