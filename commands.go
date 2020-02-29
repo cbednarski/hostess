@@ -51,7 +51,7 @@ func SaveOrPreview(options *Options, hostfile *hostess.Hostfile) error {
 	}
 
 	if err := hostfile.Save(); err != nil {
-		return fmt.Errorf("Unable to write to %s. Maybe you need to sudo? (error: %s)", hostess.GetHostsPath(), err)
+		return fmt.Errorf("Unable to write to %s. (error: %s)", hostess.GetHostsPath(), err)
 	}
 
 	return nil

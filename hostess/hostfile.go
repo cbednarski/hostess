@@ -196,7 +196,26 @@ func (h *Hostfile) Format() []byte {
 // Save writes the Hostfile to disk to /etc/hosts or to the location specified
 // by the HOSTESS_PATH environment variable (if set).
 func (h *Hostfile) Save() error {
-	file, err := os.OpenFile(h.Path, os.O_RDWR|os.O_APPEND|os.O_TRUNC, 0644)
+	var file *os.File
+	var err error
+
+	// TODO break platform-specific code into separate functions
+	// Windows wants the file to be truncated before it's opened. Then we re-
+	// write the entire file contents. Truncating up front is risky but I don't
+	// know of a better way to do it.
+	if runtime.GOOS == "windows" {
+		if err := os.Truncate(h.Path, 0); err != nil {
+			return err
+		}
+
+		file, err = os.OpenFile(h.Path, os.O_RDWR, 0644)
+	} else {
+		// TODO use atomic write-and-rename on Unix
+		// I think an earlier version of the program did this but it did not
+		// work on Windows so it was rolled back. We can probably get that code
+		// from history.
+		file, err = os.OpenFile(h.Path, os.O_RDWR|os.O_APPEND|os.O_TRUNC, 0644)
+	}
 	if err != nil {
 		return err
 	}
