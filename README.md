@@ -28,6 +28,10 @@ from GitHub, or build from source (with a [recent version of Go](https://golang.
 
 Run `hostess` or `hostess -h` to see a full list of commands.
 
+**Note** The hosts file is protected. On unixes you will need to use `sudo` or
+run the `hostess` command as root. On Windows, you will need to run `hostess`
+from an elevated prompt (right click and _Run as administrator_).
+
 ## Format
 
 On unixes, hostess follows the format specified by `man hosts`, with one line
