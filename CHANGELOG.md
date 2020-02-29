@@ -1,5 +1,11 @@
 # Change Log
 
+## v0.4.1 (February 28, 2020)
+
+Bug Fixes
+
+- Fix hostfiles not saving on Windows #27
+
 ## v0.4.0 (February 28, 2020)
 
 0.4.0 is a major refactor of the frontend (CLI) focused on simplifying the UI
