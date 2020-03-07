@@ -1,5 +1,11 @@
 # Change Log
 
+## v0.5.0 (March 7, 2020)
+
+Breaking changes
+
+- Windows now has a platform-specific hosts format with one IP and hostname per line
+
 ## v0.4.1 (February 28, 2020)
 
 Bug Fixes
