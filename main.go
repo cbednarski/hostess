@@ -33,8 +33,6 @@ Commands
 Flags
 
     -n will preview changes but not rewrite your hosts file
-    -4 limit changes to IPv4 entries
-    -6 limit changes to IPv6 entries
 
 Configuration
 
@@ -67,8 +65,6 @@ func CommandUsage(command string) error {
 
 func wrappedMain(args []string) error {
 	cli := flag.NewFlagSet(args[0], flag.ExitOnError)
-	ipv4 := cli.Bool("4", false, "IPv4")
-	ipv6 := cli.Bool("6", false, "IPv6")
 	preview := cli.Bool("n", false, "preview")
 	cli.Usage = func() {
 		fmt.Printf(help, hostess.GetHostsPath())
@@ -79,14 +75,7 @@ func wrappedMain(args []string) error {
 	}
 
 	options := &Options{
-		IPVersion: 0,
 		Preview:   *preview,
-	}
-	if *ipv4 {
-		options.IPVersion = options.IPVersion | IPv4
-	}
-	if *ipv6 {
-		options.IPVersion = options.IPVersion | IPv6
 	}
 
 	command := cli.Arg(0)

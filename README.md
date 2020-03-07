@@ -60,11 +60,9 @@ hostess may be configured via environment variables.
 
 ## IPv4 and IPv6
 
-Your hosts file _may_ contain overlapping entries where the same hostname points
-to both an IPv4 and IPv6 IP. In this case, hostess commands will apply to both
-entries. Typically you won't have this kind of overlap and the default behavior
-is OK. However, if you need to be more granular you can use `-4` or `-6` to
-limit operations to entries associated with that type of IP.
+It's possible for your hosts file to include overlapping entries for IPv4 and
+IPv6. This is an uncommon case so the CLI ignores this distinction. The hostess
+library includes logic that differentiates between these cases.
 
 ## Contributing
 

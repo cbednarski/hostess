@@ -11,13 +11,7 @@ import (
 	"github.com/cbednarski/hostess/hostess"
 )
 
-const (
-	IPv4 = 1 << iota
-	IPv6 = 1 << iota
-)
-
 type Options struct {
-	IPVersion int
 	Preview   bool
 }
 
