@@ -61,11 +61,21 @@ func TestFormatHostfile(t *testing.T) {
 	// 1. We want localhost entries at the top
 	// 2. The rest are sorted by IP as STRINGS, not numeric values, so 10
 	//    precedes 8
-	const expected = `127.0.0.1 localhost devsite
+	expected := `127.0.0.1 localhost devsite
 127.0.1.1 ip-10-37-12-18
 # 8.8.8.8 google.com
 10.37.12.18 devsite.com m.devsite.com
 `
+
+	if runtime.GOOS == "windows" {
+		expected = `127.0.0.1 localhost
+127.0.0.1 devsite
+127.0.1.1 ip-10-37-12-18
+# 8.8.8.8 google.com
+10.37.12.18 devsite.com
+10.37.12.18 m.devsite.com
+`
+	}
 
 	hostfile := hostess.NewHostfile()
 	hostfile.Path = "./hosts"

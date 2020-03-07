@@ -164,7 +164,7 @@ ff02::1 ip6-allnodes
 ff02::2 ip6-allrouters
 `
 
-	if runtime.GOOS== "windows" {
+	if runtime.GOOS == "windows" {
 		expected = `127.0.0.1 localhost
 127.0.1.1 ubuntu
 ::1 ip6-localhost

@@ -107,7 +107,6 @@ func TestFormatLinux(t *testing.T) {
 		t.Fatal(errs)
 	}
 
-
 	expected, err := ioutil.ReadFile(filepath.Join("testdata", "expected-linux"))
 	if err != nil {
 		t.Fatal(err)
@@ -116,7 +115,7 @@ func TestFormatLinux(t *testing.T) {
 	output := hostfile.Hosts.FormatLinux()
 
 	if !bytes.Equal(output, expected) {
-		t.Errorf("---- Expected ----\n%s\n---- Found----\n%s\n", expected, output)
+		t.Error(Diff(string(expected), string(output)))
 	}
 }
 
@@ -138,10 +137,9 @@ func TestFormatWindows(t *testing.T) {
 	output := hostfile.Hosts.FormatWindows()
 
 	if !bytes.Equal(output, expected) {
-		t.Errorf("---- Expected ----\n%s\n---- Found----\n%s\n", expected, output)
+		t.Error(Diff(string(expected), string(output)))
 	}
 }
-
 
 func TestFormat(t *testing.T) {
 	hosts := hostess.NewHostlist()

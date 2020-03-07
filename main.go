@@ -75,7 +75,7 @@ func wrappedMain(args []string) error {
 	}
 
 	options := &Options{
-		Preview:   *preview,
+		Preview: *preview,
 	}
 
 	command := cli.Arg(0)

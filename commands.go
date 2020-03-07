@@ -12,7 +12,7 @@ import (
 )
 
 type Options struct {
-	Preview   bool
+	Preview bool
 }
 
 // PrintErrLn will print to stderr followed by a newline
