@@ -1,0 +1,8 @@
+127.0.0.1 localhost
+127.0.1.1 robobrain
+# 192.168.0.1 pie.dev.example.com
+192.168.0.2 cookie.example.com
+192.168.1.1 pie.example.com strawberry.pie.example.com
+::1 localhost cake.example.com hostname.candy hostname.pie
+fe:23b3:890e:342e::ef chocolate.pie.example.com strawberry.pie.example.com
+# fe:23b3:890e:342e::ef chocolate.cake.example.com chocolate.cookie.example.com chocolate.ru.example.com chocolate.tr.example.com dev.strawberry.pie.example.com

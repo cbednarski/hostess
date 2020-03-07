@@ -3,7 +3,9 @@ package hostess_test
 import (
 	"bytes"
 	"fmt"
+	"io/ioutil"
 	"net"
+	"path/filepath"
 	"testing"
 
 	"github.com/cbednarski/hostess/hostess"
@@ -94,6 +96,52 @@ func TestContainsDomainIp(t *testing.T) {
 		t.Errorf("Did not expect to find %+v", extraneousHostname)
 	}
 }
+
+func TestFormatLinux(t *testing.T) {
+	hostfile := hostess.NewHostfile()
+	hostfile.Path = filepath.Join("testdata", "hostfile3")
+	if err := hostfile.Read(); err != nil {
+		t.Fatal(err)
+	}
+	if errs := hostfile.Parse(); len(errs) != 0 {
+		t.Fatal(errs)
+	}
+
+
+	expected, err := ioutil.ReadFile(filepath.Join("testdata", "expected-linux"))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	output := hostfile.Hosts.FormatLinux()
+
+	if !bytes.Equal(output, expected) {
+		t.Errorf("---- Expected ----\n%s\n---- Found----\n%s\n", expected, output)
+	}
+}
+
+func TestFormatWindows(t *testing.T) {
+	hostfile := hostess.NewHostfile()
+	hostfile.Path = filepath.Join("testdata", "hostfile3")
+	if err := hostfile.Read(); err != nil {
+		t.Fatal(err)
+	}
+	if errs := hostfile.Parse(); len(errs) != 0 {
+		t.Fatal(errs)
+	}
+
+	expected, err := ioutil.ReadFile(filepath.Join("testdata", "expected-windows"))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	output := hostfile.Hosts.FormatWindows()
+
+	if !bytes.Equal(output, expected) {
+		t.Errorf("---- Expected ----\n%s\n---- Found----\n%s\n", expected, output)
+	}
+}
+
 
 func TestFormat(t *testing.T) {
 	hosts := hostess.NewHostlist()

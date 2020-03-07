@@ -1,10 +1,13 @@
 package hostess
 
 import (
+	"bytes"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"net"
+	"os"
+	"runtime"
 	"sort"
 	"strings"
 )
@@ -374,9 +377,9 @@ func (h *Hostlist) GetUniqueIPs() []net.IP {
 // 2. Commented items are sorted displayed
 // 3. 127.* appears at the top of the list (so boot resolvers don't break)
 // 4. When present, "localhost" will always appear first in the domain list
-func (h *Hostlist) Format() []byte {
+func (h *Hostlist) FormatLinux() []byte {
 	h.Sort()
-	out := []byte{}
+	out := bytes.Buffer{}
 
 	// We want to output one line of hostnames per IP, so first we get that
 	// list of IPs and iterate.
@@ -400,19 +403,49 @@ func (h *Hostlist) Format() []byte {
 		// Finally, if the bucket contains anything, concatenate it all
 		// together and append it to the output. Also add a newline.
 		if len(enabledIPs) > 0 {
-			concat := fmt.Sprintf("%s %s", IP.String(), strings.Join(enabledIPs, " "))
-			out = append(out, []byte(concat)...)
-			out = append(out, []byte("\n")...)
+			out.WriteString(fmt.Sprintf("%s %s\n", IP.String(), strings.Join(enabledIPs, " ")))
 		}
 
 		if len(disabledIPs) > 0 {
-			concat := fmt.Sprintf("# %s %s", IP.String(), strings.Join(disabledIPs, " "))
-			out = append(out, []byte(concat)...)
-			out = append(out, []byte("\n")...)
+			out.WriteString(fmt.Sprintf("# %s %s\n", IP.String(), strings.Join(disabledIPs, " ")))
 		}
 	}
 
-	return out
+	return out.Bytes()
+}
+
+func (h Hostlist) FormatWindows() []byte {
+	h.Sort()
+	out := bytes.Buffer{}
+
+	for _, hostname := range h {
+		out.WriteString(hostname.Format())
+		out.WriteString("\n")
+	}
+
+	return out.Bytes()
+}
+
+func (h *Hostlist) Format() []byte {
+	format := os.Getenv(EnvHostessFmt)
+	if format == "" {
+		format = runtime.GOOS
+	}
+
+	switch format {
+	case "windows":
+		return h.FormatWindows()
+	case "linux":
+		return h.FormatLinux()
+	default:
+		// Theoretically the Windows format might be more compatible but there
+		// are a lot of different operating systems, and they're almost all
+		// unix-based OSes, so we'll just assume the linux format is OK. For
+		// example, FreeBSD, MacOS, and Linux all use the same format and while
+		// I haven't checked OpenBSD or NetBSD, I am going to assume they are
+		// OK with this format. If not we can add a case above.
+		return h.FormatLinux()
+	}
 }
 
 // Dump exports all entries in the Hostlist as JSON

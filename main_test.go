@@ -4,6 +4,7 @@ import (
 	"io"
 	"io/ioutil"
 	"os"
+	"runtime"
 	"strings"
 	"testing"
 
@@ -65,6 +66,20 @@ ff02::1 ip6-allnodes
 ff02::2 ip6-allrouters
 `
 
+	if runtime.GOOS == "windows" {
+		expected = `127.0.0.1 localhost
+127.0.0.1 myapp.local
+127.0.1.1 ubuntu
+192.168.0.30 raspberrypi
+::1 ip6-localhost
+::1 ip6-loopback
+fe00:: ip6-localnet
+ff00:: ip6-mcastprefix
+ff02::1 ip6-allnodes
+ff02::2 ip6-allrouters
+`
+	}
+
 	if output != expected {
 		t.Errorf("--- Expected ---\n%s\n--- Found ---\n%s\n", expected, output)
 	}
@@ -102,6 +117,22 @@ ff02::1 ip6-allnodes
 ff02::2 ip6-allrouters
 `
 
+	if runtime.GOOS == "windows" {
+		expected = `127.0.0.1 localhost
+127.0.0.1 my.new.website
+127.0.1.1 ubuntu
+10.20.0.23 myapp.local
+192.168.0.30 raspberrypi
+192.168.0.82 mediaserver
+::1 ip6-localhost
+::1 ip6-loopback
+fe00:: ip6-localnet
+ff00:: ip6-mcastprefix
+ff02::1 ip6-allnodes
+ff02::2 ip6-allrouters
+`
+	}
+
 	if output != expected {
 		t.Errorf("--- Expected ---\n%s\n--- Found ---\n%s\n", expected, output)
 	}
@@ -132,6 +163,18 @@ ff00:: ip6-mcastprefix
 ff02::1 ip6-allnodes
 ff02::2 ip6-allrouters
 `
+
+	if runtime.GOOS== "windows" {
+		expected = `127.0.0.1 localhost
+127.0.1.1 ubuntu
+::1 ip6-localhost
+::1 ip6-loopback
+fe00:: ip6-localnet
+ff00:: ip6-mcastprefix
+ff02::1 ip6-allnodes
+ff02::2 ip6-allrouters
+`
+	}
 
 	if output != expected {
 		t.Errorf("--- Expected ---\n%s\n--- Found ---\n%s\n", expected, output)
@@ -165,6 +208,20 @@ ff00:: ip6-mcastprefix
 ff02::1 ip6-allnodes
 ff02::2 ip6-allrouters
 `
+
+	if runtime.GOOS == "windows" {
+		expected = `127.0.0.1 localhost
+# 127.0.0.1 myapp.local
+127.0.1.1 ubuntu
+# 192.168.0.30 raspberrypi
+::1 ip6-localhost
+::1 ip6-loopback
+fe00:: ip6-localnet
+ff00:: ip6-mcastprefix
+ff02::1 ip6-allnodes
+ff02::2 ip6-allrouters
+`
+	}
 
 	if output != expected {
 		t.Errorf("--- Expected ---\n%s\n--- Found ---\n%s\n", expected, output)
