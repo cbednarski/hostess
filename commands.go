@@ -25,11 +25,21 @@ func PrintErrLn(err error) {
 func LoadHostfile() (*hostess.Hostfile, error) {
 	hosts, errs := hostess.LoadHostfile()
 
+	fatal := false
+
 	if len(errs) > 0 {
 		for _, err := range errs {
 			PrintErrLn(err)
+			// If we find a duplicate we'll notify the user and continue. For
+			// other errors we'll bail out.
+			if !strings.Contains(err.Error(), "duplicate hostname entry") {
+				fatal = true
+			}
 		}
-		return nil, errors.New("Errors while parsing hostsfile. Please fix any dupes or conflicts and try again.")
+	}
+
+	if fatal {
+		return nil, errors.New("Errors while parsing hostsfile. Please resolve any conflicts and try again.")
 	}
 
 	return hosts, nil
@@ -210,7 +220,7 @@ func List(options *Options) error {
 	return nil
 }
 
-// Format command removes duplicates and conflicts from the hosts file
+// Format command removes duplicates from the hosts file
 func Format(options *Options) error {
 	hostsfile, err := LoadHostfile()
 	if err != nil {
