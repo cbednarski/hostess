@@ -1,5 +1,11 @@
 # Change Log
 
+## v0.5.1 (March 10, 2020)
+
+Bug Fixes
+
+- Format will no longer exit with an error when encountering a duplicate entry
+
 ## v0.5.0 (March 7, 2020)
 
 Breaking changes
