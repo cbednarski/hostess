@@ -97,46 +97,46 @@ func wrappedMain(args []string) error {
 		return Format(options)
 
 	case "add":
-		if len(cli.Args()) != 3 {
+		if len(cli.Args()) != 2 {
 			return fmt.Errorf("Usage: %s add <hostname> <ip>", cli.Name())
 		}
-		return Add(options, cli.Arg(1), cli.Arg(2))
+		return Add(options, cli.Arg(0), cli.Arg(1))
 
 	case "rm":
-		if cli.Arg(1) == "" {
+		if cli.Arg(0) == "" {
 			return CommandUsage(command)
 		}
-		return Remove(options, cli.Arg(1))
+		return Remove(options, cli.Arg(0))
 
 	case "on":
-		if cli.Arg(1) == "" {
+		if cli.Arg(0) == "" {
 			return CommandUsage(command)
 		}
-		return Enable(options, cli.Arg(1))
+		return Enable(options, cli.Arg(0))
 
 	case "off":
-		if cli.Arg(1) == "" {
+		if cli.Arg(0) == "" {
 			return CommandUsage(command)
 		}
-		return Disable(options, cli.Arg(1))
+		return Disable(options, cli.Arg(0))
 
 	case "ls":
 		return List(options)
 
 	case "has":
-		if cli.Arg(1) == "" {
+		if cli.Arg(0) == "" {
 			return CommandUsage(command)
 		}
-		return Has(options, cli.Arg(1))
+		return Has(options, cli.Arg(0))
 
 	case "dump":
 		return Dump(options)
 
 	case "apply":
-		if cli.Arg(1) == "" {
+		if cli.Arg(0) == "" {
 			return fmt.Errorf("Usage: %s apply <filename>", args[0])
 		}
-		return Apply(options, cli.Arg(1))
+		return Apply(options, cli.Arg(0))
 
 	default:
 		return ErrInvalidCommand
