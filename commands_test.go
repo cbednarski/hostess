@@ -31,8 +31,9 @@ func TestLoadHostfile(t *testing.T) {
 	// Issue #39: This hosts file contains a duplicate. We should paper over it.
 	os.Setenv("HOSTESS_PATH", filepath.Join("testdata", "issue39"))
 	defer os.Unsetenv("HOSTESS_PATH")
+	options := &Options{}
 
-	if _, err := LoadHostfile(); err != nil {
+	if _, err := LoadHostfile(options); err != nil {
 		t.Fatal(err)
 	}
 }

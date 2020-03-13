@@ -1,9 +1,11 @@
 package main
 
 import (
+	"bytes"
 	"io"
 	"io/ioutil"
 	"os"
+	"path/filepath"
 	"runtime"
 	"strings"
 	"testing"
@@ -14,10 +16,20 @@ import (
 // CopyHostsFile creates a temporary hosts file in the system temp directory,
 // sets the HOSTESS_PATH environment variable, and returns the file path and a
 // cleanup function
-func CopyHostsFile(t *testing.T) (string, func()) {
+func CopyHostsFile(t *testing.T, fixtureFiles ...string) (string, func()) {
 	t.Helper()
 
-	fixture, err := os.Open("testdata/ubuntu.hosts")
+	fixtureFile := filepath.Join("testdata", "ubuntu.hosts")
+
+	// This is an optional argument so we'll default to the ubuntu.hosts above
+	// and only accept arity 1 if the user passes in extra data
+	if len(fixtureFiles) > 1 {
+		t.Fatalf("%s supplied too many arguments to CopyHostsFile", t.Name())
+	} else if len(fixtureFiles) == 1 {
+		fixtureFile = fixtureFiles[0]
+	}
+
+	fixture, err := os.Open(fixtureFile)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -37,6 +49,7 @@ func CopyHostsFile(t *testing.T) (string, func()) {
 
 	cleanup := func() {
 		os.Remove(temp.Name())
+		os.Unsetenv(hostess.EnvHostessPath)
 	}
 
 	return temp.Name(), cleanup
@@ -225,5 +238,47 @@ ff02::2 ip6-allrouters
 
 	if output != expected {
 		t.Errorf("--- Expected ---\n%s\n--- Found ---\n%s\n", expected, output)
+	}
+}
+
+func TestExitCodeFmt(t *testing.T) {
+	temp, cleanup := CopyHostsFile(t, filepath.Join("testdata", "issue39"))
+	defer cleanup()
+
+	state1, err := ioutil.ReadFile(temp)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	t.Logf("%s", state1)
+
+	if err := wrappedMain([]string{"hostess", "fmt", "-n"}); err != ErrParsingHostsFile {
+		t.Fatalf(`Expected %q, found %v`, ErrParsingHostsFile, err)
+	}
+
+	state2, err := ioutil.ReadFile(temp)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if !bytes.Equal(state1, state2) {
+		t.Error("Expected hosts contents before and after fix -n to be the same")
+	}
+
+	if err := wrappedMain([]string{"hostess", "fmt"}); err != nil {
+		t.Fatalf("Unexpected error: %s", err)
+	}
+
+	finalExpected := `127.0.0.1 localhost kubernetes.docker.internal
+::1 localhost
+`
+
+	state3, err := ioutil.ReadFile(temp)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if string(state3) != finalExpected {
+		t.Fatalf("---- Expected ----\n%s\n---- Found ----\n%s\n", finalExpected, string(state3))
 	}
 }

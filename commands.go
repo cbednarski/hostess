@@ -11,6 +11,8 @@ import (
 	"github.com/cbednarski/hostess/hostess"
 )
 
+var ErrParsingHostsFile = errors.New("Errors while parsing hostsfile. Please resolve any conflicts and try again.")
+
 type Options struct {
 	Preview bool
 }
@@ -21,28 +23,30 @@ func PrintErrLn(err error) {
 }
 
 // LoadHostfile will try to load, parse, and return a Hostfile. If we
-// encounter errors we will terminate, unless -f is passed.
-func LoadHostfile() (*hostess.Hostfile, error) {
+// encounter errors we will terminate.
+func LoadHostfile(options *Options) (*hostess.Hostfile, error) {
 	hosts, errs := hostess.LoadHostfile()
 
-	fatal := false
+	var err error
 
 	if len(errs) > 0 {
-		for _, err := range errs {
-			PrintErrLn(err)
+		// If -n is passed, we'll always exit with an error code on duplicate.
+		// See issue 39
+		if options.Preview {
+			err = ErrParsingHostsFile
+		}
+
+		for _, currentErr := range errs {
+			PrintErrLn(currentErr)
 			// If we find a duplicate we'll notify the user and continue. For
 			// other errors we'll bail out.
-			if !strings.Contains(err.Error(), "duplicate hostname entry") {
-				fatal = true
+			if !strings.Contains(currentErr.Error(), "duplicate hostname entry") {
+				err = ErrParsingHostsFile
 			}
 		}
 	}
 
-	if fatal {
-		return nil, errors.New("Errors while parsing hostsfile. Please resolve any conflicts and try again.")
-	}
-
-	return hosts, nil
+	return hosts, err
 }
 
 // SaveOrPreview will display or write the Hostfile
@@ -74,7 +78,7 @@ func StrPadRight(input string, length int) string {
 // Add command parses <hostname> <ip> and adds or updates a hostname in the
 // hosts file
 func Add(options *Options, hostname, ip string) error {
-	hostsfile, err := LoadHostfile()
+	hostsfile, err := LoadHostfile(options)
 
 	newHostname, err := hostess.NewHostname(hostname, ip, true)
 	if err != nil {
@@ -107,7 +111,7 @@ func Add(options *Options, hostname, ip string) error {
 
 // Remove command removes any hostname(s) matching <domain> from the hosts file
 func Remove(options *Options, hostname string) error {
-	hostsfile, err := LoadHostfile()
+	hostsfile, err := LoadHostfile(options)
 	if err != nil {
 		return err
 	}
@@ -128,7 +132,7 @@ func Remove(options *Options, hostname string) error {
 
 // Has command indicates whether a hostname is present in the hosts file
 func Has(options *Options, hostname string) error {
-	hostsfile, err := LoadHostfile()
+	hostsfile, err := LoadHostfile(options)
 	if err != nil {
 		return err
 	}
@@ -145,7 +149,7 @@ func Has(options *Options, hostname string) error {
 }
 
 func Enable(options *Options, hostname string) error {
-	hostsfile, err := LoadHostfile()
+	hostsfile, err := LoadHostfile(options)
 	if err != nil {
 		return err
 	}
@@ -164,7 +168,7 @@ func Enable(options *Options, hostname string) error {
 }
 
 func Disable(options *Options, hostname string) error {
-	hostsfile, err := LoadHostfile()
+	hostsfile, err := LoadHostfile(options)
 	if err != nil {
 		return err
 	}
@@ -191,7 +195,7 @@ func Disable(options *Options, hostname string) error {
 
 // List command shows a list of hostnames in the hosts file
 func List(options *Options) error {
-	hostsfile, err := LoadHostfile()
+	hostsfile, err := LoadHostfile(options)
 	if err != nil {
 		return err
 	}
@@ -222,7 +226,7 @@ func List(options *Options) error {
 
 // Format command removes duplicates from the hosts file
 func Format(options *Options) error {
-	hostsfile, err := LoadHostfile()
+	hostsfile, err := LoadHostfile(options)
 	if err != nil {
 		return err
 	}
@@ -237,7 +241,7 @@ func Format(options *Options) error {
 
 // Dump command outputs hosts file contents as JSON
 func Dump(options *Options) error {
-	hostsfile, err := LoadHostfile()
+	hostsfile, err := LoadHostfile(options)
 	if err != nil {
 		return err
 	}
@@ -258,7 +262,7 @@ func Apply(options *Options, filename string) error {
 		return fmt.Errorf("Unable to read JSON from %s: %s", filename, err)
 	}
 
-	hostfile, err := LoadHostfile()
+	hostfile, err := LoadHostfile(options)
 	if err != nil {
 		return err
 	}

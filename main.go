@@ -70,7 +70,12 @@ func wrappedMain(args []string) error {
 		fmt.Printf(help, hostess.GetHostsPath())
 	}
 
-	if err := cli.Parse(args[1:]); err != nil {
+	command := ""
+	if len(args) > 1 {
+		command = args[1]
+	}
+
+	if err := cli.Parse(args[2:]); err != nil {
 		return err
 	}
 
@@ -78,7 +83,6 @@ func wrappedMain(args []string) error {
 		Preview: *preview,
 	}
 
-	command := cli.Arg(0)
 	switch command {
 
 	case "-v", "--version", "version":
