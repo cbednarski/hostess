@@ -272,6 +272,12 @@ func TestExitCodeFmt(t *testing.T) {
 	finalExpected := `127.0.0.1 localhost kubernetes.docker.internal
 ::1 localhost
 `
+	if runtime.GOOS == "windows" {
+		finalExpected = `127.0.0.1 localhost
+127.0.0.1 kubernetes.docker.internal
+::1 localhost
+`
+	}
 
 	state3, err := ioutil.ReadFile(temp)
 	if err != nil {
