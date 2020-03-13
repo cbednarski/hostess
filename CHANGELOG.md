@@ -1,10 +1,19 @@
 # Change Log
 
+## v0.5.2 (March 13, 2020)
+
+Bug Fixes
+
+- `hostess fmt -n` works properly again, and has more specific behavior:
+- `hostess fmt` will replace duplicates without asking for help
+- `hostess fmt -n` will *not* replace duplicates, and will exit with error if any are found (#41)
+- `hostess fmt` with and without `-n` will exit with error if conflicting hostnames are found because hostess cannot fix the conflicts
+
 ## v0.5.1 (March 10, 2020)
 
 Bug Fixes
 
-- Format will no longer exit with an error when encountering a duplicate entry
+- Format will no longer exit with an error when encountering a duplicate entry (#39)
 
 ## v0.5.0 (March 7, 2020)
 
