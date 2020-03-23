@@ -435,7 +435,7 @@ func (h *Hostlist) Format() []byte {
 	switch format {
 	case "windows":
 		return h.FormatWindows()
-	case "linux":
+	case "unix":
 		return h.FormatLinux()
 	default:
 		// Theoretically the Windows format might be more compatible but there
