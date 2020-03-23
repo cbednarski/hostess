@@ -288,3 +288,15 @@ func TestExitCodeFmt(t *testing.T) {
 		t.Fatalf("---- Expected ----\n%s\n---- Found ----\n%s\n", finalExpected, string(state3))
 	}
 }
+
+func TestNoCommand(t *testing.T) {
+	if err := wrappedMain([]string{"main"}); err != nil {
+		t.Fatal(err)
+	}
+}
+
+func TestNoArgs(t *testing.T) {
+	if err := wrappedMain([]string{"main", ""}); err != nil {
+		t.Fatal(err)
+	}
+}

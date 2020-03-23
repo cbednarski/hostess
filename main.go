@@ -59,6 +59,11 @@ func ExitWithError(err error) {
 	}
 }
 
+func Usage() {
+	fmt.Print(help, hostess.GetHostsPath())
+	os.Exit(0)
+}
+
 func CommandUsage(command string) error {
 	return fmt.Errorf("Usage: %s %s <hostname>", os.Args[0], command)
 }
@@ -66,13 +71,13 @@ func CommandUsage(command string) error {
 func wrappedMain(args []string) error {
 	cli := flag.NewFlagSet(args[0], flag.ExitOnError)
 	preview := cli.Bool("n", false, "preview")
-	cli.Usage = func() {
-		fmt.Printf(help, hostess.GetHostsPath())
-	}
+	cli.Usage = Usage
 
 	command := ""
 	if len(args) > 1 {
 		command = args[1]
+	} else {
+		Usage()
 	}
 
 	if err := cli.Parse(args[2:]); err != nil {
