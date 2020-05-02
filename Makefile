@@ -1,4 +1,5 @@
 RELEASE_VERSION=$(shell git describe --tags)
+PREFIX ?= /usr/local
 
 test:
 	go test ./...
@@ -6,7 +7,7 @@ test:
 
 install:
 	go build -o bin/hostess .
-	sudo mv bin/hostess /usr/local/bin/hostess
+	install -C bin/hostess -t ${PREFIX}/bin
 
 release: test
 	GOOS=windows GOARCH=amd64 go build -ldflags "-X main.Version=${RELEASE_VERSION}" -o bin/hostess_windows_amd64.exe .

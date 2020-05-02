@@ -22,7 +22,12 @@ from GitHub, or build from source (with a [recent version of Go](https://golang.
 
     git clone https://github.com/cbednarski/hostess
     cd hostess
-    make install
+    sudo make install # installs using /usr/local as a prefix
+
+You can also specify a PREFIX variable to install to a different path:
+
+    cd hostess
+    PREFIX=/home/me/.local make install
 
 ## Usage
 
